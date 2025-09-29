@@ -1,0 +1,69 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Paciente {
+  id        String   @id @default(cuid())
+  nome      String
+  processos ProcessoPaciente[]
+}
+
+model Complexidade {
+  id       String   @id @default(cuid())
+  nome     String   // HC24, HC48
+  atividades ComplexidadeAtividade[]
+  processos ProcessoPaciente[]
+}
+
+model AtividadeTemplate {
+  id       String   @id @default(cuid())
+  nome     String
+  setor    String?
+  ordem    Int
+  complexidades ComplexidadeAtividade[]
+  movimentacoes MovimentacaoWorkflow[]
+}
+
+model ComplexidadeAtividade {
+  id             String   @id @default(cuid())
+  complexidadeId String
+  atividadeId    String
+  complexidade   Complexidade   @relation(fields: [complexidadeId], references: [id])
+  atividade      AtividadeTemplate @relation(fields: [atividadeId], references: [id])
+}
+
+model ProcessoPaciente {
+  id            String   @id @default(cuid())
+  pacienteId    String
+  complexidadeId String
+  paciente      Paciente   @relation(fields: [pacienteId], references: [id])
+  complexidade  Complexidade @relation(fields: [complexidadeId], references: [id])
+  atividades    MovimentacaoWorkflow[]
+}
+
+model MovimentacaoWorkflow {
+  id              String   @id @default(cuid())
+  processoId      String
+  processo        ProcessoPaciente @relation(fields: [processoId], references: [id])
+  atividadeId     String
+  atividade       AtividadeTemplate @relation(fields: [atividadeId], references: [id])
+  responsavelId   String?
+  responsavel     Usuario?  @relation(fields: [responsavelId], references: [id])
+  status          String   // OK | NOK | PENDENTE
+  prazo           DateTime?
+  horaInicio      DateTime?
+  horaFim         DateTime?
+  observacao      String?
+}
+
+model Usuario {
+  id     String   @id @default(cuid())
+  nome   String
+  funcao String?
+  movimentacoes MovimentacaoWorkflow[]
+}
