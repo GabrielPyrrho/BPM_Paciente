@@ -17,8 +17,10 @@ interface WorkflowStepperProps {
 
 export default function WorkflowStepper({ movimentacoes, onUpdateStatus }: WorkflowStepperProps) {
   const handleStatusUpdate = (id: string, newStatus: string) => {
-    const observacao = prompt('Observação (opcional):')
-    onUpdateStatus(id, newStatus, observacao || undefined)
+    const observacao = window.prompt('Observação (opcional):')
+    if (observacao !== null) {
+      onUpdateStatus(id, newStatus, observacao || undefined)
+    }
   }
 
   return (

@@ -20,13 +20,19 @@ export default function Dashboard() {
   })
 
   useEffect(() => {
-    setStats({
-      solicitados: 45,
-      ganhos: 32,
-      perdas: 8,
-      cancelados: 3,
-      pendentes: 12
-    })
+    fetch('/api/dashboard')
+      .then(res => res.json())
+      .then(data => setStats(data))
+      .catch(() => {
+        // Fallback para dados mockados
+        setStats({
+          solicitados: 45,
+          ganhos: 32,
+          perdas: 8,
+          cancelados: 3,
+          pendentes: 12
+        })
+      })
   }, [])
 
   return (

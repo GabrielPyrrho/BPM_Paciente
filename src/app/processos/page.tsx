@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import WorkflowStepper from '../components/WorkflowStepper'
+import ProcessosList from '../components/ProcessosList'
 
 interface Paciente {
   id: string
@@ -13,44 +13,14 @@ interface Complexidade {
   nome: string
 }
 
-interface MovimentacaoWorkflow {
-  id: string
-  status: string
-  atividade: {
-    nome: string
-    setor?: string
-  }
-  observacao?: string
-}
-
 export default function ProcessosPage() {
   const [pacientes, setPacientes] = useState<Paciente[]>([])
   const [complexidades, setComplexidades] = useState<Complexidade[]>([])
   const [selectedPaciente, setSelectedPaciente] = useState('')
   const [selectedComplexidade, setSelectedComplexidade] = useState('')
-  const [movimentacoes, setMovimentacoes] = useState<MovimentacaoWorkflow[]>([])
 
   useEffect(() => {
     fetchData()
-    // Dados simulados para demonstração
-    setMovimentacoes([
-      {
-        id: '1',
-        status: 'OK',
-        atividade: { nome: 'Solicitação Convênio', setor: 'Captação' },
-        observacao: 'Solicitação enviada'
-      },
-      {
-        id: '2', 
-        status: 'PENDENTE',
-        atividade: { nome: 'Vista de Enf. Captadora', setor: 'Captação' }
-      },
-      {
-        id: '3',
-        status: 'PENDENTE', 
-        atividade: { nome: 'Orçamento', setor: 'Captação' }
-      }
-    ])
   }, [])
 
   const fetchData = async () => {
@@ -78,34 +48,80 @@ export default function ProcessosPage() {
         })
       })
       alert('Processo criado com sucesso!')
+      setSelectedPaciente('')
+      setSelectedComplexidade('')
     } catch (error) {
       console.error('Erro ao criar processo:', error)
     }
   }
 
-  const handleUpdateStatus = (id: string, status: string, observacao?: string) => {
-    setMovimentacoes(prev => 
-      prev.map(mov => 
-        mov.id === id ? { ...mov, status, observacao } : mov
-      )
-    )
-  }
-
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-6">Gerenciar Processos</h1>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Criar Novo Processo</h2>
-          <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow">
-            <div className="space-y-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Paciente</label>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    }}>
+      {/* Header */}
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.95)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+        padding: '20px 0'
+      }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              background: 'linear-gradient(135deg, #ed8936, #dd6b20)',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '20px'
+            }}>
+              ⚙️
+            </div>
+            <div>
+              <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#1a202c', margin: '0' }}>
+                Gerenciamento de Processos
+              </h1>
+              <p style={{ fontSize: '14px', color: '#718096', margin: '0' }}>
+                Criação e acompanhamento de workflows
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '20px',
+            padding: '30px',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#1a202c', marginBottom: '20px' }}>
+              ➕ Criar Novo Processo
+            </h2>
+            <form onSubmit={handleSubmit}>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                  Paciente *
+                </label>
                 <select
                   value={selectedPaciente}
                   onChange={(e) => setSelectedPaciente(e.target.value)}
-                  className="w-full p-2 border rounded"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '10px',
+                    fontSize: '14px',
+                    backgroundColor: 'white'
+                  }}
                   required
                 >
                   <option value="">Selecione um paciente</option>
@@ -115,12 +131,21 @@ export default function ProcessosPage() {
                 </select>
               </div>
               
-              <div>
-                <label className="block text-sm font-medium mb-2">Complexidade</label>
+              <div style={{ marginBottom: '25px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
+                  Complexidade *
+                </label>
                 <select
                   value={selectedComplexidade}
                   onChange={(e) => setSelectedComplexidade(e.target.value)}
-                  className="w-full p-2 border rounded"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '10px',
+                    fontSize: '14px',
+                    backgroundColor: 'white'
+                  }}
                   required
                 >
                   <option value="">Selecione a complexidade</option>
@@ -129,21 +154,39 @@ export default function ProcessosPage() {
                   ))}
                 </select>
               </div>
-            </div>
             
-            <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-              Criar Processo
-            </button>
-          </form>
-        </div>
+              <button 
+                type="submit" 
+                style={{
+                  width: '100%',
+                  background: 'linear-gradient(135deg, #ed8936, #dd6b20)',
+                  color: 'white',
+                  padding: '14px 20px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                ✓ Criar Processo
+              </button>
+            </form>
+          </div>
 
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Workflow Exemplo</h2>
-          <WorkflowStepper
-            movimentacoes={movimentacoes}
-            complexidade="HC24"
-            onUpdateStatus={handleUpdateStatus}
-          />
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '20px',
+            padding: '30px',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)'
+          }}>
+            <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#1a202c', marginBottom: '20px' }}>
+              📋 Processos Ativos
+            </h2>
+            <ProcessosList />
+          </div>
         </div>
       </div>
     </div>

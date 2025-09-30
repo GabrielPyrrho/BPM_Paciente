@@ -2,6 +2,210 @@
 @tailwind components;
 @tailwind utilities;
 
+/* BPM Global Styles */
+:root {
+  --primary-blue: #2563eb;
+  --secondary-blue: #3b82f6;
+  --success-green: #10b981;
+  --warning-yellow: #f59e0b;
+  --danger-red: #ef4444;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-600: #4b5563;
+  --gray-900: #111827;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--gray-50);
+  color: var(--gray-900);
+  line-height: 1.5;
+}
+
+/* BPM Table Styles */
+.bpm-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.bpm-table th {
+  background: var(--primary-blue);
+  color: white;
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 12px;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.bpm-table td {
+  padding: 8px;
+  border: 1px solid var(--gray-200);
+  font-size: 11px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.bpm-table .patient-info {
+  background: #fff3cd;
+  font-weight: 600;
+  text-align: left;
+  padding-left: 12px;
+}
+
+.bpm-table .activity-name {
+  text-align: left;
+  font-weight: 500;
+  color: var(--gray-900);
+}
+
+.bpm-table .time-cell {
+  background: #fff3cd;
+  font-weight: 600;
+  color: #856404;
+}
+
+/* Status Indicators */
+.status-ok {
+  width: 16px;
+  height: 16px;
+  background: var(--success-green);
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+
+.status-ok::after {
+  content: '✓';
+  color: white;
+  font-size: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.status-pending {
+  width: 16px;
+  height: 16px;
+  background: var(--warning-yellow);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-nok {
+  width: 16px;
+  height: 16px;
+  background: var(--danger-red);
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+
+.status-nok::after {
+  content: '✗';
+  color: white;
+  font-size: 10px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* BPM Header */
+.bpm-header {
+  background: white;
+  border-bottom: 2px solid var(--primary-blue);
+  padding: 16px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bpm-logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--primary-blue);
+}
+
+/* BPM Cards */
+.bpm-card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.bpm-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Workflow Timeline */
+.workflow-timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.workflow-timeline::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--gray-300);
+}
+
+.workflow-step {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.workflow-step::before {
+  content: '';
+  position: absolute;
+  left: -23px;
+  top: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--gray-300);
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px var(--gray-300);
+}
+
+.workflow-step.completed::before {
+  background: var(--success-green);
+  box-shadow: 0 0 0 2px var(--success-green);
+}
+
+.workflow-step.active::before {
+  background: var(--primary-blue);
+  box-shadow: 0 0 0 2px var(--primary-blue);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .bpm-table {
+    font-size: 10px;
+  }
+  
+  .bpm-table th,
+  .bpm-table td {
+    padding: 6px 4px;
+  }
+}
+
 body {
   background-color: #f8fafc;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
