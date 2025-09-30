@@ -1,261 +1,432 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+
+interface DashboardStats {
+  totalPacientes: number
+  processosAtivos: number
+  workflowsAndamento: number
+  taxaConclusao: number
+}
+
 export default function Home() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalPacientes: 0,
+    processosAtivos: 0,
+    workflowsAndamento: 0,
+    taxaConclusao: 0
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Buscar dados reais das APIs
+        const [pacientesRes, processosRes, dashboardRes] = await Promise.all([
+          fetch('/api/pacientes').catch(() => ({ json: () => [] })),
+          fetch('/api/processos').catch(() => ({ json: () => [] })),
+          fetch('/api/dashboard').catch(() => ({ json: () => ({ stats: {} }) }))
+        ])
+
+        const pacientes = await pacientesRes.json()
+        const processos = await processosRes.json()
+        const dashboard = await dashboardRes.json()
+
+        setStats({
+          totalPacientes: Array.isArray(pacientes) ? pacientes.length : 0,
+          processosAtivos: Array.isArray(processos) ? processos.length : 0,
+          workflowsAndamento: dashboard.stats?.workflowsAtivos || 0,
+          taxaConclusao: dashboard.stats?.taxaConclusao || 0
+        })
+      } catch (error) {
+        console.log('Usando dados padrão - APIs não disponíveis')
+        setStats({
+          totalPacientes: 0,
+          processosAtivos: 0,
+          workflowsAndamento: 0,
+          taxaConclusao: 0
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      position: 'relative'
+      background: '#f8fafc',
+      fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
-      {/* Header com barra superior */}
+      {/* Header Corporativo */}
       <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
-        padding: '20px 0',
-        marginBottom: '60px'
+        background: 'white',
+        borderBottom: '1px solid #e2e8f0',
+        padding: '16px 0',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
       }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{
-                width: '50px',
-                height: '50px',
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                borderRadius: '12px',
+                width: '40px',
+                height: '40px',
+                background: '#3b82f6',
+                borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'white',
-                fontSize: '24px',
-                fontWeight: 'bold'
+                fontSize: '20px'
               }}>
                 🏥
               </div>
               <div>
                 <h1 style={{ 
-                  fontSize: '28px', 
-                  fontWeight: '700', 
-                  color: '#1a202c',
-                  margin: '0',
-                  letterSpacing: '-0.5px'
+                  fontSize: '20px', 
+                  fontWeight: '600', 
+                  color: '#1e293b',
+                  margin: '0'
                 }}>
-                  MedFlow BPM
+                  Sistema BPM Hospitalar
                 </h1>
                 <p style={{ 
                   fontSize: '14px', 
-                  color: '#718096', 
-                  margin: '0',
-                  fontWeight: '500'
+                  color: '#64748b', 
+                  margin: '0'
                 }}>
-                  Sistema de Gestão Hospitalar
+                  Gestão de Processos de Internamento
                 </p>
               </div>
             </div>
             <div style={{
-              background: 'linear-gradient(135deg, #48bb78, #38a169)',
-              color: 'white',
-              padding: '8px 16px',
-              borderRadius: '20px',
-              fontSize: '12px',
-              fontWeight: '600',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
             }}>
-              Online
+              <div style={{
+                background: '#10b981',
+                color: 'white',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}>
+                <div style={{
+                  width: '6px',
+                  height: '6px',
+                  background: '#34d399',
+                  borderRadius: '50%'
+                }}></div>
+                Online
+              </div>
+              <div style={{
+                color: '#64748b',
+                fontSize: '14px'
+              }}>
+                {new Date().toLocaleDateString('pt-BR')} - {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 24px' }}>
+        {/* Breadcrumb e Título */}
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{
+            fontSize: '14px',
+            color: '#64748b',
+            marginBottom: '8px'
+          }}>
+            Início › Painel Principal
+          </div>
           <h2 style={{ 
-            fontSize: '42px', 
-            fontWeight: '800', 
-            color: 'white',
-            marginBottom: '20px',
-            textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            letterSpacing: '-1px'
+            fontSize: '28px', 
+            fontWeight: '700', 
+            color: '#1e293b',
+            margin: '0',
+            marginBottom: '8px'
           }}>
-            Workflow de Internamento
+            Painel de Controle
           </h2>
-          <p style={{ 
-            fontSize: '18px', 
-            color: 'rgba(255, 255, 255, 0.9)', 
-            maxWidth: '600px', 
-            margin: '0 auto',
-            lineHeight: '1.6',
-            fontWeight: '400'
+          <p style={{
+            fontSize: '16px',
+            color: '#64748b',
+            margin: '0'
           }}>
-            Gerencie todo o processo de internamento com workflow automatizado,<br/>
-            controle total das atividades e acompanhamento em tempo real
+            Acesse os módulos do sistema para gerenciar processos de internamento
           </p>
         </div>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
+        {/* Cards de Módulos */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
           <a href="/dashboard" style={{ textDecoration: 'none' }}>
             <div style={{ 
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(10px)',
-              padding: '35px',
-              textAlign: 'center',
-              height: '220px',
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              border: '1px solid #e2e8f0',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              height: '160px',
               display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              borderRadius: '20px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer'
+              flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.target.style.transform = 'translateY(-2px)'
+              e.target.style.borderColor = '#3b82f6'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.target.style.transform = 'translateY(0)'
+              e.target.style.borderColor = '#e2e8f0'
             }}>
-              <div style={{ 
-                fontSize: '52px', 
-                marginBottom: '20px',
-                background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
-              }}>📊</div>
-              <h3 style={{ fontSize: '22px', fontWeight: '700', color: '#1a202c', marginBottom: '12px' }}>Dashboard</h3>
-              <p style={{ fontSize: '15px', color: '#718096', lineHeight: '1.5' }}>Visualize estatísticas e indicadores do processo</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: '#eff6ff',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '24px'
+                }}>
+                  📊
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Dashboard</h3>
+                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Módulo Ativo</div>
+                </div>
+              </div>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Visualize estatísticas, indicadores de performance e relatórios em tempo real</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Último acesso: Hoje</span>
+                <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
+              </div>
             </div>
           </a>
 
           <a href="/pacientes" style={{ textDecoration: 'none' }}>
             <div style={{ 
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(10px)',
-              padding: '35px',
-              textAlign: 'center',
-              height: '220px',
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              border: '1px solid #e2e8f0',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              height: '160px',
               display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              borderRadius: '20px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer'
+              flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.target.style.transform = 'translateY(-2px)'
+              e.target.style.borderColor = '#10b981'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.target.style.transform = 'translateY(0)'
+              e.target.style.borderColor = '#e2e8f0'
             }}>
-              <div style={{ 
-                fontSize: '52px', 
-                marginBottom: '20px',
-                background: 'linear-gradient(135deg, #48bb78, #38a169)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
-              }}>👥</div>
-              <h3 style={{ fontSize: '22px', fontWeight: '700', color: '#1a202c', marginBottom: '12px' }}>Pacientes</h3>
-              <p style={{ fontSize: '15px', color: '#718096', lineHeight: '1.5' }}>Cadastro e gerenciamento de pacientes</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: '#f0fdf4',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '24px'
+                }}>
+                  👥
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Pacientes</h3>
+                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Módulo Ativo</div>
+                </div>
+              </div>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Cadastro, edição e gerenciamento completo de pacientes do sistema</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  {loading ? 'Carregando...' : `Total: ${stats.totalPacientes} pacientes`}
+                </span>
+                <span style={{ fontSize: '18px', color: '#10b981' }}>→</span>
+              </div>
             </div>
           </a>
 
           <a href="/processos" style={{ textDecoration: 'none' }}>
             <div style={{ 
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(10px)',
-              padding: '35px',
-              textAlign: 'center',
-              height: '220px',
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              border: '1px solid #e2e8f0',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              height: '160px',
               display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              borderRadius: '20px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer'
+              flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.target.style.transform = 'translateY(-2px)'
+              e.target.style.borderColor = '#f59e0b'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.target.style.transform = 'translateY(0)'
+              e.target.style.borderColor = '#e2e8f0'
             }}>
-              <div style={{ 
-                fontSize: '52px', 
-                marginBottom: '20px',
-                background: 'linear-gradient(135deg, #ed8936, #dd6b20)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
-              }}>⚙️</div>
-              <h3 style={{ fontSize: '22px', fontWeight: '700', color: '#1a202c', marginBottom: '12px' }}>Processos</h3>
-              <p style={{ fontSize: '15px', color: '#718096', lineHeight: '1.5' }}>Configuração de workflows e complexidades</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: '#fffbeb',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '24px'
+                }}>
+                  ⚙️
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Processos</h3>
+                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Módulo Ativo</div>
+                </div>
+              </div>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Criação e configuração de processos com diferentes complexidades</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  {loading ? 'Carregando...' : `Ativos: ${stats.processosAtivos} processos`}
+                </span>
+                <span style={{ fontSize: '18px', color: '#f59e0b' }}>→</span>
+              </div>
             </div>
           </a>
 
           <a href="/workflow" style={{ textDecoration: 'none' }}>
             <div style={{ 
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(10px)',
-              padding: '35px',
-              textAlign: 'center',
-              height: '220px',
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              border: '1px solid #e2e8f0',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              height: '160px',
               display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              borderRadius: '20px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              transition: 'all 0.3s ease',
-              cursor: 'pointer'
+              flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.target.style.transform = 'translateY(-2px)'
+              e.target.style.borderColor = '#8b5cf6'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.target.style.transform = 'translateY(0)'
+              e.target.style.borderColor = '#e2e8f0'
             }}>
-              <div style={{ 
-                fontSize: '52px', 
-                marginBottom: '20px',
-                background: 'linear-gradient(135deg, #9f7aea, #805ad5)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
-              }}>📋</div>
-              <h3 style={{ fontSize: '22px', fontWeight: '700', color: '#1a202c', marginBottom: '12px' }}>Workflow BPM</h3>
-              <p style={{ fontSize: '15px', color: '#718096', lineHeight: '1.5' }}>Acompanhamento em tempo real das atividades</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: '#faf5ff',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '24px'
+                }}>
+                  📋
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Workflow BPM</h3>
+                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Módulo Principal</div>
+                </div>
+              </div>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Acompanhamento em tempo real das atividades e controle do fluxo</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  {loading ? 'Carregando...' : `Em andamento: ${stats.workflowsAndamento} workflows`}
+                </span>
+                <span style={{ fontSize: '18px', color: '#8b5cf6' }}>→</span>
+              </div>
             </div>
           </a>
         </div>
         
-        {/* Rodapé */}
+        {/* Estatísticas Rápidas */}
         <div style={{ 
-          textAlign: 'center', 
-          marginTop: '80px', 
-          paddingTop: '40px',
-          borderTop: '1px solid rgba(255, 255, 255, 0.2)'
+          marginTop: '48px',
+          padding: '24px',
+          background: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          border: '1px solid #e2e8f0'
+        }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0 0 20px 0' }}>Resumo do Sistema</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '24px', fontWeight: '700', color: '#3b82f6', marginBottom: '4px' }}>
+                {loading ? '...' : stats.totalPacientes}
+              </div>
+              <div style={{ fontSize: '14px', color: '#64748b' }}>Pacientes Cadastrados</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '24px', fontWeight: '700', color: '#10b981', marginBottom: '4px' }}>
+                {loading ? '...' : stats.processosAtivos}
+              </div>
+              <div style={{ fontSize: '14px', color: '#64748b' }}>Processos Ativos</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '24px', fontWeight: '700', color: '#f59e0b', marginBottom: '4px' }}>
+                {loading ? '...' : stats.workflowsAndamento}
+              </div>
+              <div style={{ fontSize: '14px', color: '#64748b' }}>Workflows em Andamento</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '24px', fontWeight: '700', color: '#8b5cf6', marginBottom: '4px' }}>
+                {loading ? '...' : `${stats.taxaConclusao}%`}
+              </div>
+              <div style={{ fontSize: '14px', color: '#64748b' }}>Taxa de Conclusão</div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Rodapé Corporativo */}
+        <div style={{ 
+          marginTop: '48px', 
+          paddingTop: '24px',
+          borderTop: '1px solid #e2e8f0',
+          textAlign: 'center'
         }}>
           <p style={{ 
-            color: 'rgba(255, 255, 255, 0.7)', 
+            color: '#64748b', 
             fontSize: '14px',
-            margin: '0'
+            margin: '0 0 8px 0'
           }}>
-            © 2024 MedFlow BPM - Sistema de Gestão Hospitalar
+            Sistema BPM Hospitalar - Versão 2.1.0
           </p>
           <p style={{ 
-            color: 'rgba(255, 255, 255, 0.5)', 
+            color: '#94a3b8', 
             fontSize: '12px',
-            margin: '5px 0 0 0'
+            margin: '0'
           }}>
-            Desenvolvido para otimizar processos de internamento
+            © 2024 - Todos os direitos reservados | Desenvolvido para otimizar processos hospitalares
           </p>
         </div>
       </div>
-      
-      {/* Elementos decorativos */}
-      <div style={{
-        position: 'absolute',
-        top: '20%',
-        left: '-5%',
-        width: '200px',
-        height: '200px',
-        background: 'rgba(255, 255, 255, 0.05)',
-        borderRadius: '50%',
-        filter: 'blur(40px)',
-        zIndex: 0
-      }}></div>
-      <div style={{
-        position: 'absolute',
-        bottom: '20%',
-        right: '-5%',
-        width: '300px',
-        height: '300px',
-        background: 'rgba(255, 255, 255, 0.03)',
-        borderRadius: '50%',
-        filter: 'blur(60px)',
-        zIndex: 0
-      }}></div>
     </div>
   )
 }

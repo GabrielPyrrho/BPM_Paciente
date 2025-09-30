@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import ProcessosList from '../components/ProcessosList'
 
 interface Paciente {
@@ -14,6 +15,7 @@ interface Complexidade {
 }
 
 export default function ProcessosPage() {
+  const router = useRouter()
   const [pacientes, setPacientes] = useState<Paciente[]>([])
   const [complexidades, setComplexidades] = useState<Complexidade[]>([])
   const [selectedPaciente, setSelectedPaciente] = useState('')
@@ -69,6 +71,24 @@ export default function ProcessosPage() {
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <button
+              onClick={() => router.push('/')}
+              style={{
+                background: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontSize: '14px',
+                cursor: 'pointer',
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              ← Voltar
+            </button>
             <div style={{
               width: '40px',
               height: '40px',

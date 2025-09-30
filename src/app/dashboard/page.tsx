@@ -1,12 +1,15 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Dashboard from '../components/Dashboard'
 import WorkflowTrilha from '../components/WorkflowTrilha'
 import ComplexidadeCards from '../components/ComplexidadeCards'
+import ProcessosAtivos from '../components/ProcessosAtivos'
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState('trilha')
+  const router = useRouter()
+  const [activeTab, setActiveTab] = useState('dashboard')
 
   const trilhaData = {
     paciente: 'Augusto Amorim',
@@ -20,7 +23,15 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto p-8">
-        <h1 className="text-3xl font-bold mb-8 text-gray-800">Dashboard BPM - Internamento de Paciente</h1>
+        <div className="flex items-center gap-4 mb-8">
+          <button
+            onClick={() => router.push('/')}
+            className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-colors"
+          >
+            ← Voltar
+          </button>
+          <h1 className="text-3xl font-bold text-gray-800">Dashboard BPM - Internamento de Paciente</h1>
+        </div>
         
         <Dashboard />
 
@@ -50,6 +61,26 @@ export default function DashboardPage() {
           <div className="border-b border-gray-200">
             <nav className="-mb-px flex space-x-8">
               <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'dashboard'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Visão Geral
+              </button>
+              <button
+                onClick={() => setActiveTab('processos')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'processos'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Processos Ativos
+              </button>
+              <button
                 onClick={() => setActiveTab('trilha')}
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'trilha'
@@ -74,6 +105,20 @@ export default function DashboardPage() {
         </div>
 
         {/* Conteúdo das Tabs */}
+        {activeTab === 'dashboard' && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Estatísticas Gerais</h2>
+            {/* Dashboard já está sendo exibido acima */}
+          </div>
+        )}
+
+        {activeTab === 'processos' && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Processos em Andamento</h2>
+            <ProcessosAtivos />
+          </div>
+        )}
+
         {activeTab === 'trilha' && (
           <div>
             <h2 className="text-xl font-semibold mb-4 text-gray-800">Acompanhamento do Workflow</h2>

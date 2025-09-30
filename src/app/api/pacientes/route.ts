@@ -12,14 +12,21 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { nome } = await request.json()
+    const { nome, telefone, convenio, numeroCartao, responsavelNome, responsavelTelefone } = await request.json()
     
     if (!nome || typeof nome !== 'string' || nome.trim().length === 0) {
       return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
     }
     
     const paciente = await prisma.paciente.create({
-      data: { nome: nome.trim() }
+      data: { 
+        nome: nome.trim(),
+        telefone: telefone?.trim() || null,
+        convenio: convenio?.trim() || null,
+        numeroCartao: numeroCartao?.trim() || null,
+        responsavelNome: responsavelNome?.trim() || null,
+        responsavelTelefone: responsavelTelefone?.trim() || null
+      }
     })
     return NextResponse.json(paciente)
   } catch (error) {

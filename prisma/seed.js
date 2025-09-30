@@ -4,11 +4,19 @@ const prisma = new PrismaClient()
 async function main() {
   // Criar complexidades
   const hc24 = await prisma.complexidade.create({
-    data: { nome: 'HC24' }
+    data: { nome: '24HC' }
   })
   
-  const hc48 = await prisma.complexidade.create({
-    data: { nome: 'HC48' }
+  const avm24 = await prisma.complexidade.create({
+    data: { nome: '24AVM' }
+  })
+  
+  const hc12 = await prisma.complexidade.create({
+    data: { nome: '12HC' }
+  })
+  
+  const hc6 = await prisma.complexidade.create({
+    data: { nome: '6HC' }
   })
 
   // Criar atividades template reais
@@ -50,20 +58,15 @@ async function main() {
       data: ativ
     })
 
-    // Associar todas as atividades às duas complexidades
-    await prisma.complexidadeAtividade.create({
-      data: {
-        complexidadeId: hc24.id,
-        atividadeId: atividade.id
-      }
-    })
-
-    await prisma.complexidadeAtividade.create({
-      data: {
-        complexidadeId: hc48.id,
-        atividadeId: atividade.id
-      }
-    })
+    // Associar todas as atividades às quatro complexidades
+    for (const complexidade of [hc24, avm24, hc12, hc6]) {
+      await prisma.complexidadeAtividade.create({
+        data: {
+          complexidadeId: complexidade.id,
+          atividadeId: atividade.id
+        }
+      })
+    }
   }
 
   console.log('Dados iniciais criados com sucesso!')

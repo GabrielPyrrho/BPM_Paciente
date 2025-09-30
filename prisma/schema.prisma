@@ -8,9 +8,14 @@ datasource db {
 }
 
 model Paciente {
-  id        String   @id @default(cuid())
-  nome      String
-  processos ProcessoPaciente[]
+  id                   String   @id @default(cuid())
+  nome                 String
+  telefone             String?
+  convenio             String?
+  numeroCartao         String?
+  responsavelNome      String?
+  responsavelTelefone  String?
+  processos            ProcessoPaciente[]
 }
 
 model Complexidade {
