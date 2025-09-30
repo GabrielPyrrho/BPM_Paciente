@@ -177,14 +177,14 @@ export default function Home() {
               flexDirection: 'column'
             }}
             onMouseEnter={(e) => {
-              e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
-              e.target.style.transform = 'translateY(-2px)'
-              e.target.style.borderColor = '#3b82f6'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#3b82f6'
             }}
             onMouseLeave={(e) => {
-              e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
-              e.target.style.transform = 'translateY(0)'
-              e.target.style.borderColor = '#e2e8f0'
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
@@ -226,14 +226,14 @@ export default function Home() {
               flexDirection: 'column'
             }}
             onMouseEnter={(e) => {
-              e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
-              e.target.style.transform = 'translateY(-2px)'
-              e.target.style.borderColor = '#10b981'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#10b981'
             }}
             onMouseLeave={(e) => {
-              e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
-              e.target.style.transform = 'translateY(0)'
-              e.target.style.borderColor = '#e2e8f0'
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
@@ -277,14 +277,14 @@ export default function Home() {
               flexDirection: 'column'
             }}
             onMouseEnter={(e) => {
-              e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
-              e.target.style.transform = 'translateY(-2px)'
-              e.target.style.borderColor = '#f59e0b'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#f59e0b'
             }}
             onMouseLeave={(e) => {
-              e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
-              e.target.style.transform = 'translateY(0)'
-              e.target.style.borderColor = '#e2e8f0'
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
@@ -328,14 +328,14 @@ export default function Home() {
               flexDirection: 'column'
             }}
             onMouseEnter={(e) => {
-              e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
-              e.target.style.transform = 'translateY(-2px)'
-              e.target.style.borderColor = '#8b5cf6'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#8b5cf6'
             }}
             onMouseLeave={(e) => {
-              e.target.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
-              e.target.style.transform = 'translateY(0)'
-              e.target.style.borderColor = '#e2e8f0'
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
@@ -361,6 +361,57 @@ export default function Home() {
                   {loading ? 'Carregando...' : `Em andamento: ${stats.workflowsAndamento} workflows`}
                 </span>
                 <span style={{ fontSize: '18px', color: '#8b5cf6' }}>→</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="/admin" style={{ textDecoration: 'none' }}>
+            <div style={{ 
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              border: '1px solid #e2e8f0',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              height: '160px',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#ef4444'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: '#fef2f2',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '24px'
+                }}>
+                  ⚙️
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Administração</h3>
+                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Configurações</div>
+                </div>
+              </div>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Cadastro de complexidades e atividades do sistema</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  Gerenciar configurações
+                </span>
+                <span style={{ fontSize: '18px', color: '#ef4444' }}>→</span>
               </div>
             </div>
           </a>

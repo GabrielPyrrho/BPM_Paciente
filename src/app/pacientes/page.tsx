@@ -13,11 +13,169 @@ interface Paciente {
   responsavelTelefone?: string
 }
 
+interface ModalConfirmacaoProps {
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
+  paciente: Paciente | null
+}
+
+function ModalConfirmacao({ isOpen, onClose, onConfirm, paciente }: ModalConfirmacaoProps) {
+  if (!isOpen || !paciente) return null
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '20px'
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        padding: '0',
+        maxWidth: '450px',
+        width: '100%',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+      }}>
+        <div style={{
+          padding: '24px 24px 0 24px',
+          borderBottom: '1px solid #f1f5f9',
+          marginBottom: '20px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '8px',
+              backgroundColor: '#ef4444',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}>
+              ⚠️
+            </div>
+            <div>
+              <h3 style={{
+                margin: 0,
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#1e293b'
+              }}>
+                Confirmar Exclusão
+              </h3>
+              <p style={{
+                margin: 0,
+                fontSize: '14px',
+                color: '#64748b'
+              }}>
+                Esta ação não pode ser desfeita
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ padding: '0 24px 24px 24px' }}>
+          <div style={{
+            backgroundColor: '#fef2f2',
+            padding: '16px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            border: '1px solid #fecaca'
+          }}>
+            <div style={{
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#1e293b',
+              marginBottom: '4px'
+            }}>
+              {paciente.nome}
+            </div>
+            <div style={{
+              fontSize: '12px',
+              color: '#64748b'
+            }}>
+              {paciente.convenio && `Convênio: ${paciente.convenio}`}
+              {paciente.convenio && paciente.telefone && ' • '}
+              {paciente.telefone && `Tel: ${paciente.telefone}`}
+            </div>
+          </div>
+
+          <p style={{
+            fontSize: '14px',
+            color: '#374151',
+            marginBottom: '24px',
+            lineHeight: '1.5'
+          }}>
+            Tem certeza que deseja excluir este paciente? Todos os dados serão removidos permanentemente.
+          </p>
+
+          <div style={{
+            display: 'flex',
+            gap: '12px',
+            justifyContent: 'flex-end'
+          }}>
+            <button
+              onClick={onClose}
+              style={{
+                padding: '10px 20px',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                backgroundColor: 'white',
+                color: '#374151',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={onConfirm}
+              style={{
+                padding: '10px 20px',
+                border: 'none',
+                borderRadius: '8px',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              🗑️ Excluir
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function PacientesPage() {
   const router = useRouter()
   const [pacientes, setPacientes] = useState<Paciente[]>([])
   const [loading, setLoading] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
+  
+  // Estados do modal de confirmação
+  const [modalAberto, setModalAberto] = useState(false)
+  const [pacienteParaExcluir, setPacienteParaExcluir] = useState<Paciente | null>(null)
   
   // Estados do formulário
   const [nome, setNome] = useState('')
@@ -104,12 +262,19 @@ export default function PacientesPage() {
     setEditingId(paciente.id)
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir este paciente?')) return
+  const abrirModalExclusao = (paciente: Paciente) => {
+    setPacienteParaExcluir(paciente)
+    setModalAberto(true)
+  }
+
+  const confirmarExclusao = async () => {
+    if (!pacienteParaExcluir) return
     
     try {
-      await fetch(`/api/pacientes/${id}`, { method: 'DELETE' })
+      await fetch(`/api/pacientes/${pacienteParaExcluir.id}`, { method: 'DELETE' })
       fetchPacientes()
+      setModalAberto(false)
+      setPacienteParaExcluir(null)
     } catch (error) {
       console.log('Erro ao excluir paciente')
     }
@@ -131,6 +296,13 @@ export default function PacientesPage() {
       background: '#f8fafc',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
+      {/* Modal de Confirmação */}
+      <ModalConfirmacao
+        isOpen={modalAberto}
+        onClose={() => setModalAberto(false)}
+        onConfirm={confirmarExclusao}
+        paciente={pacienteParaExcluir}
+      />
       {/* Header */}
       <div style={{
         background: 'white',
@@ -424,7 +596,7 @@ export default function PacientesPage() {
                             Editar
                           </button>
                           <button
-                            onClick={() => handleDelete(paciente.id)}
+                            onClick={() => abrirModalExclusao(paciente)}
                             style={{
                               background: '#ef4444',
                               color: 'white',
