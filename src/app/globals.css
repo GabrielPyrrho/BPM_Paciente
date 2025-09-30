@@ -1,8 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
 /* Fontes e configurações globais */
 * {
@@ -300,297 +297,480 @@ body {
 
 /* Trilha de Workflow */
 .workflow-trilha {
-  @apply bg-white rounded-lg shadow-lg border border-gray-200;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
 }
 
 .trilha-header {
-  @apply grid grid-cols-4 gap-4 p-4 border-b border-gray-200 bg-gray-50;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
 }
 
 .trilha-step {
-  @apply text-center;
+  text-align: center;
 }
 
 .trilha-step-title {
-  @apply text-sm font-semibold text-gray-700 mb-2;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
 }
 
-.trilha-step-content {
-  @apply space-y-1;
+.trilha-step-content > * + * {
+  margin-top: 0.25rem;
 }
 
 .trilha-date {
-  @apply text-xs text-gray-600;
+  font-size: 0.75rem;
+  color: #4b5563;
 }
 
 .trilha-time {
-  @apply text-xs text-gray-500;
+  font-size: 0.75rem;
+  color: #6b7280;
 }
 
 .trilha-status {
-  @apply inline-block px-2 py-1 rounded text-xs font-medium;
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 /* Status Colors */
 .status-autorizado {
-  @apply bg-green-100 text-green-800;
+  background-color: #dcfce7;
+  color: #166534;
 }
 
 .status-pendente {
-  @apply bg-yellow-100 text-yellow-800;
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
 .status-perda {
-  @apply bg-red-100 text-red-800;
+  background-color: #fee2e2;
+  color: #991b1b;
 }
 
 .status-cancelado {
-  @apply bg-orange-100 text-orange-800;
+  background-color: #fed7aa;
+  color: #9a3412;
 }
 
 /* Workflow Sections */
 .workflow-section {
-  @apply border border-gray-200 rounded-lg overflow-hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
 
 .section-captacao {
-  @apply border-blue-200 bg-blue-50;
+  border-color: #bfdbfe;
+  background-color: #eff6ff;
 }
 
 .section-pre-internamento {
-  @apply border-orange-200 bg-orange-50;
+  border-color: #fed7aa;
+  background-color: #fff7ed;
 }
 
 .section-internamento {
-  @apply border-green-200 bg-green-50;
+  border-color: #bbf7d0;
+  background-color: #f0fdf4;
 }
 
 .section-header {
-  @apply px-4 py-2 font-semibold text-center text-white;
+  padding: 0.5rem 1rem;
+  font-weight: 600;
+  text-align: center;
+  color: white;
 }
 
 .header-captacao {
-  @apply bg-blue-600;
+  background-color: #2563eb;
 }
 
 .header-pre-internamento {
-  @apply bg-orange-600;
+  background-color: #ea580c;
 }
 
 .header-internamento {
-  @apply bg-green-600;
+  background-color: #16a34a;
 }
 
 /* Workflow Table */
 .workflow-table {
-  @apply w-full border-collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
 .workflow-table th {
-  @apply bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700 border border-gray-300;
+  background-color: #f3f4f6;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  border: 1px solid #d1d5db;
 }
 
 .workflow-table td {
-  @apply px-3 py-2 text-sm border border-gray-300;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  border: 1px solid #d1d5db;
 }
 
 /* Prazo Column */
 .prazo-column {
-  @apply bg-yellow-300 text-center font-semibold;
+  background-color: #fde047;
+  text-align: center;
+  font-weight: 600;
 }
 
 .prazo-24h {
-  @apply bg-yellow-300;
+  background-color: #fde047;
 }
 
 .prazo-48h {
-  @apply bg-yellow-400;
+  background-color: #facc15;
 }
 
 /* Status Indicators */
 .status-indicator {
-  @apply w-4 h-4 rounded-full inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  display: inline-block;
 }
 
 .status-ok {
-  @apply bg-green-500;
+  background-color: #10b981;
 }
 
 .status-pendente-indicator {
-  @apply bg-yellow-500;
+  background-color: #eab308;
 }
 
 .status-nok {
-  @apply bg-red-500;
+  background-color: #ef4444;
 }
 
 /* Activity Cards */
 .activity-card {
-  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+  transition: box-shadow 0.15s ease-in-out;
+}
+
+.activity-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .activity-header {
-  @apply flex justify-between items-start mb-2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
 }
 
 .activity-title {
-  @apply font-semibold text-gray-800;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 .activity-setor {
-  @apply text-sm text-blue-600 font-medium;
+  font-size: 0.875rem;
+  color: #2563eb;
+  font-weight: 500;
 }
 
 .activity-times {
-  @apply text-right text-xs text-gray-500 space-y-1;
+  text-align: right;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.activity-times > * + * {
+  margin-top: 0.25rem;
 }
 
 .activity-status-badge {
-  @apply px-3 py-1 rounded-full text-xs font-medium;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 /* Complexidade Cards */
 .complexidade-card {
-  @apply bg-white border border-gray-200 rounded-lg overflow-hidden;
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
 }
 
 .complexidade-header {
-  @apply px-4 py-3 bg-gray-800 text-white text-center font-bold;
+  padding: 0.75rem 1rem;
+  background-color: #1f2937;
+  color: white;
+  text-align: center;
+  font-weight: 700;
 }
 
 .complexidade-24avm {
-  @apply bg-blue-600;
+  background-color: #2563eb;
 }
 
 .complexidade-24hc {
-  @apply bg-green-600;
+  background-color: #16a34a;
 }
 
 .complexidade-12hc {
-  @apply bg-orange-600;
+  background-color: #ea580c;
 }
 
 .complexidade-6hc {
-  @apply bg-purple-600;
+  background-color: #9333ea;
 }
 
 .complexidade-curativo {
-  @apply bg-red-600;
+  background-color: #dc2626;
 }
 
 .complexidade-aplicacao {
-  @apply bg-indigo-600;
+  background-color: #4f46e5;
 }
 
 .complexidade-terapias {
-  @apply bg-pink-600;
+  background-color: #db2777;
 }
 
 /* Activity List */
-.activity-list {
-  @apply divide-y divide-gray-200;
+.activity-list > * + * {
+  border-top: 1px solid #e5e7eb;
 }
 
 .activity-item {
-  @apply flex justify-between items-center px-4 py-2 hover:bg-gray-50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.activity-item:hover {
+  background-color: #f9fafb;
 }
 
 .activity-name {
-  @apply text-sm text-gray-800;
+  font-size: 0.875rem;
+  color: #1f2937;
 }
 
 .activity-responsible {
-  @apply text-xs text-gray-600;
+  font-size: 0.75rem;
+  color: #4b5563;
 }
 
 /* Dashboard Cards */
 .dashboard-card {
-  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  text-align: center;
 }
 
 .dashboard-card-blue {
-  @apply border-blue-200 bg-blue-50;
+  border-color: #bfdbfe;
+  background-color: #eff6ff;
 }
 
 .dashboard-card-green {
-  @apply border-green-200 bg-green-50;
+  border-color: #bbf7d0;
+  background-color: #f0fdf4;
 }
 
 .dashboard-card-red {
-  @apply border-red-200 bg-red-50;
+  border-color: #fecaca;
+  background-color: #fef2f2;
 }
 
 .dashboard-card-orange {
-  @apply border-orange-200 bg-orange-50;
+  border-color: #fed7aa;
+  background-color: #fff7ed;
 }
 
 .dashboard-card-yellow {
-  @apply border-yellow-200 bg-yellow-50;
+  border-color: #fde68a;
+  background-color: #fffbeb;
 }
 
 .dashboard-number {
-  @apply text-3xl font-bold mb-2;
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
 }
 
 .dashboard-label {
-  @apply text-sm font-semibold;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
 /* Progress Bar */
 .progress-bar {
-  @apply w-full bg-gray-200 rounded-full h-2;
+  width: 100%;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  height: 0.5rem;
 }
 
 .progress-fill {
-  @apply bg-blue-600 h-2 rounded-full transition-all duration-300;
+  background-color: #2563eb;
+  height: 0.5rem;
+  border-radius: 9999px;
+  transition: all 0.3s ease;
 }
 
 /* Buttons */
 .btn-primary {
-  @apply bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors;
+  background-color: #2563eb;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
 }
 
 .btn-success {
-  @apply bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors;
+  background-color: #16a34a;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.btn-success:hover {
+  background-color: #15803d;
 }
 
 .btn-danger {
-  @apply bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors;
+  background-color: #dc2626;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
 }
 
 .btn-warning {
-  @apply bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors;
+  background-color: #ca8a04;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.15s ease-in-out;
+}
+
+.btn-warning:hover {
+  background-color: #a16207;
 }
 
 .btn-sm {
-  @apply px-2 py-1 text-xs;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
 }
 
 /* Forms */
 .form-input {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5);
+  border-color: #3b82f6;
 }
 
 .form-select {
-  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.5);
+  border-color: #3b82f6;
 }
 
 .form-label {
-  @apply block text-sm font-medium text-gray-700 mb-2;
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
 }
 
 /* Filters */
 .filter-container {
-  @apply flex flex-wrap gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border border-gray-200;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
 }
 
 /* Responsive Grid */
 .workflow-grid {
-  @apply grid grid-cols-1 lg:grid-cols-3 gap-6;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .workflow-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .workflow-grid-2 {
-  @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .workflow-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 /* Animations */
@@ -615,22 +795,28 @@ body {
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .trilha-header {
-    @apply grid-cols-2 gap-2;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
   }
   
   .workflow-grid {
-    @apply grid-cols-1;
+    grid-template-columns: 1fr;
   }
   
   .filter-container {
-    @apply flex-col;
+    flex-direction: column;
   }
   
   .activity-header {
-    @apply flex-col items-start space-y-2;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .activity-header > * + * {
+    margin-top: 0.5rem;
   }
   
   .activity-times {
-    @apply text-left;
+    text-align: left;
   }
 }

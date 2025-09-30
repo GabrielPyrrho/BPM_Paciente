@@ -44,10 +44,15 @@ export default function PacientesPage() {
   const fetchPacientes = async () => {
     try {
       const res = await fetch('/api/pacientes')
-      const data = await res.json()
-      setPacientes(data)
+      if (res.ok) {
+        const data = await res.json()
+        setPacientes(Array.isArray(data) ? data : [])
+      } else {
+        setPacientes([])
+      }
     } catch (error) {
       console.log('Erro ao carregar pacientes')
+      setPacientes([])
     }
   }
 

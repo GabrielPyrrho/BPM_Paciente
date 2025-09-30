@@ -21,6 +21,208 @@ interface Paciente {
   complexidade: string
 }
 
+interface ModalObservacaoProps {
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: (observacao: string) => void
+  atividade: Atividade | null
+  status: 'OK' | 'NOK'
+}
+
+function ModalObservacao({ isOpen, onClose, onConfirm, atividade, status }: ModalObservacaoProps) {
+  const [observacao, setObservacao] = useState('')
+
+  useEffect(() => {
+    if (isOpen) {
+      setObservacao('')
+    }
+  }, [isOpen])
+
+  if (!isOpen || !atividade) return null
+
+  const handleConfirm = () => {
+    onConfirm(observacao)
+    onClose()
+  }
+
+  const statusColor = status === 'OK' ? '#10b981' : '#ef4444'
+  const statusText = status === 'OK' ? 'Concluir' : 'Marcar como NOK'
+  const statusIcon = status === 'OK' ? '✓' : '✗'
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '20px'
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        padding: '0',
+        maxWidth: '500px',
+        width: '100%',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        animation: 'fadeIn 0.3s ease-out'
+      }}>
+        <div style={{
+          padding: '24px 24px 0 24px',
+          borderBottom: '1px solid #f1f5f9',
+          marginBottom: '20px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '8px',
+              backgroundColor: statusColor,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}>
+              {statusIcon}
+            </div>
+            <div>
+              <h3 style={{
+                margin: 0,
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#1e293b'
+              }}>
+                {statusText} Atividade
+              </h3>
+              <p style={{
+                margin: 0,
+                fontSize: '14px',
+                color: '#64748b'
+              }}>
+                Adicione uma observação (opcional)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ padding: '0 24px 24px 24px' }}>
+          <div style={{
+            backgroundColor: '#f8fafc',
+            padding: '16px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            border: '1px solid #e2e8f0'
+          }}>
+            <div style={{
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#1e293b',
+              marginBottom: '4px'
+            }}>
+              {atividade.nome}
+            </div>
+            <div style={{
+              fontSize: '12px',
+              color: '#64748b'
+            }}>
+              Setor: {atividade.setor} • Grupo: {atividade.grupo}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              marginBottom: '8px'
+            }}>
+              Observação
+            </label>
+            <textarea
+              value={observacao}
+              onChange={(e) => setObservacao(e.target.value)}
+              placeholder="Digite uma observação sobre esta atividade..."
+              maxLength={500}
+              style={{
+                width: '100%',
+                minHeight: '100px',
+                padding: '12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                resize: 'vertical',
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+                boxSizing: 'border-box'
+              }}
+              onFocus={(e) => e.target.style.borderColor = statusColor}
+              onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+            />
+            <div style={{
+              fontSize: '12px',
+              color: '#9ca3af',
+              marginTop: '6px'
+            }}>
+              {observacao.length}/500 caracteres
+            </div>
+          </div>
+
+          <div style={{
+            display: 'flex',
+            gap: '12px',
+            justifyContent: 'flex-end'
+          }}>
+            <button
+              onClick={onClose}
+              style={{
+                padding: '10px 20px',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                backgroundColor: 'white',
+                color: '#374151',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleConfirm}
+              style={{
+                padding: '10px 20px',
+                border: 'none',
+                borderRadius: '8px',
+                backgroundColor: statusColor,
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              {statusIcon} {statusText}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function WorkflowPage() {
   const router = useRouter()
   const [usuarioAtual, setUsuarioAtual] = useState('')
@@ -55,6 +257,11 @@ export default function WorkflowPage() {
       })
   }, [])
   const [atividades, setAtividades] = useState<Atividade[]>([])
+  
+  // Estados do modal
+  const [modalAberto, setModalAberto] = useState(false)
+  const [atividadeModal, setAtividadeModal] = useState<Atividade | null>(null)
+  const [statusModal, setStatusModal] = useState<'OK' | 'NOK'>('OK')
 
   // Carregar atividades baseadas na complexidade do processo
   useEffect(() => {
@@ -105,7 +312,7 @@ export default function WorkflowPage() {
     }
   }, [pacienteSelecionado, pacientes])
 
-  const marcarAtividade = (id: string, novoStatus: 'OK' | 'NOK') => {
+  const abrirModal = (id: string, novoStatus: 'OK' | 'NOK') => {
     if (!usuarioAtual) {
       alert('Selecione um usuário primeiro!')
       return
@@ -125,18 +332,23 @@ export default function WorkflowPage() {
       return
     }
 
-    const observacao = prompt('Observação (opcional):')
-    if (observacao === null) return
+    setAtividadeModal(atividade)
+    setStatusModal(novoStatus)
+    setModalAberto(true)
+  }
+
+  const confirmarAtividade = (observacao: string) => {
+    if (!atividadeModal) return
 
     const agora = new Date()
     const dataHora = `${agora.getDate().toString().padStart(2, '0')}/${(agora.getMonth() + 1).toString().padStart(2, '0')} ${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`
 
     setAtividades(prev => {
       const novasAtividades = prev.map(atividade => {
-        if (atividade.id === id) {
+        if (atividade.id === atividadeModal.id) {
           return {
             ...atividade,
-            status: novoStatus,
+            status: statusModal,
             dataHora,
             responsavel: usuarioAtual,
             observacao: observacao || undefined
@@ -146,8 +358,6 @@ export default function WorkflowPage() {
       })
 
       // Verificar finalização automática após atualizar
-      const gruposParaVerificar = ['Captação', 'Pré-internamento', 'Internado']
-      
       return novasAtividades.map(atividade => {
         if (atividade.nome.includes('Finalização Etapa')) {
           const grupo = atividade.grupo
@@ -155,7 +365,6 @@ export default function WorkflowPage() {
           const todasOK = atividadesGrupo.every(a => a.status === 'OK')
           
           if (todasOK && atividade.status !== 'OK') {
-            // Finalizar automaticamente
             return {
               ...atividade,
               status: 'OK' as const,
@@ -180,6 +389,14 @@ export default function WorkflowPage() {
       background: '#f8fafc',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
+      {/* Modal de Observação */}
+      <ModalObservacao
+        isOpen={modalAberto}
+        onClose={() => setModalAberto(false)}
+        onConfirm={confirmarAtividade}
+        atividade={atividadeModal}
+        status={statusModal}
+      />
       {/* Header Corporativo */}
       <div style={{ 
         background: 'white',
@@ -513,7 +730,7 @@ export default function WorkflowPage() {
                               // Botões normais
                               <>
                                 <button
-                                  onClick={() => marcarAtividade(atividade.id, 'OK')}
+                                  onClick={() => abrirModal(atividade.id, 'OK')}
                                   style={{
                                     background: atividade.status === 'OK' ? '#10b981' : '#e5e7eb',
                                     color: atividade.status === 'OK' ? 'white' : '#666',
@@ -528,7 +745,7 @@ export default function WorkflowPage() {
                                   ✓ OK
                                 </button>
                                 <button
-                                  onClick={() => marcarAtividade(atividade.id, 'NOK')}
+                                  onClick={() => abrirModal(atividade.id, 'NOK')}
                                   style={{
                                     background: atividade.status === 'NOK' ? '#ef4444' : '#e5e7eb',
                                     color: atividade.status === 'NOK' ? 'white' : '#666',
