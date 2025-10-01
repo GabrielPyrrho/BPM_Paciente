@@ -189,9 +189,10 @@ export default function ProcessosPage() {
   }
 
   return (
-    <div style={{
+    <div style={{ 
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      background: '#f8fafc',
+      padding: '20px'
     }}>
       {/* Modal de Sucesso */}
       <ModalSucesso
@@ -200,68 +201,86 @@ export default function ProcessosPage() {
         pacienteNome={processoInfo.pacienteNome}
         complexidadeNome={processoInfo.complexidadeNome}
       />
-      {/* Header */}
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
-        padding: '20px 0'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <button
-              onClick={() => router.push('/')}
-              style={{
-                background: '#6b7280',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '8px 16px',
+      
+      <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        {/* Header */}
+        <div style={{
+          background: 'rgba(255,255,255,0.95)',
+          backdropFilter: 'blur(10px)',
+          padding: '30px',
+          borderRadius: '20px',
+          marginBottom: '30px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+          border: '1px solid rgba(255,255,255,0.2)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <div style={{
+                width: '60px',
+                height: '60px',
+                background: '#3b82f6',
+                borderRadius: '15px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '28px',
+                boxShadow: '0 10px 20px rgba(59, 130, 246, 0.3)'
+              }}>⚙️</div>
+              <div>
+                <h1 style={{ 
+                  fontSize: '32px', 
+                  fontWeight: '700', 
+                  margin: '0',
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}>Gerenciar Processos</h1>
+                <p style={{ 
+                  fontSize: '16px', 
+                  color: '#666', 
+                  margin: '5px 0 0 0'
+                }}>Criação e acompanhamento de workflows</p>
+              </div>
+            </div>
+            <a href="/" style={{ textDecoration: 'none' }}>
+              <button style={{
+                padding: '12px 20px',
+                background: 'rgba(255,255,255,0.9)',
+                border: '2px solid #3b82f6',
+                borderRadius: '12px',
+                color: '#d97706',
                 fontSize: '14px',
-                cursor: 'pointer',
                 fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px'
               }}
-            >
-              ← Voltar
-            </button>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              background: 'linear-gradient(135deg, #ed8936, #dd6b20)',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '20px'
-            }}>
-              ⚙️
-            </div>
-            <div>
-              <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#1a202c', margin: '0' }}>
-                Gerenciamento de Processos
-              </h1>
-              <p style={{ fontSize: '14px', color: '#718096', margin: '0' }}>
-                Criação e acompanhamento de workflows
-              </p>
-            </div>
+              onMouseEnter={(e) => {
+                e.target.style.background = '#3b82f6'
+                e.target.style.color = 'white'
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = 'rgba(255,255,255,0.9)'
+                e.target.style.color = '#1d4ed8'
+              }}>
+                ← Voltar
+              </button>
+            </a>
           </div>
         </div>
-      </div>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
           <div style={{
-            background: 'rgba(255, 255, 255, 0.95)',
+            background: 'rgba(255,255,255,0.95)',
             backdropFilter: 'blur(10px)',
             borderRadius: '20px',
             padding: '30px',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)'
+            boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.2)'
           }}>
-            <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#1a202c', marginBottom: '20px' }}>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1f2937', margin: '0 0 25px 0' }}>
               ➕ Criar Novo Processo
             </h2>
             <form onSubmit={handleSubmit}>
@@ -274,12 +293,16 @@ export default function ProcessosPage() {
                   onChange={(e) => setSelectedPaciente(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: '15px 20px',
                     border: '2px solid #e5e7eb',
-                    borderRadius: '10px',
-                    fontSize: '14px',
-                    backgroundColor: 'white'
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    transition: 'all 0.3s ease',
+                    background: 'white',
+                    boxSizing: 'border-box'
                   }}
+                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                   required
                 >
                   <option value="">Selecione um paciente</option>
@@ -298,12 +321,16 @@ export default function ProcessosPage() {
                   onChange={(e) => setSelectedComplexidade(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '12px 16px',
+                    padding: '15px 20px',
                     border: '2px solid #e5e7eb',
-                    borderRadius: '10px',
-                    fontSize: '14px',
-                    backgroundColor: 'white'
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    transition: 'all 0.3s ease',
+                    background: 'white',
+                    boxSizing: 'border-box'
                   }}
+                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                   required
                 >
                   <option value="">Selecione a complexidade</option>
@@ -317,28 +344,33 @@ export default function ProcessosPage() {
                 type="submit" 
                 style={{
                   width: '100%',
-                  background: 'linear-gradient(135deg, #ed8936, #dd6b20)',
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                   color: 'white',
-                  padding: '14px 20px',
-                  borderRadius: '10px',
+                  padding: '15px 30px',
+                  borderRadius: '12px',
                   border: 'none',
                   fontSize: '16px',
                   fontWeight: '600',
                   cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.3s ease',
+                  transform: 'translateY(0)',
+                  boxShadow: '0 10px 20px rgba(59, 130, 246, 0.3)'
                 }}
+                onMouseEnter={(e) => e.target.style.transform = 'translateY(-2px)'}
+                onMouseLeave={(e) => e.target.style.transform = 'translateY(0)'}
               >
-                ✓ Criar Processo
+                🚀 Criar Processo
               </button>
             </form>
           </div>
 
           <div style={{
-            background: 'rgba(255, 255, 255, 0.95)',
+            background: 'rgba(255,255,255,0.95)',
             backdropFilter: 'blur(10px)',
             borderRadius: '20px',
             padding: '30px',
-            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)'
+            boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.2)'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#1a202c', margin: '0' }}>

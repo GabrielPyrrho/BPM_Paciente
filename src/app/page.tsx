@@ -162,7 +162,7 @@ export default function Home() {
           </p>
         </div>
         {/* Cards de Módulos */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           <a href="/dashboard" style={{ textDecoration: 'none' }}>
             <div style={{ 
               background: 'white',
@@ -228,7 +228,7 @@ export default function Home() {
             onMouseEnter={(e) => {
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
               e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.borderColor = '#10b981'
+              e.currentTarget.style.borderColor = '#3b82f6'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
@@ -239,7 +239,7 @@ export default function Home() {
                 <div style={{
                   width: '48px',
                   height: '48px',
-                  background: '#f0fdf4',
+                  background: '#f8fafc',
                   borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
@@ -258,7 +258,7 @@ export default function Home() {
                 <span style={{ fontSize: '12px', color: '#94a3b8' }}>
                   {loading ? 'Carregando...' : `Total: ${stats.totalPacientes} pacientes`}
                 </span>
-                <span style={{ fontSize: '18px', color: '#10b981' }}>→</span>
+                <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
               </div>
             </div>
           </a>
@@ -279,7 +279,7 @@ export default function Home() {
             onMouseEnter={(e) => {
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
               e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.borderColor = '#f59e0b'
+              e.currentTarget.style.borderColor = '#3b82f6'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
@@ -309,7 +309,7 @@ export default function Home() {
                 <span style={{ fontSize: '12px', color: '#94a3b8' }}>
                   {loading ? 'Carregando...' : `Ativos: ${stats.processosAtivos} processos`}
                 </span>
-                <span style={{ fontSize: '18px', color: '#f59e0b' }}>→</span>
+                <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
               </div>
             </div>
           </a>
@@ -330,7 +330,7 @@ export default function Home() {
             onMouseEnter={(e) => {
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
               e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.borderColor = '#8b5cf6'
+              e.currentTarget.style.borderColor = '#3b82f6'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
@@ -360,12 +360,12 @@ export default function Home() {
                 <span style={{ fontSize: '12px', color: '#94a3b8' }}>
                   {loading ? 'Carregando...' : `Em andamento: ${stats.workflowsAndamento} workflows`}
                 </span>
-                <span style={{ fontSize: '18px', color: '#8b5cf6' }}>→</span>
+                <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
               </div>
             </div>
           </a>
 
-          <a href="/admin" style={{ textDecoration: 'none' }}>
+          <a href="/atividades" style={{ textDecoration: 'none' }}>
             <div style={{ 
               background: 'white',
               padding: '24px',
@@ -381,7 +381,7 @@ export default function Home() {
             onMouseEnter={(e) => {
               e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
               e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.borderColor = '#ef4444'
+              e.currentTarget.style.borderColor = '#3b82f6'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
@@ -392,26 +392,77 @@ export default function Home() {
                 <div style={{
                   width: '48px',
                   height: '48px',
-                  background: '#fef2f2',
+                  background: '#f0fdf4',
                   borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '24px'
                 }}>
-                  ⚙️
+                  📋
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Administração</h3>
-                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Configurações</div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Atividades</h3>
+                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Configuração</div>
                 </div>
               </div>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Cadastro de complexidades e atividades do sistema</p>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Cadastre e gerencie as atividades do workflow hospitalar</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
                 <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                  Gerenciar configurações
+                  Gerenciar atividades
                 </span>
-                <span style={{ fontSize: '18px', color: '#ef4444' }}>→</span>
+                <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="/complexidades" style={{ textDecoration: 'none' }}>
+            <div style={{ 
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              border: '1px solid #e2e8f0',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              height: '160px',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#3b82f6'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: '#fffbeb',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '24px'
+                }}>
+                  🔧
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Complexidades</h3>
+                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Configuração</div>
+                </div>
+              </div>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Configure complexidades e associe atividades aos workflows</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  Gerenciar complexidades
+                </span>
+                <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
               </div>
             </div>
           </a>
