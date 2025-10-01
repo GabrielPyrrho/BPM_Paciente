@@ -1,52 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const processo = await prisma.processoPaciente.findUnique({
-      where: { id: params.id },
-      include: {
-        paciente: true,
-        complexidade: true,
-        atividades: {
-          include: {
-            atividade: true,
-            responsavel: true
-          },
-          orderBy: { atividade: { ordem: 'asc' } }
-        }
-      }
-    })
-
-    if (!processo) {
-      return NextResponse.json({ error: 'Processo não encontrado' }, { status: 404 })
+    const { status, responsavel, observacao } = await request.json()
+    
+    // Buscar ou criar usuário
+    let usuario = null
+    if (responsavel) {
+      usuario = await prisma.usuario.upsert({
+        where: { nome: responsavel },
+        update: {},
+        create: { nome: responsavel }
+      })
     }
 
-    return NextResponse.json(processo)
-  } catch (error) {
-    return NextResponse.json({ error: 'Erro ao buscar workflow' }, { status: 500 })
-  }
-}
-
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const { atividadeId, status, observacao, responsavelId } = await request.json()
-    
-    const movimentacao = await prisma.movimentacaoWorkflow.updateMany({
-      where: { 
-        processoId: params.id,
-        atividadeId: atividadeId
-      },
+    // Atualizar movimentação
+    const movimentacao = await prisma.movimentacaoWorkflow.update({
+      where: { id: params.id },
       data: {
         status,
+        responsavelId: usuario?.id,
         observacao,
-        responsavelId,
-        horaFim: status === 'OK' ? new Date() : undefined
+        horaFim: status === 'OK' ? new Date() : null,
+        horaInicio: status === 'PENDENTE' ? null : new Date()
       }
     })
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json(movimentacao)
   } catch (error) {
+    console.error('Erro ao atualizar workflow:', error)
     return NextResponse.json({ error: 'Erro ao atualizar atividade' }, { status: 500 })
   }
 }

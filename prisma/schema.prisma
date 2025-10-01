@@ -30,6 +30,7 @@ model AtividadeTemplate {
   nome     String
   setor    String?
   ordem    Int
+  etapa    String?  // CAPTACAO, PRE_INTERNAMENTO, INTERNADO
   complexidades ComplexidadeAtividade[]
   movimentacoes MovimentacaoWorkflow[]
 }

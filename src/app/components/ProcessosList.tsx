@@ -343,7 +343,11 @@ function ModalExcluir({ isOpen, onClose, onConfirm, processo }: ModalExcluirProp
   )
 }
 
-export default function ProcessosList() {
+interface ProcessosListProps {
+  onProcessoExcluido?: () => void
+}
+
+export default function ProcessosList({ onProcessoExcluido }: ProcessosListProps) {
   const [processos, setProcessos] = useState<Processo[]>([])
   const [loading, setLoading] = useState(true)
   const [complexidades, setComplexidades] = useState<Complexidade[]>([])
@@ -402,12 +406,20 @@ export default function ProcessosList() {
     if (!processoSelecionado) return
     
     try {
-      await fetch(`/api/processos/${processoSelecionado.id}`, {
+      console.log('Excluindo processo:', processoSelecionado.id)
+      const response = await fetch(`/api/processos/${processoSelecionado.id}`, {
         method: 'DELETE'
       })
-      fetchData()
-      setModalExcluirAberto(false)
-      setProcessoSelecionado(null)
+      
+      if (response.ok) {
+        console.log('Processo excluído com sucesso')
+        fetchData()
+        onProcessoExcluido?.()
+        setModalExcluirAberto(false)
+        setProcessoSelecionado(null)
+      } else {
+        console.error('Erro na resposta:', await response.text())
+      }
     } catch (error) {
       console.error('Erro ao excluir processo:', error)
     }

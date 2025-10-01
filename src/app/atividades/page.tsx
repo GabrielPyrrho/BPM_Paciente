@@ -6,13 +6,15 @@ interface Atividade {
   nome: string
   setor: string | null
   ordem: number
+  etapa: string | null
 }
 
 export default function AtividadesPage() {
   const [atividades, setAtividades] = useState<Atividade[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [novaAtividade, setNovaAtividade] = useState({ nome: '', setor: '', ordem: 1 })
+  const [editando, setEditando] = useState<string | null>(null)
+  const [novaAtividade, setNovaAtividade] = useState({ nome: '', setor: '', ordem: 1, etapa: 'CAPTACAO' })
 
   useEffect(() => {
     carregarAtividades()
@@ -33,20 +35,63 @@ export default function AtividadesPage() {
     e.preventDefault()
     setSaving(true)
     try {
-      const res = await fetch('/api/atividades', {
-        method: 'POST',
+      const url = editando ? `/api/atividades/${editando}` : '/api/atividades'
+      const method = editando ? 'PUT' : 'POST'
+      
+      console.log('Salvando atividade:', { url, method, data: novaAtividade, editando })
+      
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(novaAtividade)
       })
       
       if (res.ok) {
-        setNovaAtividade({ nome: '', setor: '', ordem: 1 })
+        console.log('Atividade salva com sucesso')
+        setNovaAtividade({ nome: '', setor: '', ordem: 1, etapa: 'CAPTACAO' })
+        setEditando(null)
         await carregarAtividades()
+      } else {
+        const errorText = await res.text()
+        console.error('Erro na resposta:', { status: res.status, error: errorText })
+        alert('Erro ao salvar atividade: ' + errorText)
       }
     } catch (error) {
-      console.error('Erro ao criar atividade:', error)
+      console.error('Erro ao salvar atividade:', error)
+      alert('Erro ao salvar atividade: ' + error.message)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const editarAtividade = (atividade: Atividade) => {
+    setNovaAtividade({
+      nome: atividade.nome,
+      setor: atividade.setor || '',
+      ordem: atividade.ordem,
+      etapa: atividade.etapa || 'CAPTACAO'
+    })
+    setEditando(atividade.id)
+  }
+
+  const cancelarEdicao = () => {
+    setNovaAtividade({ nome: '', setor: '', ordem: 1, etapa: 'CAPTACAO' })
+    setEditando(null)
+  }
+
+  const excluirAtividade = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta atividade?')) return
+    
+    try {
+      const res = await fetch(`/api/atividades/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        await carregarAtividades()
+      } else {
+        alert('Erro ao excluir atividade')
+      }
+    } catch (error) {
+      console.error('Erro ao excluir atividade:', error)
+      alert('Erro ao excluir atividade')
     }
   }
 
@@ -166,7 +211,9 @@ export default function AtividadesPage() {
             boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
             border: '1px solid rgba(255,255,255,0.2)'
           }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', margin: '0 0 25px 0', color: '#1f2937' }}>Nova Atividade</h2>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', margin: '0 0 25px 0', color: '#1f2937' }}>
+              {editando ? 'Editar Atividade' : 'Nova Atividade'}
+            </h2>
             
             <form onSubmit={criarAtividade} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <input
@@ -228,27 +275,69 @@ export default function AtividadesPage() {
                 min="1"
               />
               
-              <button 
-                type="submit" 
-                disabled={saving}
+              <select
+                value={novaAtividade.etapa}
+                onChange={(e) => setNovaAtividade({...novaAtividade, etapa: e.target.value})}
                 style={{ 
-                  padding: '15px 30px', 
-                  background: saving ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)', 
-                  color: 'white', 
-                  border: 'none', 
-                  borderRadius: '12px', 
-                  cursor: saving ? 'not-allowed' : 'pointer',
+                  width: '100%',
+                  padding: '15px 20px', 
+                  border: '2px solid #e5e7eb', 
+                  borderRadius: '12px',
                   fontSize: '16px',
-                  fontWeight: '600',
                   transition: 'all 0.3s ease',
-                  transform: 'translateY(0)',
-                  boxShadow: '0 10px 20px rgba(59, 130, 246, 0.3)'
+                  background: 'white',
+                  boxSizing: 'border-box'
                 }}
-                onMouseEnter={(e) => !saving && (e.target.style.transform = 'translateY(-2px)')}
-                onMouseLeave={(e) => !saving && (e.target.style.transform = 'translateY(0)')}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
               >
-                {saving ? '⏳ Salvando...' : '✨ Criar Atividade'}
-              </button>
+                <option value="CAPTACAO">📋 Captação</option>
+                <option value="PRE_INTERNAMENTO">🏥 Pré-internamento</option>
+                <option value="INTERNADO">🛏️ Internado</option>
+              </select>
+              
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button 
+                  type="submit" 
+                  disabled={saving}
+                  style={{ 
+                    flex: 1,
+                    padding: '15px 30px', 
+                    background: saving ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)', 
+                    color: 'white', 
+                    border: 'none', 
+                    borderRadius: '12px', 
+                    cursor: saving ? 'not-allowed' : 'pointer',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    transition: 'all 0.3s ease',
+                    transform: 'translateY(0)',
+                    boxShadow: '0 10px 20px rgba(59, 130, 246, 0.3)'
+                  }}
+                  onMouseEnter={(e) => !saving && (e.target.style.transform = 'translateY(-2px)')}
+                  onMouseLeave={(e) => !saving && (e.target.style.transform = 'translateY(0)')}
+                >
+                  {saving ? '⏳ Salvando...' : editando ? '✏️ Atualizar' : '✨ Criar Atividade'}
+                </button>
+                {editando && (
+                  <button 
+                    type="button"
+                    onClick={cancelarEdicao}
+                    style={{ 
+                      padding: '15px 20px', 
+                      background: '#6b7280', 
+                      color: 'white', 
+                      border: 'none', 
+                      borderRadius: '12px', 
+                      cursor: 'pointer',
+                      fontSize: '16px',
+                      fontWeight: '600'
+                    }}
+                  >
+                    Cancelar
+                  </button>
+                )}
+              </div>
             </form>
           </div>
 
@@ -288,12 +377,62 @@ export default function AtividadesPage() {
                     e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'
                   }}
                 >
-                  <div style={{ fontWeight: '600', fontSize: '16px', color: '#1f2937', marginBottom: '8px' }}>
-                    {atividade.nome}
-                  </div>
-                  <div style={{ fontSize: '14px', color: '#6b7280', display: 'flex', gap: '15px' }}>
-                    <span>🏢 Setor: {atividade.setor || 'N/A'}</span>
-                    <span>📊 Ordem: {atividade.ordem}</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: '600', fontSize: '16px', color: '#1f2937', marginBottom: '8px' }}>
+                        {atividade.nome}
+                      </div>
+                      <div style={{ fontSize: '14px', color: '#6b7280', display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+                        <span>🏢 Setor: {atividade.setor || 'N/A'}</span>
+                        <span>📊 Ordem: {atividade.ordem}</span>
+                        <span style={{
+                          background: atividade.etapa === 'CAPTACAO' ? '#dbeafe' : 
+                                     atividade.etapa === 'PRE_INTERNAMENTO' ? '#fef3c7' : '#dcfce7',
+                          color: atividade.etapa === 'CAPTACAO' ? '#1e40af' : 
+                                 atividade.etapa === 'PRE_INTERNAMENTO' ? '#92400e' : '#166534',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: '600'
+                        }}>
+                          {atividade.etapa === 'CAPTACAO' ? '📋 Captação' : 
+                           atividade.etapa === 'PRE_INTERNAMENTO' ? '🏥 Pré-internamento' : 
+                           atividade.etapa === 'INTERNADO' ? '🛏️ Internado' : 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', marginLeft: '16px' }}>
+                      <button
+                        onClick={() => editarAtividade(atividade)}
+                        style={{
+                          background: '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ✏️ Editar
+                      </button>
+                      <button
+                        onClick={() => excluirAtividade(atividade.id)}
+                        style={{
+                          background: '#ef4444',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        🗑️ Excluir
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

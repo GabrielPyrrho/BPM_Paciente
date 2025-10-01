@@ -14,7 +14,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { nome, setor, ordem } = await request.json()
+    const { nome, setor, ordem, etapa } = await request.json()
     
     if (!nome) {
       return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
@@ -24,7 +24,8 @@ export async function POST(request: NextRequest) {
       data: { 
         nome: nome.trim(),
         setor: setor?.trim() || null,
-        ordem: ordem || 1
+        ordem: ordem || 1,
+        etapa: etapa || 'CAPTACAO'
       }
     })
     return NextResponse.json(atividade)

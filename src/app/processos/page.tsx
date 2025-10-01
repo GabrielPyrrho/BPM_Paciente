@@ -387,7 +387,10 @@ export default function ProcessosPage() {
                 Total: {totalProcessos}
               </div>
             </div>
-            <ProcessosList key={refreshProcessos} />
+            <ProcessosList 
+              key={refreshProcessos} 
+              onProcessoExcluido={() => setTotalProcessos(prev => prev - 1)}
+            />
           </div>
         </div>
       </div>

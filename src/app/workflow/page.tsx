@@ -269,46 +269,30 @@ export default function WorkflowPage() {
       const paciente = pacientes.find(p => p.id === pacienteSelecionado)
       if (!paciente) return
 
-      const complexidade = paciente.complexidade
-      
-      // Atividades por complexidade - todas têm as mesmas atividades
-      const atividadesTemplate = [
-        // Captação
-        { id: '1', nome: 'Solicitação Convênio', setor: 'Captação', grupo: 'Captação', status: 'PENDENTE' as const },
-        { id: '2', nome: 'Vista de Enf. Captadora', setor: 'Captação', grupo: 'Captação', status: 'PENDENTE' as const },
-        { id: '3', nome: 'Orçamento', setor: 'Captação', grupo: 'Captação', status: 'PENDENTE' as const },
-        { id: '4', nome: 'Pré Escala', setor: 'Escala', grupo: 'Captação', status: 'PENDENTE' as const },
-        { id: '5', nome: 'Posicionamento', setor: 'Captação', grupo: 'Captação', status: 'PENDENTE' as const },
-        { id: '6', nome: 'Finalização Etapa Captação', setor: 'Sistema', grupo: 'Captação', status: 'PENDENTE' as const },
-        
-        // Pré-internamento
-        { id: '7', nome: 'Viabilidade Domicílio', setor: 'Logística', grupo: 'Pré-internamento', status: 'PENDENTE' as const },
-        { id: '8', nome: 'Recepção', setor: 'Enfermagem', grupo: 'Pré-internamento', status: 'PENDENTE' as const },
-        { id: '9', nome: 'Plano Terapêutico', setor: 'MA', grupo: 'Pré-internamento', status: 'PENDENTE' as const },
-        { id: '10', nome: 'Supervisor de Enfermagem', setor: 'Enfermagem', grupo: 'Pré-internamento', status: 'PENDENTE' as const },
-        { id: '11', nome: 'Nutricionista', setor: 'Enfermagem', grupo: 'Pré-internamento', status: 'PENDENTE' as const },
-        { id: '12', nome: 'Fisioterapia', setor: 'Terapias', grupo: 'Pré-internamento', status: 'PENDENTE' as const },
-        { id: '13', nome: 'Fonoterapia', setor: 'Terapias', grupo: 'Pré-internamento', status: 'PENDENTE' as const },
-        { id: '14', nome: 'Psicólogo', setor: 'Terapias', grupo: 'Pré-internamento', status: 'PENDENTE' as const },
-        { id: '15', nome: 'Terapia Ocupacional', setor: 'Terapias', grupo: 'Pré-internamento', status: 'PENDENTE' as const },
-        { id: '16', nome: 'Escala', setor: 'Escala', grupo: 'Pré-internamento', status: 'PENDENTE' as const },
-        { id: '17', nome: 'Logística', setor: 'Logística', grupo: 'Pré-internamento', status: 'PENDENTE' as const },
-        { id: '18', nome: 'Finalização Etapa Pré-internamento', setor: 'Sistema', grupo: 'Pré-internamento', status: 'PENDENTE' as const },
-        
-        // Internado
-        { id: '19', nome: 'Prescrição', setor: 'Enfermagem', grupo: 'Internado', status: 'PENDENTE' as const },
-        { id: '20', nome: 'Farmácia', setor: 'Farmácia', grupo: 'Internado', status: 'PENDENTE' as const },
-        { id: '21', nome: 'Translado Paciente', setor: 'Enfermagem', grupo: 'Internado', status: 'PENDENTE' as const },
-        { id: '22', nome: 'Visita MA', setor: 'Enfermagem', grupo: 'Internado', status: 'PENDENTE' as const },
-        { id: '23', nome: 'Visita do Supervisor de Enfermagem', setor: 'Enfermagem', grupo: 'Internado', status: 'PENDENTE' as const },
-        { id: '24', nome: 'Visita Serviço Social', setor: 'Serviço Social', grupo: 'Internado', status: 'PENDENTE' as const },
-        { id: '25', nome: 'Evolução Assistencial Internação', setor: 'Enfermagem', grupo: 'Internado', status: 'PENDENTE' as const },
-        { id: '26', nome: 'Encaminhamento para Convênio', setor: 'Faturamento', grupo: 'Internado', status: 'PENDENTE' as const },
-        { id: '27', nome: 'Finalização Etapa Internado', setor: 'Sistema', grupo: 'Internado', status: 'PENDENTE' as const }
-      ]
-
-      // Todas as complexidades usam o mesmo template
-      setAtividades(atividadesTemplate)
+      // Buscar atividades do processo no banco
+      fetch(`/api/processos/${paciente.processoId}`)
+        .then(res => res.json())
+        .then(processo => {
+          if (processo.atividades) {
+            const atividadesFormatadas = processo.atividades.map((mov: any) => ({
+              id: mov.id,
+              nome: mov.atividade.nome,
+              setor: mov.atividade.setor || 'N/A',
+              grupo: mov.atividade.etapa === 'CAPTACAO' ? 'Captação' :
+                     mov.atividade.etapa === 'PRE_INTERNAMENTO' ? 'Pré-internamento' :
+                     mov.atividade.etapa === 'INTERNADO' ? 'Internado' : 'Outros',
+              status: mov.status,
+              dataHora: mov.horaFim ? new Date(mov.horaFim).toLocaleString('pt-BR') : undefined,
+              responsavel: mov.responsavel?.nome,
+              observacao: mov.observacao
+            }))
+            setAtividades(atividadesFormatadas)
+          }
+        })
+        .catch(() => {
+          // Fallback para atividades estáticas se API falhar
+          setAtividades([])
+        })
     }
   }, [pacienteSelecionado, pacientes])
 
@@ -337,46 +321,47 @@ export default function WorkflowPage() {
     setModalAberto(true)
   }
 
-  const confirmarAtividade = (observacao: string) => {
+  const confirmarAtividade = async (observacao: string) => {
     if (!atividadeModal) return
 
-    const agora = new Date()
-    const dataHora = `${agora.getDate().toString().padStart(2, '0')}/${(agora.getMonth() + 1).toString().padStart(2, '0')} ${agora.getHours().toString().padStart(2, '0')}:${agora.getMinutes().toString().padStart(2, '0')}`
-
-    setAtividades(prev => {
-      const novasAtividades = prev.map(atividade => {
-        if (atividade.id === atividadeModal.id) {
-          return {
-            ...atividade,
-            status: statusModal,
-            dataHora,
-            responsavel: usuarioAtual,
-            observacao: observacao || undefined
-          }
-        }
-        return atividade
+    try {
+      // Atualizar no banco
+      await fetch(`/api/workflow/${atividadeModal.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: statusModal,
+          responsavel: usuarioAtual,
+          observacao: observacao || null
+        })
       })
 
-      // Verificar finalização automática após atualizar
-      return novasAtividades.map(atividade => {
-        if (atividade.nome.includes('Finalização Etapa')) {
-          const grupo = atividade.grupo
-          const atividadesGrupo = novasAtividades.filter(a => a.grupo === grupo && !a.nome.includes('Finalização Etapa'))
-          const todasOK = atividadesGrupo.every(a => a.status === 'OK')
-          
-          if (todasOK && atividade.status !== 'OK') {
-            return {
-              ...atividade,
-              status: 'OK' as const,
-              dataHora,
-              responsavel: 'Sistema Automático',
-              observacao: 'Finalizada automaticamente'
-            }
-          }
+      // Recarregar atividades
+      const paciente = pacientes.find(p => p.id === pacienteSelecionado)
+      if (paciente) {
+        const res = await fetch(`/api/processos/${paciente.processoId}`)
+        const processo = await res.json()
+        
+        if (processo.atividades) {
+          const atividadesFormatadas = processo.atividades.map((mov: any) => ({
+            id: mov.id,
+            nome: mov.atividade.nome,
+            setor: mov.atividade.setor || 'N/A',
+            grupo: mov.atividade.etapa === 'CAPTACAO' ? 'Captação' :
+                   mov.atividade.etapa === 'PRE_INTERNAMENTO' ? 'Pré-internamento' :
+                   mov.atividade.etapa === 'INTERNADO' ? 'Internado' : 'Outros',
+            status: mov.status,
+            dataHora: mov.horaFim ? new Date(mov.horaFim).toLocaleString('pt-BR') : undefined,
+            responsavel: mov.responsavel?.nome,
+            observacao: mov.observacao
+          }))
+          setAtividades(atividadesFormatadas)
         }
-        return atividade
-      })
-    })
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar atividade:', error)
+      alert('Erro ao atualizar atividade')
+    }
   }
 
   const grupos = ['Captação', 'Pré-internamento', 'Internado']
