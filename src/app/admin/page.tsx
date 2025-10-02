@@ -52,12 +52,12 @@ function DiagnosticoTab({ diagnostico, setDiagnostico, corrigindo, setCorrigindo
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <div style={{
               padding: '15px',
-              background: diagnostico.duplicadas.length > 0 ? '#fef2f2' : '#f0fdf4',
-              border: `1px solid ${diagnostico.duplicadas.length > 0 ? '#fecaca' : '#bbf7d0'}`,
+              background: (diagnostico.duplicadas && diagnostico.duplicadas.length > 0) ? '#fef2f2' : '#f0fdf4',
+              border: `1px solid ${(diagnostico.duplicadas && diagnostico.duplicadas.length > 0) ? '#fecaca' : '#bbf7d0'}`,
               borderRadius: '8px'
             }}>
-              <strong>Atividades Duplicadas: {diagnostico.duplicadas.length}</strong>
-              {diagnostico.duplicadas.length > 0 && (
+              <strong>Atividades Duplicadas: {diagnostico.duplicadas ? diagnostico.duplicadas.length : 0}</strong>
+              {diagnostico.duplicadas && diagnostico.duplicadas.length > 0 && (
                 <div style={{ marginTop: '10px', fontSize: '14px' }}>
                   {diagnostico.duplicadas.map(d => (
                     <div key={d.id}>• {d.nome}</div>
@@ -68,11 +68,11 @@ function DiagnosticoTab({ diagnostico, setDiagnostico, corrigindo, setCorrigindo
             
             <div style={{
               padding: '15px',
-              background: diagnostico.semEtapa.length > 0 ? '#fef2f2' : '#f0fdf4',
-              border: `1px solid ${diagnostico.semEtapa.length > 0 ? '#fecaca' : '#bbf7d0'}`,
+              background: (diagnostico.semEtapa && diagnostico.semEtapa.length > 0) ? '#fef2f2' : '#f0fdf4',
+              border: `1px solid ${(diagnostico.semEtapa && diagnostico.semEtapa.length > 0) ? '#fecaca' : '#bbf7d0'}`,
               borderRadius: '8px'
             }}>
-              <strong>Atividades sem Etapa: {diagnostico.semEtapa.length}</strong>
+              <strong>Atividades sem Etapa: {diagnostico.semEtapa ? diagnostico.semEtapa.length : 0}</strong>
             </div>
             
             <div style={{
@@ -81,7 +81,7 @@ function DiagnosticoTab({ diagnostico, setDiagnostico, corrigindo, setCorrigindo
               border: '1px solid #bbf7d0',
               borderRadius: '8px'
             }}>
-              <strong>Total de Atividades: {diagnostico.totalAtividades}</strong>
+              <strong>Total de Atividades: {diagnostico.totalAtividades || 0}</strong>
             </div>
           </div>
         ) : (
@@ -104,7 +104,7 @@ function DiagnosticoTab({ diagnostico, setDiagnostico, corrigindo, setCorrigindo
         <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
           <button
             onClick={() => executarCorrecao('limpar_duplicadas')}
-            disabled={corrigindo || !diagnostico?.duplicadas.length}
+            disabled={corrigindo || !diagnostico?.duplicadas?.length}
             style={{
               padding: '15px',
               background: corrigindo ? '#9ca3af' : '#ef4444',

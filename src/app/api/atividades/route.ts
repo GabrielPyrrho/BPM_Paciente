@@ -21,33 +21,57 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { nome, setor, ordem, etapa } = await request.json()
+    const { nome, setor, ordem, etapa, etapaId } = await request.json()
     
     if (!nome) {
       return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
     }
     
-    // Buscar etapa
-    const etapaEncontrada = await prisma.etapa.findFirst({
-      where: { nome: etapa || 'CAPTACAO' }
-    })
+    let etapaEncontrada
+    
+    // Buscar etapa por ID primeiro, depois por nome
+    if (etapaId) {
+      etapaEncontrada = await prisma.etapa.findUnique({
+        where: { id: etapaId }
+      })
+    } else if (etapa) {
+      etapaEncontrada = await prisma.etapa.findFirst({
+        where: { nome: etapa }
+      })
+    } else {
+      // Buscar etapa padrão CAPTACAO
+      etapaEncontrada = await prisma.etapa.findFirst({
+        where: { nome: 'CAPTACAO' }
+      })
+    }
     
     if (!etapaEncontrada) {
       return NextResponse.json({ error: 'Etapa não encontrada' }, { status: 400 })
+    }
+    
+    // Calcular próxima ordem se não fornecida
+    let novaOrdem = ordem
+    if (!novaOrdem) {
+      const ultimaAtividade = await prisma.atividadeTemplate.findFirst({
+        where: { etapaId: etapaEncontrada.id },
+        orderBy: { ordem: 'desc' }
+      })
+      novaOrdem = (ultimaAtividade?.ordem || 0) + 1
     }
     
     const atividade = await prisma.atividadeTemplate.create({
       data: { 
         nome: nome.trim(),
         setor: setor?.trim() || null,
-        ordem: ordem || 1,
+        ordem: novaOrdem,
         etapaId: etapaEncontrada.id
-      }
+      },
+      include: { etapa: true }
     })
     
     return NextResponse.json({
       ...atividade,
-      etapa: etapa || 'CAPTACAO'
+      etapa: etapaEncontrada.nome
     })
   } catch (error) {
     console.error('Erro ao criar atividade:', error)

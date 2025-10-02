@@ -138,12 +138,12 @@ export default function ComplexidadesPage() {
                   background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent'
-                }}>Gerenciar Complexidades</h1>
+                }}>Gerenciar Processos</h1>
                 <p style={{ 
                   fontSize: '16px', 
                   color: '#666', 
                   margin: '5px 0 0 0'
-                }}>Configure complexidades e associe atividades</p>
+                }}>Configure processos e associe atividades</p>
               </div>
             </div>
             <a href="/" style={{ textDecoration: 'none' }}>
@@ -185,7 +185,7 @@ export default function ComplexidadesPage() {
             boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
             border: '1px solid rgba(255,255,255,0.2)'
           }}>
-            <h2 style={{ fontSize: '24px', fontWeight: '700', margin: '0 0 25px 0', color: '#1f2937' }}>Nova Complexidade</h2>
+            <h2 style={{ fontSize: '24px', fontWeight: '700', margin: '0 0 25px 0', color: '#1f2937' }}>Novo Processo</h2>
             
             <form onSubmit={criarComplexidade} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <input
@@ -283,7 +283,7 @@ export default function ComplexidadesPage() {
                 onMouseEnter={(e) => !saving && (e.target.style.transform = 'translateY(-2px)')}
                 onMouseLeave={(e) => !saving && (e.target.style.transform = 'translateY(0)')}
               >
-                {saving ? '⏳ Salvando...' : '🚀 Criar Complexidade'}
+                {saving ? '⏳ Salvando...' : '🚀 Criar Processo'}
               </button>
             </form>
           </div>
@@ -298,7 +298,7 @@ export default function ComplexidadesPage() {
             border: '1px solid rgba(255,255,255,0.2)'
           }}>
             <h3 style={{ fontSize: '20px', fontWeight: '600', margin: '0 0 20px 0', color: '#1f2937' }}>
-              Complexidades Cadastradas ({complexidades.length})
+              Processos Cadastrados ({complexidades.length})
             </h3>
             <div style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '10px' }}>
               {complexidades.map((complexidade, index) => (

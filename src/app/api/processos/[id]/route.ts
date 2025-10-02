@@ -3,14 +3,30 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const processo = await prisma.processoPaciente.findUnique({
+    const processo = await prisma.processoWorkflow.findUnique({
       where: { id: params.id },
       include: {
-        paciente: true,
-        complexidade: true,
+        entidade: true,
+        tipoWorkflow: {
+          include: {
+            atividades: {
+              include: {
+                atividade: {
+                  include: {
+                    etapa: true
+                  }
+                }
+              }
+            }
+          }
+        },
         atividades: {
           include: {
-            atividade: true,
+            atividade: {
+              include: {
+                etapa: true
+              }
+            },
             responsavel: true
           },
           orderBy: { atividade: { ordem: 'asc' } }
@@ -36,7 +52,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     })
     
     // Depois excluir o processo
-    await prisma.processoPaciente.delete({
+    await prisma.processoWorkflow.delete({
       where: { id: params.id }
     })
 
@@ -49,14 +65,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { complexidadeId } = await request.json()
+    const { tipoWorkflowId } = await request.json()
 
-    const processo = await prisma.processoPaciente.update({
+    const processo = await prisma.processoWorkflow.update({
       where: { id: params.id },
-      data: { complexidadeId },
+      data: { tipoWorkflowId },
       include: {
-        paciente: true,
-        complexidade: true
+        entidade: true,
+        tipoWorkflow: true
       }
     })
 

@@ -21,7 +21,7 @@ export default function ProcessosAtivos() {
     fetch('/api/dashboard/processos-ativos')
       .then(res => res.json())
       .then(data => {
-        setProcessos(data)
+        setProcessos(Array.isArray(data) ? data : [])
         setLoading(false)
       })
       .catch(() => {

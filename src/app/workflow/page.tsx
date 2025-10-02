@@ -14,11 +14,19 @@ interface Atividade {
   observacao?: string
 }
 
-interface Paciente {
+interface Etapa {
+  id: string
+  nome: string
+  cor?: string
+  ordem: number
+}
+
+interface EntidadeProcesso {
   id: string
   nome: string
   processoId: string
-  complexidade: string
+  tipoWorkflow: string
+  tipo: string
 }
 
 interface ModalObservacaoProps {
@@ -226,43 +234,57 @@ function ModalObservacao({ isOpen, onClose, onConfirm, atividade, status }: Moda
 export default function WorkflowPage() {
   const router = useRouter()
   const [usuarioAtual, setUsuarioAtual] = useState('')
-  const [pacienteSelecionado, setPacienteSelecionado] = useState('')
-  const [pacientes, setPacientes] = useState<Paciente[]>([])
+  const [entidadeSelecionada, setEntidadeSelecionada] = useState('')
+  const [entidades, setEntidades] = useState<EntidadeProcesso[]>([])
   const [atividades, setAtividades] = useState<Atividade[]>([])
+  const [etapas, setEtapas] = useState<Etapa[]>([])
   
   // Estados do modal
   const [modalAberto, setModalAberto] = useState(false)
   const [atividadeModal, setAtividadeModal] = useState<Atividade | null>(null)
   const [statusModal, setStatusModal] = useState<'OK' | 'NOK'>('OK')
 
-  // Carregar pacientes com processos
+  // Carregar etapas e pacientes
   useEffect(() => {
+    // Carregar etapas
+    fetch('/api/etapas')
+      .then(res => res.json())
+      .then(data => {
+        setEtapas(data.sort((a: Etapa, b: Etapa) => a.ordem - b.ordem))
+      })
+      .catch(error => {
+        console.error('Erro ao carregar etapas:', error)
+        setEtapas([])
+      })
+
+    // Carregar entidades com processos
     fetch('/api/processos')
       .then(res => res.json())
       .then(data => {
-        const pacientesComProcessos = data.map((processo: any) => ({
-          id: processo.paciente.id,
-          nome: processo.paciente.nome,
+        const entidadesComProcessos = data.map((processo: any) => ({
+          id: processo.entidade.id,
+          nome: processo.entidade.nome,
           processoId: processo.id,
-          complexidade: processo.complexidade.nome
+          tipoWorkflow: processo.tipoWorkflow.nome,
+          tipo: processo.entidade.tipo
         }))
-        setPacientes(pacientesComProcessos)
+        setEntidades(entidadesComProcessos)
       })
       .catch(error => {
-        console.error('Erro ao carregar pacientes:', error)
-        setPacientes([])
+        console.error('Erro ao carregar entidades:', error)
+        setEntidades([])
       })
   }, [])
 
-  // Carregar atividades baseadas na complexidade do processo
+  // Carregar atividades baseadas no tipo de workflow do processo
   useEffect(() => {
-    if (pacienteSelecionado) {
-      const paciente = pacientes.find(p => p.id === pacienteSelecionado)
-      if (!paciente) return
+    if (entidadeSelecionada) {
+      const entidade = entidades.find(e => e.id === entidadeSelecionada)
+      if (!entidade) return
 
-      console.log('Carregando atividades para processo:', paciente.processoId)
+      console.log('Carregando atividades para processo:', entidade.processoId)
       
-      fetch(`/api/processos/${paciente.processoId}`)
+      fetch(`/api/processos/${entidade.processoId}`)
         .then(res => {
           if (!res.ok) throw new Error(`HTTP ${res.status}`)
           return res.json()
@@ -270,18 +292,19 @@ export default function WorkflowPage() {
         .then(processo => {
           console.log('Processo carregado:', processo)
           if (processo.atividades) {
-            const atividadesFormatadas = processo.atividades.map((mov: any) => ({
-              id: mov.id,
-              nome: mov.atividade.nome,
-              setor: mov.atividade.setor || 'N/A',
-              grupo: mov.atividade.etapa === 'CAPTACAO' ? 'Captação' :
-                     mov.atividade.etapa === 'PRE_INTERNAMENTO' ? 'Pré-internamento' :
-                     mov.atividade.etapa === 'INTERNADO' ? 'Internado' : 'Captação',
-              status: mov.status,
-              dataHora: mov.horaFim ? new Date(mov.horaFim).toLocaleString('pt-BR') : undefined,
-              responsavel: mov.responsavel?.nome,
-              observacao: mov.observacao
-            }))
+            const atividadesFormatadas = processo.atividades.map((mov: any) => {
+              const etapa = etapas.find(e => e.id === mov.atividade.etapaId)
+              return {
+                id: mov.id,
+                nome: mov.atividade.nome,
+                setor: mov.atividade.setor || 'N/A',
+                grupo: etapa ? etapa.nome : 'Sem Etapa',
+                status: mov.status,
+                dataHora: mov.horaFim ? new Date(mov.horaFim).toLocaleString('pt-BR') : undefined,
+                responsavel: mov.responsavel?.nome,
+                observacao: mov.observacao
+              }
+            })
             console.log('Atividades formatadas:', atividadesFormatadas)
             setAtividades(atividadesFormatadas)
           }
@@ -291,7 +314,7 @@ export default function WorkflowPage() {
           setAtividades([])
         })
     }
-  }, [pacienteSelecionado, pacientes])
+  }, [entidadeSelecionada, entidades, etapas])
 
   const abrirModal = (id: string, novoStatus: 'OK' | 'NOK') => {
     console.log('Abrindo modal para atividade:', id, 'status:', novoStatus)
@@ -301,8 +324,8 @@ export default function WorkflowPage() {
       return
     }
 
-    if (!pacienteSelecionado) {
-      alert('Selecione um paciente primeiro!')
+    if (!entidadeSelecionada) {
+      alert('Selecione uma entidade primeiro!')
       return
     }
 
@@ -357,9 +380,9 @@ export default function WorkflowPage() {
       console.log('Atividade atualizada:', result)
 
       // Recarregar atividades
-      const paciente = pacientes.find(p => p.id === pacienteSelecionado)
-      if (paciente) {
-        const res = await fetch(`/api/processos/${paciente.processoId}`)
+      const entidade = entidades.find(e => e.id === entidadeSelecionada)
+      if (entidade) {
+        const res = await fetch(`/api/processos/${entidade.processoId}`)
         if (!res.ok) {
           throw new Error('Erro ao recarregar processo')
         }
@@ -367,18 +390,19 @@ export default function WorkflowPage() {
         const processo = await res.json()
         
         if (processo.atividades) {
-          const atividadesFormatadas = processo.atividades.map((mov: any) => ({
-            id: mov.id,
-            nome: mov.atividade.nome,
-            setor: mov.atividade.setor || 'N/A',
-            grupo: mov.atividade.etapa === 'CAPTACAO' ? 'Captação' :
-                   mov.atividade.etapa === 'PRE_INTERNAMENTO' ? 'Pré-internamento' :
-                   mov.atividade.etapa === 'INTERNADO' ? 'Internado' : 'Captação',
-            status: mov.status,
-            dataHora: mov.horaFim ? new Date(mov.horaFim).toLocaleString('pt-BR') : undefined,
-            responsavel: mov.responsavel?.nome,
-            observacao: mov.observacao
-          }))
+          const atividadesFormatadas = processo.atividades.map((mov: any) => {
+            const etapa = etapas.find(e => e.id === mov.atividade.etapaId)
+            return {
+              id: mov.id,
+              nome: mov.atividade.nome,
+              setor: mov.atividade.setor || 'N/A',
+              grupo: etapa ? etapa.nome : 'Sem Etapa',
+              status: mov.status,
+              dataHora: mov.horaFim ? new Date(mov.horaFim).toLocaleString('pt-BR') : undefined,
+              responsavel: mov.responsavel?.nome,
+              observacao: mov.observacao
+            }
+          })
           setAtividades(atividadesFormatadas)
           alert('Atividade atualizada com sucesso!')
         }
@@ -389,7 +413,7 @@ export default function WorkflowPage() {
     }
   }
 
-  const grupos = ['Captação', 'Pré-internamento', 'Internado']
+  const grupos = etapas.map(etapa => etapa.nome)
 
   return (
     <div style={{ 
@@ -448,7 +472,7 @@ export default function WorkflowPage() {
               </div>
               <div>
                 <h1 style={{ color: '#1e293b', fontSize: '20px', margin: 0, fontWeight: '600' }}>Workflow BPM</h1>
-                <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>Controle de atividades de internamento</p>
+                <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>Controle de atividades genéricas</p>
               </div>
             </div>
             <div style={{
@@ -485,7 +509,7 @@ export default function WorkflowPage() {
             color: '#64748b',
             margin: '0'
           }}>
-            Gerencie as atividades do processo de internamento
+            Gerencie as atividades dos processos de workflow
           </p>
         </div>
         
@@ -501,11 +525,11 @@ export default function WorkflowPage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 200px', gap: '16px', alignItems: 'end' }}>
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                Paciente *
+                Entidade *
               </label>
               <select 
-                value={pacienteSelecionado} 
-                onChange={(e) => setPacienteSelecionado(e.target.value)}
+                value={entidadeSelecionada} 
+                onChange={(e) => setEntidadeSelecionada(e.target.value)}
                 style={{ 
                   width: '100%',
                   padding: '12px 16px', 
@@ -516,10 +540,10 @@ export default function WorkflowPage() {
                   boxSizing: 'border-box'
                 }}
               >
-                <option value="">Selecionar Paciente</option>
-                {pacientes.map(paciente => (
-                  <option key={paciente.processoId} value={paciente.id}>
-                    {paciente.nome} - {paciente.complexidade}
+                <option value="">Selecionar Entidade</option>
+                {entidades.map(entidade => (
+                  <option key={entidade.processoId} value={entidade.id}>
+                    {entidade.nome} ({entidade.tipo}) - {entidade.tipoWorkflow}
                   </option>
                 ))}
               </select>
@@ -550,7 +574,7 @@ export default function WorkflowPage() {
                 <option value="Supervisor">Supervisor Geral</option>
               </select>
             </div>
-            {pacientes.find(p => p.id === pacienteSelecionado) && (
+            {entidades.find(e => e.id === entidadeSelecionada) && (
               <div style={{ 
                 background: '#8b5cf6', 
                 color: 'white', 
@@ -560,12 +584,12 @@ export default function WorkflowPage() {
                 fontWeight: '600',
                 textAlign: 'center'
               }}>
-                {pacientes.find(p => p.id === pacienteSelecionado)?.complexidade}
+                {entidades.find(e => e.id === entidadeSelecionada)?.tipoWorkflow}
               </div>
             )}
           </div>
           
-          {pacienteSelecionado && (
+          {entidadeSelecionada && (
             <div style={{ 
               marginTop: '20px',
               padding: '16px',
@@ -577,9 +601,9 @@ export default function WorkflowPage() {
               gap: '16px'
             }}>
               <div>
-                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>PACIENTE</span>
+                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>ENTIDADE</span>
                 <div style={{ fontSize: '14px', color: '#1e293b', fontWeight: '600' }}>
-                  {pacientes.find(p => p.id === pacienteSelecionado)?.nome || 'Não selecionado'}
+                  {entidades.find(e => e.id === entidadeSelecionada)?.nome || 'Não selecionado'}
                 </div>
               </div>
               <div>
@@ -598,7 +622,7 @@ export default function WorkflowPage() {
           )}
         </div>
 
-        {!pacienteSelecionado ? (
+        {!entidadeSelecionada ? (
           <div style={{ 
             background: 'white',
             padding: '60px 40px', 
@@ -608,20 +632,21 @@ export default function WorkflowPage() {
             border: '1px solid #e2e8f0'
           }}>
             <div style={{ fontSize: '64px', marginBottom: '20px' }}>🏥</div>
-            <h2 style={{ color: '#1e293b', marginBottom: '15px', fontSize: '24px', fontWeight: '600' }}>Selecione um Paciente</h2>
+            <h2 style={{ color: '#1e293b', marginBottom: '15px', fontSize: '24px', fontWeight: '600' }}>Selecione uma Entidade</h2>
             <p style={{ color: '#64748b', fontSize: '16px', lineHeight: '1.6' }}>
-              {pacientes.length === 0 
-                ? 'Nenhum paciente cadastrado. Cadastre um paciente primeiro.' 
-                : 'Escolha um paciente acima para visualizar e gerenciar o workflow de internamento.'
+              {entidades.length === 0 
+                ? 'Nenhuma entidade com processo cadastrada. Crie um processo primeiro.' 
+                : 'Escolha uma entidade acima para visualizar e gerenciar o workflow.'
               }
             </p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px' }}>
-            {grupos.map(grupo => {
+            {grupos.map((grupo, index) => {
               const atividadesGrupo = atividades.filter(a => a.grupo === grupo)
               const concluidas = atividadesGrupo.filter(a => a.status === 'OK').length
               const total = atividadesGrupo.length
+              const etapa = etapas.find(e => e.nome === grupo)
               
               return (
                 <div key={grupo} style={{ 
@@ -633,9 +658,7 @@ export default function WorkflowPage() {
                 }}>
                   {/* Header do Grupo */}
                   <div style={{ 
-                    background: grupo === 'Captação' ? '#3b82f6' :
-                               grupo === 'Pré-internamento' ? '#f59e0b' :
-                               '#10b981',
+                    background: etapa?.cor || '#3b82f6',
                     color: 'white', 
                     padding: '16px 20px', 
                     display: 'flex',
@@ -668,7 +691,7 @@ export default function WorkflowPage() {
                       </div>
                       
                       <div style={{ fontSize: '20px' }}>
-                        {grupo === 'Captação' ? '📋' : grupo === 'Pré-internamento' ? '🏥' : '🏠'}
+                        🏷️
                       </div>
                     </div>
                   </div>

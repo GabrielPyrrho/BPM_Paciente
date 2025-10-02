@@ -7,31 +7,54 @@ interface Atividade {
   setor: string | null
   ordem: number
   etapa: string | null
+  etapaId: string
+}
+
+interface Etapa {
+  id: string
+  nome: string
+  cor?: string
 }
 
 export default function AtividadesPage() {
   const [atividades, setAtividades] = useState<Atividade[]>([])
+  const [etapas, setEtapas] = useState<Etapa[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [editando, setEditando] = useState<string | null>(null)
-  const [novaAtividade, setNovaAtividade] = useState({ nome: '', setor: '', ordem: 1, etapa: 'CAPTACAO' })
+  const [novaAtividade, setNovaAtividade] = useState({ nome: '', setor: '', ordem: 1, etapaId: '' })
 
   useEffect(() => {
-    carregarAtividades()
+    carregarDados()
   }, [])
 
-  const carregarAtividades = async () => {
+  const carregarDados = async () => {
     try {
-      const res = await fetch('/api/atividades')
-      const data = await res.json()
-      setAtividades(Array.isArray(data) ? data : [])
+      const [atividadesRes, etapasRes] = await Promise.all([
+        fetch('/api/atividades'),
+        fetch('/api/etapas')
+      ])
+      
+      const atividadesData = await atividadesRes.json()
+      const etapasData = await etapasRes.json()
+      
+      setAtividades(Array.isArray(atividadesData) ? atividadesData : [])
+      setEtapas(Array.isArray(etapasData) ? etapasData : [])
+      
+      // Definir primeira etapa como padrão se não houver seleção
+      if (etapasData.length > 0 && !novaAtividade.etapaId) {
+        setNovaAtividade(prev => ({ ...prev, etapaId: etapasData[0].id }))
+      }
     } catch (error) {
-      console.error('Erro ao carregar atividades:', error)
+      console.error('Erro ao carregar dados:', error)
       setAtividades([])
+      setEtapas([])
     } finally {
       setLoading(false)
     }
   }
+
+
 
   const criarAtividade = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,9 +73,10 @@ export default function AtividadesPage() {
       
       if (res.ok) {
         console.log('Atividade salva com sucesso')
-        setNovaAtividade({ nome: '', setor: '', ordem: 1, etapa: 'CAPTACAO' })
+        const primeiraEtapa = etapas.length > 0 ? etapas[0].id : ''
+        setNovaAtividade({ nome: '', setor: '', ordem: 1, etapaId: primeiraEtapa })
         setEditando(null)
-        await carregarAtividades()
+        await carregarDados()
       } else {
         const errorText = await res.text()
         console.error('Erro na resposta:', { status: res.status, error: errorText })
@@ -71,13 +95,14 @@ export default function AtividadesPage() {
       nome: atividade.nome,
       setor: atividade.setor || '',
       ordem: atividade.ordem,
-      etapa: atividade.etapa || 'CAPTACAO'
+      etapaId: atividade.etapaId || (etapas.length > 0 ? etapas[0].id : '')
     })
     setEditando(atividade.id)
   }
 
   const cancelarEdicao = () => {
-    setNovaAtividade({ nome: '', setor: '', ordem: 1, etapa: 'CAPTACAO' })
+    const primeiraEtapa = etapas.length > 0 ? etapas[0].id : ''
+    setNovaAtividade({ nome: '', setor: '', ordem: 1, etapaId: primeiraEtapa })
     setEditando(null)
   }
 
@@ -87,7 +112,7 @@ export default function AtividadesPage() {
     try {
       const res = await fetch(`/api/atividades/${id}`, { method: 'DELETE' })
       if (res.ok) {
-        await carregarAtividades()
+        await carregarDados()
       } else {
         alert('Erro ao excluir atividade')
       }
@@ -278,8 +303,8 @@ export default function AtividadesPage() {
               />
               
               <select
-                value={novaAtividade.etapa}
-                onChange={(e) => setNovaAtividade({...novaAtividade, etapa: e.target.value})}
+                value={novaAtividade.etapaId}
+                onChange={(e) => setNovaAtividade({...novaAtividade, etapaId: e.target.value})}
                 style={{ 
                   width: '100%',
                   padding: '15px 20px', 
@@ -292,10 +317,14 @@ export default function AtividadesPage() {
                 }}
                 onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                 onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                required
               >
-                <option value="CAPTACAO">📋 Captação</option>
-                <option value="PRE_INTERNAMENTO">🏥 Pré-internamento</option>
-                <option value="INTERNADO">🛏️ Internado</option>
+                <option value="">Selecione uma etapa</option>
+                {etapas.map(etapa => (
+                  <option key={etapa.id} value={etapa.id}>
+                    {etapa.nome}
+                  </option>
+                ))}
               </select>
               
               <div style={{ display: 'flex', gap: '12px' }}>
@@ -388,18 +417,14 @@ export default function AtividadesPage() {
                         <span>🏢 Setor: {atividade.setor || 'N/A'}</span>
                         <span>📊 Ordem: {atividade.ordem}</span>
                         <span style={{
-                          background: atividade.etapa === 'CAPTACAO' ? '#dbeafe' : 
-                                     atividade.etapa === 'PRE_INTERNAMENTO' ? '#fef3c7' : '#dcfce7',
-                          color: atividade.etapa === 'CAPTACAO' ? '#1e40af' : 
-                                 atividade.etapa === 'PRE_INTERNAMENTO' ? '#92400e' : '#166534',
+                          background: '#dbeafe',
+                          color: '#1e40af',
                           padding: '2px 8px',
                           borderRadius: '12px',
                           fontSize: '12px',
                           fontWeight: '600'
                         }}>
-                          {atividade.etapa === 'CAPTACAO' ? '📋 Captação' : 
-                           atividade.etapa === 'PRE_INTERNAMENTO' ? '🏥 Pré-internamento' : 
-                           atividade.etapa === 'INTERNADO' ? '🛏️ Internado' : 'N/A'}
+                          🏷️ {atividade.etapa || 'N/A'}
                         </span>
                       </div>
                     </div>

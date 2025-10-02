@@ -241,7 +241,7 @@ export default function ProcessosPage() {
                   background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent'
-                }}>Gerenciar Processos</h1>
+                }}>Gerenciar Vinculo de Entidade/Processos</h1>
                 <p style={{ 
                   fontSize: '16px', 
                   color: '#666', 
@@ -288,12 +288,12 @@ export default function ProcessosPage() {
             border: '1px solid rgba(255,255,255,0.2)'
           }}>
             <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1f2937', margin: '0 0 25px 0' }}>
-              ➕ Criar Novo Processo
+              ➕ Criar Novo Vinculo
             </h2>
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                  Paciente *
+                  Entidade *
                 </label>
                 <select
                   value={selectedPaciente}
@@ -321,7 +321,7 @@ export default function ProcessosPage() {
               
               <div style={{ marginBottom: '25px' }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>
-                  Complexidade *
+                  Processo *
                 </label>
                 <select
                   value={selectedComplexidade}
@@ -381,7 +381,7 @@ export default function ProcessosPage() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#1a202c', margin: '0' }}>
-                📋 Processos Ativos
+                📋 Vinculos Ativos
               </h2>
               <div style={{
                 background: 'linear-gradient(135deg, #ed8936, #dd6b20)',

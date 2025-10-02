@@ -9,15 +9,17 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
     }
     
-    const paciente = await prisma.paciente.update({
+    const paciente = await prisma.entidade.update({
       where: { id: params.id },
       data: { 
         nome: nome.trim(),
-        telefone: telefone?.trim() || null,
-        convenio: convenio?.trim() || null,
-        numeroCartao: numeroCartao?.trim() || null,
-        responsavelNome: responsavelNome?.trim() || null,
-        responsavelTelefone: responsavelTelefone?.trim() || null
+        campos: {
+          telefone: telefone?.trim() || null,
+          convenio: convenio?.trim() || null,
+          numeroCartao: numeroCartao?.trim() || null,
+          responsavelNome: responsavelNome?.trim() || null,
+          responsavelTelefone: responsavelTelefone?.trim() || null
+        }
       }
     })
     return NextResponse.json(paciente)
@@ -28,22 +30,22 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    // Excluir movimentações dos processos do paciente
+    // Excluir movimentações dos processos da entidade
     await prisma.movimentacaoWorkflow.deleteMany({
       where: {
         processo: {
-          pacienteId: params.id
+          entidadeId: params.id
         }
       }
     })
     
-    // Excluir processos do paciente
-    await prisma.processoPaciente.deleteMany({
-      where: { pacienteId: params.id }
+    // Excluir processos da entidade
+    await prisma.processoWorkflow.deleteMany({
+      where: { entidadeId: params.id }
     })
     
-    // Excluir paciente
-    await prisma.paciente.delete({
+    // Excluir entidade
+    await prisma.entidade.delete({
       where: { id: params.id }
     })
     

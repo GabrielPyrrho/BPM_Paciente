@@ -22,6 +22,7 @@ export default function Home() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
+        // Buscar dados reais das APIs
         const [pacientesRes, processosRes, dashboardRes] = await Promise.all([
           fetch('/api/pacientes').catch(() => ({ json: () => [] })),
           fetch('/api/processos').catch(() => ({ json: () => [] })),
@@ -183,23 +184,30 @@ export default function Home() {
             Acesse os módulos do sistema para gerenciar workflows de qualquer natureza
           </p>
         </div>
-
-        {/* Cards de Módulos em Sequência */}
+        {/* Cards de Módulos */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-          
-          {/* 0. Etapas */}
           <a href="/etapas" style={{ textDecoration: 'none' }}>
             <div style={{ 
               background: 'white',
               padding: '24px',
               borderRadius: '12px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              border: '2px solid #f59e0b',
+              border: '1px solid #e2e8f0',
               transition: 'all 0.2s ease',
               cursor: 'pointer',
               height: '160px',
               display: 'flex',
               flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#3b82f6'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
@@ -227,19 +235,28 @@ export default function Home() {
             </div>
           </a>
 
-          {/* 1. Atividades */}
           <a href="/atividades" style={{ textDecoration: 'none' }}>
             <div style={{ 
               background: 'white',
               padding: '24px',
               borderRadius: '12px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              border: '2px solid #10b981',
+              border: '1px solid #e2e8f0',
               transition: 'all 0.2s ease',
               cursor: 'pointer',
               height: '160px',
               display: 'flex',
               flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#3b82f6'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
@@ -261,25 +278,36 @@ export default function Home() {
               </div>
               <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Cadastre atividades que serão executadas nos workflows (ex: Coleta Documentos)</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Gerenciar atividades</span>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  Gerenciar atividades
+                </span>
                 <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
               </div>
             </div>
           </a>
 
-          {/* 2. Tipos de Workflow */}
           <a href="/complexidades" style={{ textDecoration: 'none' }}>
             <div style={{ 
               background: 'white',
               padding: '24px',
               borderRadius: '12px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              border: '2px solid #f59e0b',
+              border: '1px solid #e2e8f0',
               transition: 'all 0.2s ease',
               cursor: 'pointer',
               height: '160px',
               display: 'flex',
               flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#3b82f6'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
@@ -295,31 +323,42 @@ export default function Home() {
                   🔧
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>2. Criar Processos</h3>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>2. Tipos de Workflow</h3>
                   <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Agrupamento</div>
                 </div>
               </div>
               <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Crie tipos de workflow agrupando atividades (ex: HC24, HC48, Contrato)</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Gerenciar tipos</span>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  Gerenciar tipos
+                </span>
                 <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
               </div>
             </div>
           </a>
 
-          {/* 3. Entidades */}
           <a href="/pacientes" style={{ textDecoration: 'none' }}>
             <div style={{ 
               background: 'white',
               padding: '24px',
               borderRadius: '12px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              border: '2px solid #8b5cf6',
+              border: '1px solid #e2e8f0',
               transition: 'all 0.2s ease',
               cursor: 'pointer',
               height: '160px',
               display: 'flex',
               flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#3b82f6'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
@@ -349,19 +388,79 @@ export default function Home() {
             </div>
           </a>
 
-          {/* 4. Processos */}
-          <a href="/processos" style={{ textDecoration: 'none' }}>
+          <a href="/atividades" style={{ textDecoration: 'none' }}>
             <div style={{ 
               background: 'white',
               padding: '24px',
               borderRadius: '12px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              border: '2px solid #ef4444',
+              border: '1px solid #e2e8f0',
               transition: 'all 0.2s ease',
               cursor: 'pointer',
               height: '160px',
               display: 'flex',
               flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#3b82f6'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{
+                  width: '48px',
+                  height: '48px',
+                  background: '#f0fdf4',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '24px'
+                }}>
+                  📋
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>1. Atividades</h3>
+                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Cadastro Base</div>
+                </div>
+              </div>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Cadastre atividades que serão executadas nos workflows (ex: Coleta Documentos)</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  Gerenciar atividades
+                </span>
+                <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="/complexidades" style={{ textDecoration: 'none' }}>
+            <div style={{ 
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              border: '1px solid #e2e8f0',
+              transition: 'all 0.2s ease',
+              cursor: 'pointer',
+              height: '160px',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#3b82f6'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
@@ -374,67 +473,24 @@ export default function Home() {
                   justifyContent: 'center',
                   fontSize: '24px'
                 }}>
-                  ⚙️
+                  🔧
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>4. Vinculo Entidade/Processos</h3>
-                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Ligação</div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>2. Tipos de Workflow</h3>
+                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Agrupamento</div>
                 </div>
               </div>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Vincule uma Entidade a um processo</p>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Crie tipos de workflow agrupando atividades (ex: HC24, HC48, Contrato)</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
                 <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                  {loading ? 'Carregando...' : `Ativos: ${stats.processosAtivos} processos`}
+                  Gerenciar tipos
                 </span>
                 <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
               </div>
             </div>
           </a>
 
-          {/* 5. Execução Workflow */}
-          <a href="/workflow" style={{ textDecoration: 'none' }}>
-            <div style={{ 
-              background: 'white',
-              padding: '24px',
-              borderRadius: '12px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              border: '2px solid #06b6d4',
-              transition: 'all 0.2s ease',
-              cursor: 'pointer',
-              height: '160px',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                <div style={{
-                  width: '48px',
-                  height: '48px',
-                  background: '#faf5ff',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '24px'
-                }}>
-                  📋
-                </div>
-                <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>5. Execução Workflow</h3>
-                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Operação</div>
-                </div>
-              </div>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Execute e controle o status das atividades dos processos criados</p>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                  {loading ? 'Carregando...' : `Em andamento: ${stats.workflowsAndamento} workflows`}
-                </span>
-                <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
-              </div>
-            </div>
-          </a>
-
-          {/* Dashboard */}
-          <a href="/dashboard" style={{ textDecoration: 'none' }}>
+          <a href="/etapas" style={{ textDecoration: 'none' }}>
             <div style={{ 
               background: 'white',
               padding: '24px',
@@ -446,34 +502,45 @@ export default function Home() {
               height: '160px',
               display: 'flex',
               flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#3b82f6'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
                   width: '48px',
                   height: '48px',
-                  background: '#eff6ff',
+                  background: '#fef3c7',
                   borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '24px'
                 }}>
-                  📊
+                  🏷️
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Dashboard</h3>
-                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Relatórios</div>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>0. Etapas (Abas)</h3>
+                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Organização</div>
                 </div>
               </div>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Visualize estatísticas, indicadores de performance e relatórios em tempo real</p>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Defina as abas/etapas que organizam as atividades (ex: Captação, Análise)</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Último acesso: Hoje</span>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  Gerenciar etapas
+                </span>
                 <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
               </div>
             </div>
           </a>
 
-          {/* Diagnóstico */}
           <a href="/diagnostico" style={{ textDecoration: 'none' }}>
             <div style={{ 
               background: 'white',
@@ -486,6 +553,16 @@ export default function Home() {
               height: '160px',
               display: 'flex',
               flexDirection: 'column'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.borderColor = '#3b82f6'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.borderColor = '#e2e8f0'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
@@ -507,12 +584,13 @@ export default function Home() {
               </div>
               <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Visualize os vínculos entre processos, atividades e workflows</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Analisar sistema</span>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                  Analisar sistema
+                </span>
                 <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
               </div>
             </div>
           </a>
-
         </div>
         
         {/* Estatísticas Rápidas */}

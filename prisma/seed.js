@@ -19,17 +19,17 @@ async function main() {
     skipDuplicates: true
   })
 
-  // Criar tipos de workflow padrão
-  const tiposWorkflow = [
-    { nome: 'HC24', descricao: 'Internamento 24 horas', categoria: 'HOSPITALAR' },
-    { nome: 'HC48', descricao: 'Internamento 48 horas', categoria: 'HOSPITALAR' },
-    { nome: 'NOTA_FISCAL', descricao: 'Processamento de Nota Fiscal', categoria: 'FINANCEIRO' }
-  ]
+  // // Criar tipos de workflow padrão
+  // const tiposWorkflow = [
+  //   { nome: 'HC24', descricao: 'Internamento 24 horas', categoria: 'HOSPITALAR' },
+  //   { nome: 'HC48', descricao: 'Internamento 48 horas', categoria: 'HOSPITALAR' },
+  //   { nome: 'NOTA_FISCAL', descricao: 'Processamento de Nota Fiscal', categoria: 'FINANCEIRO' }
+  // ]
 
-  await prisma.tipoWorkflow.createMany({
-    data: tiposWorkflow,
-    skipDuplicates: true
-  })
+  // await prisma.tipoWorkflow.createMany({
+  //   data: tiposWorkflow,
+  //   skipDuplicates: true
+  // })
 
   console.log('Seed executado com sucesso!')
 }
