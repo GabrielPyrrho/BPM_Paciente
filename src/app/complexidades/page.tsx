@@ -22,6 +22,12 @@ export default function ComplexidadesPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [novaComplexidade, setNovaComplexidade] = useState({ nome: '', atividadeIds: [] as string[] })
+  
+  // Estados dos modais
+  const [modalEditarAberto, setModalEditarAberto] = useState(false)
+  const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
+  const [complexidadeSelecionada, setComplexidadeSelecionada] = useState<Complexidade | null>(null)
+  const [editandoComplexidade, setEditandoComplexidade] = useState({ nome: '', atividadeIds: [] as string[] })
 
   useEffect(() => {
     carregarDados()
@@ -66,6 +72,60 @@ export default function ComplexidadesPage() {
       console.error('Erro ao criar complexidade:', error)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const abrirModalEditar = (complexidade: Complexidade) => {
+    setComplexidadeSelecionada(complexidade)
+    setEditandoComplexidade({
+      nome: complexidade.nome,
+      atividadeIds: complexidade.atividades.map(a => a.atividade.id)
+    })
+    setModalEditarAberto(true)
+  }
+
+  const editarComplexidade = async () => {
+    if (!complexidadeSelecionada) return
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/complexidades/${complexidadeSelecionada.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editandoComplexidade)
+      })
+      
+      if (res.ok) {
+        setModalEditarAberto(false)
+        await carregarDados()
+      }
+    } catch (error) {
+      console.error('Erro ao editar complexidade:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const abrirModalExcluir = (complexidade: Complexidade) => {
+    setComplexidadeSelecionada(complexidade)
+    setModalExcluirAberto(true)
+  }
+
+  const excluirComplexidade = async () => {
+    if (!complexidadeSelecionada) return
+    try {
+      const res = await fetch(`/api/complexidades/${complexidadeSelecionada.id}`, {
+        method: 'DELETE'
+      })
+      
+      if (res.ok) {
+        setModalExcluirAberto(false)
+        await carregarDados()
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Erro ao excluir')
+      }
+    } catch (error) {
+      console.error('Erro ao excluir complexidade:', error)
     }
   }
 
@@ -359,11 +419,208 @@ export default function ComplexidadesPage() {
                       ))}
                     </div>
                   </div>
+                  
+                  {/* Botões de ação */}
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: '8px', 
+                    marginTop: '15px',
+                    justifyContent: 'flex-end'
+                  }}>
+                    <button
+                      onClick={() => abrirModalEditar(complexidade)}
+                      style={{
+                        background: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ✏️ Editar
+                    </button>
+                    <button
+                      onClick={() => abrirModalExcluir(complexidade)}
+                      style={{
+                        background: '#ef4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '6px 12px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      🗑️ Excluir
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </div>
+
+        {/* Modal Editar */}
+        {modalEditarAberto && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              padding: '30px',
+              maxWidth: '500px',
+              width: '90%',
+              maxHeight: '80vh',
+              overflowY: 'auto'
+            }}>
+              <h3 style={{ margin: '0 0 20px 0', fontSize: '20px', fontWeight: '600' }}>✏️ Editar Processo</h3>
+              
+              <input
+                type="text"
+                value={editandoComplexidade.nome}
+                onChange={(e) => setEditandoComplexidade({...editandoComplexidade, nome: e.target.value})}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  marginBottom: '15px',
+                  boxSizing: 'border-box'
+                }}
+                placeholder="Nome da complexidade"
+              />
+              
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500' }}>Atividades:</label>
+                <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #d1d5db', borderRadius: '8px', padding: '10px' }}>
+                  {atividades.map(atividade => (
+                    <label key={atividade.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={editandoComplexidade.atividadeIds.includes(atividade.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setEditandoComplexidade({
+                              ...editandoComplexidade,
+                              atividadeIds: [...editandoComplexidade.atividadeIds, atividade.id]
+                            })
+                          } else {
+                            setEditandoComplexidade({
+                              ...editandoComplexidade,
+                              atividadeIds: editandoComplexidade.atividadeIds.filter(id => id !== atividade.id)
+                            })
+                          }
+                        }}
+                      />
+                      <span style={{ fontSize: '14px' }}>{atividade.nome}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setModalEditarAberto(false)}
+                  style={{
+                    padding: '10px 20px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '8px',
+                    background: 'white',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={editarComplexidade}
+                  disabled={saving}
+                  style={{
+                    padding: '10px 20px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    background: saving ? '#9ca3af' : '#3b82f6',
+                    color: 'white',
+                    cursor: saving ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {saving ? 'Salvando...' : 'Salvar'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Excluir */}
+        {modalExcluirAberto && complexidadeSelecionada && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              padding: '30px',
+              maxWidth: '400px',
+              width: '90%'
+            }}>
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '18px', fontWeight: '600', color: '#ef4444' }}>⚠️ Excluir Processo</h3>
+              
+              <p style={{ margin: '0 0 20px 0', color: '#374151' }}>
+                Tem certeza que deseja excluir o processo <strong>{complexidadeSelecionada.nome}</strong>?
+              </p>
+              
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                <button
+                  onClick={() => setModalExcluirAberto(false)}
+                  style={{
+                    padding: '10px 20px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '8px',
+                    background: 'white',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={excluirComplexidade}
+                  style={{
+                    padding: '10px 20px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    background: '#ef4444',
+                    color: 'white',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🗑️ Excluir
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       
       <style jsx>{`

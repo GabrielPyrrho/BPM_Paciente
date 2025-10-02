@@ -336,12 +336,12 @@ export default function PacientesPage() {
                   background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent'
-                }}>Gerenciar Pacientes</h1>
+                }}>Gerenciar Entidades</h1>
                 <p style={{ 
                   fontSize: '16px', 
                   color: '#666', 
                   margin: '5px 0 0 0'
-                }}>Cadastre e gerencie pacientes do sistema</p>
+                }}>Cadastre e gerencie entidades do sistema</p>
               </div>
             </div>
             <a href="/" style={{ textDecoration: 'none' }}>
@@ -360,12 +360,12 @@ export default function PacientesPage() {
                 gap: '8px'
               }}
               onMouseEnter={(e) => {
-                e.target.style.background = '#3b82f6'
-                e.target.style.color = 'white'
+                e.currentTarget.style.background = '#3b82f6'
+                e.currentTarget.style.color = 'white'
               }}
               onMouseLeave={(e) => {
-                e.target.style.background = 'rgba(255,255,255,0.9)'
-                e.target.style.color = '#1d4ed8'
+                e.currentTarget.style.background = 'rgba(255,255,255,0.9)'
+                e.currentTarget.style.color = '#1d4ed8'
               }}>
                 ← Voltar
               </button>
@@ -385,13 +385,13 @@ export default function PacientesPage() {
             height: 'fit-content'
           }}>
             <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1f2937', margin: '0 0 25px 0' }}>
-              {editingId ? 'Editar Paciente' : 'Novo Paciente'}
+              {editingId ? 'Editar Paciente' : 'Nova Entidade'}
             </h2>
             
             <form onSubmit={handleSubmit}>
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
-                  Nome Completo *
+                  Nome *
                 </label>
                 <input
                   type="text"
@@ -547,8 +547,8 @@ export default function PacientesPage() {
                     transform: 'translateY(0)',
                     boxShadow: '0 10px 20px rgba(59, 130, 246, 0.3)'
                   }}
-                  onMouseEnter={(e) => !loading && (e.target.style.transform = 'translateY(-2px)')}
-                  onMouseLeave={(e) => !loading && (e.target.style.transform = 'translateY(0)')}
+                  onMouseEnter={(e) => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                  onMouseLeave={(e) => !loading && (e.currentTarget.style.transform = 'translateY(0)')}
                 >
                   {loading ? '⏳ Salvando...' : (editingId ? '✏️ Atualizar' : '✨ Cadastrar')}
                 </button>
@@ -583,7 +583,7 @@ export default function PacientesPage() {
             border: '1px solid #e2e8f0'
           }}>
             <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0 0 24px 0' }}>
-              Pacientes Cadastrados ({pacientes.length})
+              Entidades Cadastradas ({pacientes.length})
             </h3>
 
             <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
