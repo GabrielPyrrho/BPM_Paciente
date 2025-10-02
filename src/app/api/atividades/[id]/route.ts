@@ -37,17 +37,17 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    // Verificar se a atividade está sendo usada em alguma complexidade
-    const complexidadeAtividade = await prisma.complexidadeAtividade.findFirst({
+    // Excluir movimentações primeiro
+    await prisma.movimentacaoWorkflow.deleteMany({
       where: { atividadeId: params.id }
     })
     
-    if (complexidadeAtividade) {
-      return NextResponse.json({ 
-        error: 'Não é possível excluir esta atividade pois ela está sendo usada em uma complexidade' 
-      }, { status: 400 })
-    }
+    // Excluir relações com complexidades
+    await prisma.complexidadeAtividade.deleteMany({
+      where: { atividadeId: params.id }
+    })
     
+    // Excluir a atividade
     await prisma.atividadeTemplate.delete({
       where: { id: params.id }
     })

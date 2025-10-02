@@ -17,6 +17,7 @@ export default function Home() {
     taxaConclusao: 0
   })
   const [loading, setLoading] = useState(true)
+  const [adminClicks, setAdminClicks] = useState(0)
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -53,6 +54,15 @@ export default function Home() {
 
     fetchStats()
   }, [])
+
+  const handleLogoClick = () => {
+    setAdminClicks(prev => prev + 1)
+    if (adminClicks >= 4) {
+      window.location.href = '/admin'
+    }
+    setTimeout(() => setAdminClicks(0), 3000)
+  }
+
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -69,16 +79,29 @@ export default function Home() {
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                background: '#3b82f6',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '20px'
-              }}>
+              <div 
+                onClick={handleLogoClick}
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  background: '#3b82f6',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.05)'
+                  e.currentTarget.style.background = '#2563eb'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)'
+                  e.currentTarget.style.background = '#3b82f6'
+                }}
+              >
                 🏥
               </div>
               <div>

@@ -228,12 +228,12 @@ export default function WorkflowPage() {
   const [usuarioAtual, setUsuarioAtual] = useState('')
   const [pacienteSelecionado, setPacienteSelecionado] = useState('')
   const [pacientes, setPacientes] = useState<Paciente[]>([])
-  const [mounted, setMounted] = useState(false)
-
-  // Garantir que está no cliente
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const [atividades, setAtividades] = useState<Atividade[]>([])
+  
+  // Estados do modal
+  const [modalAberto, setModalAberto] = useState(false)
+  const [atividadeModal, setAtividadeModal] = useState<Atividade | null>(null)
+  const [statusModal, setStatusModal] = useState<'OK' | 'NOK'>('OK')
 
   // Carregar pacientes com processos
   useEffect(() => {
@@ -248,20 +248,11 @@ export default function WorkflowPage() {
         }))
         setPacientes(pacientesComProcessos)
       })
-      .catch(() => {
-        // Fallback se API não funcionar
-        setPacientes([
-          { id: '1', nome: 'Augusto Amorim', processoId: '1', complexidade: 'HC-24' },
-          { id: '2', nome: 'Maria Silva', processoId: '2', complexidade: 'HC-48' }
-        ])
+      .catch(error => {
+        console.error('Erro ao carregar pacientes:', error)
+        setPacientes([])
       })
   }, [])
-  const [atividades, setAtividades] = useState<Atividade[]>([])
-  
-  // Estados do modal
-  const [modalAberto, setModalAberto] = useState(false)
-  const [atividadeModal, setAtividadeModal] = useState<Atividade | null>(null)
-  const [statusModal, setStatusModal] = useState<'OK' | 'NOK'>('OK')
 
   // Carregar atividades baseadas na complexidade do processo
   useEffect(() => {
@@ -269,10 +260,15 @@ export default function WorkflowPage() {
       const paciente = pacientes.find(p => p.id === pacienteSelecionado)
       if (!paciente) return
 
-      // Buscar atividades do processo no banco
+      console.log('Carregando atividades para processo:', paciente.processoId)
+      
       fetch(`/api/processos/${paciente.processoId}`)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`)
+          return res.json()
+        })
         .then(processo => {
+          console.log('Processo carregado:', processo)
           if (processo.atividades) {
             const atividadesFormatadas = processo.atividades.map((mov: any) => ({
               id: mov.id,
@@ -280,23 +276,26 @@ export default function WorkflowPage() {
               setor: mov.atividade.setor || 'N/A',
               grupo: mov.atividade.etapa === 'CAPTACAO' ? 'Captação' :
                      mov.atividade.etapa === 'PRE_INTERNAMENTO' ? 'Pré-internamento' :
-                     mov.atividade.etapa === 'INTERNADO' ? 'Internado' : 'Outros',
+                     mov.atividade.etapa === 'INTERNADO' ? 'Internado' : 'Captação',
               status: mov.status,
               dataHora: mov.horaFim ? new Date(mov.horaFim).toLocaleString('pt-BR') : undefined,
               responsavel: mov.responsavel?.nome,
               observacao: mov.observacao
             }))
+            console.log('Atividades formatadas:', atividadesFormatadas)
             setAtividades(atividadesFormatadas)
           }
         })
-        .catch(() => {
-          // Fallback para atividades estáticas se API falhar
+        .catch(error => {
+          console.error('Erro ao carregar atividades:', error)
           setAtividades([])
         })
     }
   }, [pacienteSelecionado, pacientes])
 
   const abrirModal = (id: string, novoStatus: 'OK' | 'NOK') => {
+    console.log('Abrindo modal para atividade:', id, 'status:', novoStatus)
+    
     if (!usuarioAtual) {
       alert('Selecione um usuário primeiro!')
       return
@@ -308,7 +307,13 @@ export default function WorkflowPage() {
     }
 
     const atividade = atividades.find(a => a.id === id)
-    if (!atividade) return
+    if (!atividade) {
+      console.error('Atividade não encontrada:', id)
+      alert('Atividade não encontrada!')
+      return
+    }
+
+    console.log('Atividade encontrada:', atividade)
 
     // Bloquear marcação manual de finalização
     if (atividade.nome.includes('Finalização Etapa')) {
@@ -322,11 +327,15 @@ export default function WorkflowPage() {
   }
 
   const confirmarAtividade = async (observacao: string) => {
-    if (!atividadeModal) return
+    if (!atividadeModal) {
+      console.error('Nenhuma atividade selecionada')
+      return
+    }
+
+    console.log('Confirmando atividade:', atividadeModal.id, 'status:', statusModal)
 
     try {
-      // Atualizar no banco
-      await fetch(`/api/workflow/${atividadeModal.id}`, {
+      const response = await fetch(`/api/workflow/${atividadeModal.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -336,10 +345,25 @@ export default function WorkflowPage() {
         })
       })
 
+      console.log('Response status:', response.status)
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Erro na resposta:', errorData)
+        throw new Error(errorData.error || 'Erro na resposta do servidor')
+      }
+
+      const result = await response.json()
+      console.log('Atividade atualizada:', result)
+
       // Recarregar atividades
       const paciente = pacientes.find(p => p.id === pacienteSelecionado)
       if (paciente) {
         const res = await fetch(`/api/processos/${paciente.processoId}`)
+        if (!res.ok) {
+          throw new Error('Erro ao recarregar processo')
+        }
+        
         const processo = await res.json()
         
         if (processo.atividades) {
@@ -349,24 +373,23 @@ export default function WorkflowPage() {
             setor: mov.atividade.setor || 'N/A',
             grupo: mov.atividade.etapa === 'CAPTACAO' ? 'Captação' :
                    mov.atividade.etapa === 'PRE_INTERNAMENTO' ? 'Pré-internamento' :
-                   mov.atividade.etapa === 'INTERNADO' ? 'Internado' : 'Outros',
+                   mov.atividade.etapa === 'INTERNADO' ? 'Internado' : 'Captação',
             status: mov.status,
             dataHora: mov.horaFim ? new Date(mov.horaFim).toLocaleString('pt-BR') : undefined,
             responsavel: mov.responsavel?.nome,
             observacao: mov.observacao
           }))
           setAtividades(atividadesFormatadas)
+          alert('Atividade atualizada com sucesso!')
         }
       }
     } catch (error) {
       console.error('Erro ao atualizar atividade:', error)
-      alert('Erro ao atualizar atividade')
+      alert(`Erro ao atualizar atividade: ${error.message}`)
     }
   }
 
   const grupos = ['Captação', 'Pré-internamento', 'Internado']
-
-
 
   return (
     <div style={{ 
@@ -382,6 +405,7 @@ export default function WorkflowPage() {
         atividade={atividadeModal}
         status={statusModal}
       />
+      
       {/* Header Corporativo */}
       <div style={{ 
         background: 'white',

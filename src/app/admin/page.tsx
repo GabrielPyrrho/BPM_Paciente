@@ -1,6 +1,342 @@
 'use client'
 import { useState, useEffect } from 'react'
 
+function DiagnosticoTab({ diagnostico, setDiagnostico, corrigindo, setCorrigindo }) {
+  const carregarDiagnostico = async () => {
+    try {
+      const res = await fetch('/api/diagnostico')
+      const data = await res.json()
+      setDiagnostico(data)
+    } catch (error) {
+      console.error('Erro ao carregar diagnóstico:', error)
+    }
+  }
+
+  const executarCorrecao = async (acao) => {
+    setCorrigindo(true)
+    try {
+      const res = await fetch('/api/diagnostico', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ acao })
+      })
+      const result = await res.json()
+      alert(result.message || result.error)
+      await carregarDiagnostico()
+    } catch (error) {
+      alert('Erro na correção')
+    } finally {
+      setCorrigindo(false)
+    }
+  }
+
+  useEffect(() => {
+    carregarDiagnostico()
+  }, [])
+
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+      <div style={{
+        background: 'rgba(255,255,255,0.95)',
+        backdropFilter: 'blur(10px)',
+        padding: '30px',
+        borderRadius: '20px',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+        border: '1px solid rgba(255,255,255,0.2)'
+      }}>
+        <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#1f2937' }}>
+          🔍 Diagnóstico do Sistema
+        </h3>
+        
+        {diagnostico ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <div style={{
+              padding: '15px',
+              background: diagnostico.duplicadas.length > 0 ? '#fef2f2' : '#f0fdf4',
+              border: `1px solid ${diagnostico.duplicadas.length > 0 ? '#fecaca' : '#bbf7d0'}`,
+              borderRadius: '8px'
+            }}>
+              <strong>Atividades Duplicadas: {diagnostico.duplicadas.length}</strong>
+              {diagnostico.duplicadas.length > 0 && (
+                <div style={{ marginTop: '10px', fontSize: '14px' }}>
+                  {diagnostico.duplicadas.map(d => (
+                    <div key={d.id}>• {d.nome}</div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div style={{
+              padding: '15px',
+              background: diagnostico.semEtapa.length > 0 ? '#fef2f2' : '#f0fdf4',
+              border: `1px solid ${diagnostico.semEtapa.length > 0 ? '#fecaca' : '#bbf7d0'}`,
+              borderRadius: '8px'
+            }}>
+              <strong>Atividades sem Etapa: {diagnostico.semEtapa.length}</strong>
+            </div>
+            
+            <div style={{
+              padding: '15px',
+              background: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              borderRadius: '8px'
+            }}>
+              <strong>Total de Atividades: {diagnostico.totalAtividades}</strong>
+            </div>
+          </div>
+        ) : (
+          <p>Carregando diagnóstico...</p>
+        )}
+      </div>
+      
+      <div style={{
+        background: 'rgba(255,255,255,0.95)',
+        backdropFilter: 'blur(10px)',
+        padding: '30px',
+        borderRadius: '20px',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+        border: '1px solid rgba(255,255,255,0.2)'
+      }}>
+        <h3 style={{ fontSize: '20px', fontWeight: '600', marginBottom: '20px', color: '#1f2937' }}>
+          🔧 Correções
+        </h3>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <button
+            onClick={() => executarCorrecao('limpar_duplicadas')}
+            disabled={corrigindo || !diagnostico?.duplicadas.length}
+            style={{
+              padding: '15px',
+              background: corrigindo ? '#9ca3af' : '#ef4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: corrigindo ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              fontWeight: '600'
+            }}
+          >
+            {corrigindo ? 'Corrigindo...' : '🗑️ Limpar Duplicadas'}
+          </button>
+          
+          <button
+            onClick={() => executarCorrecao('corrigir_etapas')}
+            disabled={corrigindo}
+            style={{
+              padding: '15px',
+              background: corrigindo ? '#9ca3af' : '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: corrigindo ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              fontWeight: '600'
+            }}
+          >
+            {corrigindo ? 'Corrigindo...' : '⚙️ Corrigir Etapas'}
+          </button>
+          
+          <button
+            onClick={carregarDiagnostico}
+            disabled={corrigindo}
+            style={{
+              padding: '15px',
+              background: corrigindo ? '#9ca3af' : '#10b981',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: corrigindo ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              fontWeight: '600'
+            }}
+          >
+            🔄 Atualizar Diagnóstico
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ExclusaoTab({ atividades, carregarDados }) {
+  const [selecionadas, setSelecionadas] = useState([])
+  const [excluindo, setExcluindo] = useState(false)
+
+  const toggleSelecionada = (id) => {
+    setSelecionadas(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    )
+  }
+
+  const selecionarTodas = () => {
+    setSelecionadas(atividades.map(a => a.id))
+  }
+
+  const limparSelecao = () => {
+    setSelecionadas([])
+  }
+
+  const excluirSelecionadas = async () => {
+    if (selecionadas.length === 0) {
+      alert('Selecione pelo menos uma atividade')
+      return
+    }
+
+    if (!confirm(`Tem certeza que deseja excluir ${selecionadas.length} atividade(s)?`)) {
+      return
+    }
+
+    setExcluindo(true)
+    try {
+      const promises = selecionadas.map(id => 
+        fetch(`/api/atividades/${id}`, { method: 'DELETE' })
+      )
+      
+      await Promise.all(promises)
+      alert(`${selecionadas.length} atividade(s) excluída(s) com sucesso!`)
+      setSelecionadas([])
+      await carregarDados()
+    } catch (error) {
+      alert('Erro ao excluir atividades')
+    } finally {
+      setExcluindo(false)
+    }
+  }
+
+  const excluirUma = async (id, nome) => {
+    if (!confirm(`Tem certeza que deseja excluir "${nome}"?`)) {
+      return
+    }
+
+    try {
+      const res = await fetch(`/api/atividades/${id}`, { method: 'DELETE' })
+      if (res.ok) {
+        alert('Atividade excluída com sucesso!')
+        await carregarDados()
+      } else {
+        const error = await res.json()
+        alert(error.error || 'Erro ao excluir atividade')
+      }
+    } catch (error) {
+      alert('Erro ao excluir atividade')
+    }
+  }
+
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.95)',
+      backdropFilter: 'blur(10px)',
+      padding: '30px',
+      borderRadius: '20px',
+      boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+      border: '1px solid rgba(255,255,255,0.2)'
+    }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#1f2937', margin: 0 }}>
+          🗑️ Exclusão Manual de Atividades
+        </h3>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button
+            onClick={selecionarTodas}
+            style={{
+              padding: '8px 16px',
+              background: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '12px',
+              cursor: 'pointer'
+            }}
+          >
+            Selecionar Todas
+          </button>
+          <button
+            onClick={limparSelecao}
+            style={{
+              padding: '8px 16px',
+              background: '#6b7280',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '12px',
+              cursor: 'pointer'
+            }}
+          >
+            Limpar Seleção
+          </button>
+          <button
+            onClick={excluirSelecionadas}
+            disabled={selecionadas.length === 0 || excluindo}
+            style={{
+              padding: '8px 16px',
+              background: selecionadas.length === 0 || excluindo ? '#9ca3af' : '#ef4444',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '12px',
+              cursor: selecionadas.length === 0 || excluindo ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {excluindo ? 'Excluindo...' : `Excluir Selecionadas (${selecionadas.length})`}
+          </button>
+        </div>
+      </div>
+
+      <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+        {atividades.map((atividade, index) => (
+          <div 
+            key={atividade.id} 
+            style={{ 
+              padding: '15px', 
+              background: selecionadas.includes(atividade.id) ? '#fef3c7' : 'white',
+              border: `1px solid ${selecionadas.includes(atividade.id) ? '#f59e0b' : '#e5e7eb'}`, 
+              borderRadius: '8px', 
+              marginBottom: '10px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+              <input
+                type="checkbox"
+                checked={selecionadas.includes(atividade.id)}
+                onChange={() => toggleSelecionada(atividade.id)}
+                style={{ transform: 'scale(1.2)' }}
+              />
+              <div>
+                <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '4px' }}>
+                  {atividade.nome}
+                </div>
+                <div style={{ fontSize: '12px', color: '#666' }}>
+                  Setor: {atividade.setor || 'N/A'} • Ordem: {atividade.ordem}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => excluirUma(atividade.id, atividade.nome)}
+              style={{
+                padding: '6px 12px',
+                background: '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                fontSize: '12px',
+                cursor: 'pointer',
+                fontWeight: '600'
+              }}
+            >
+              🗑️ Excluir
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 interface Atividade {
   id: string
   nome: string
@@ -22,6 +358,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('atividades')
+  const [diagnostico, setDiagnostico] = useState(null)
+  const [corrigindo, setCorrigindo] = useState(false)
   
   // Forms
   const [novaAtividade, setNovaAtividade] = useState({ nome: '', setor: '', ordem: 1 })
@@ -185,7 +523,12 @@ export default function AdminPage() {
           display: 'flex',
           gap: '8px'
         }}>
-          {[{id: 'atividades', label: 'Atividades', icon: '📋'}, {id: 'complexidades', label: 'Complexidades', icon: '🔧'}].map(tab => (
+          {[
+            {id: 'atividades', label: 'Atividades', icon: '📋'}, 
+            {id: 'complexidades', label: 'Complexidades', icon: '🔧'}, 
+            {id: 'diagnostico', label: 'Diagnóstico', icon: '🔍'},
+            {id: 'exclusao', label: 'Exclusão', icon: '🗑️'}
+          ].map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -245,70 +588,58 @@ export default function AdminPage() {
               </div>
               
               <form onSubmit={criarAtividade} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="text"
-                    placeholder="Nome da atividade"
-                    value={novaAtividade.nome}
-                    onChange={(e) => setNovaAtividade({...novaAtividade, nome: e.target.value})}
-                    style={{ 
-                      width: '100%',
-                      padding: '15px 20px', 
-                      border: '2px solid #e5e7eb', 
-                      borderRadius: '12px',
-                      fontSize: '16px',
-                      transition: 'all 0.3s ease',
-                      background: 'white',
-                      boxSizing: 'border-box'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                    onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                    required
-                  />
-                </div>
+                <input
+                  type="text"
+                  placeholder="Nome da atividade"
+                  value={novaAtividade.nome}
+                  onChange={(e) => setNovaAtividade({...novaAtividade, nome: e.target.value})}
+                  style={{ 
+                    width: '100%',
+                    padding: '15px 20px', 
+                    border: '2px solid #e5e7eb', 
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    transition: 'all 0.3s ease',
+                    background: 'white',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
                 
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="text"
-                    placeholder="Setor (opcional)"
-                    value={novaAtividade.setor}
-                    onChange={(e) => setNovaAtividade({...novaAtividade, setor: e.target.value})}
-                    style={{ 
-                      width: '100%',
-                      padding: '15px 20px', 
-                      border: '2px solid #e5e7eb', 
-                      borderRadius: '12px',
-                      fontSize: '16px',
-                      transition: 'all 0.3s ease',
-                      background: 'white',
-                      boxSizing: 'border-box'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                    onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                  />
-                </div>
+                <input
+                  type="text"
+                  placeholder="Setor (opcional)"
+                  value={novaAtividade.setor}
+                  onChange={(e) => setNovaAtividade({...novaAtividade, setor: e.target.value})}
+                  style={{ 
+                    width: '100%',
+                    padding: '15px 20px', 
+                    border: '2px solid #e5e7eb', 
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    transition: 'all 0.3s ease',
+                    background: 'white',
+                    boxSizing: 'border-box'
+                  }}
+                />
                 
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type="number"
-                    placeholder="Ordem"
-                    value={novaAtividade.ordem}
-                    onChange={(e) => setNovaAtividade({...novaAtividade, ordem: parseInt(e.target.value)})}
-                    style={{ 
-                      width: '100%',
-                      padding: '15px 20px', 
-                      border: '2px solid #e5e7eb', 
-                      borderRadius: '12px',
-                      fontSize: '16px',
-                      transition: 'all 0.3s ease',
-                      background: 'white',
-                      boxSizing: 'border-box'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                    onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                    min="1"
-                  />
-                </div>
+                <input
+                  type="number"
+                  placeholder="Ordem"
+                  value={novaAtividade.ordem}
+                  onChange={(e) => setNovaAtividade({...novaAtividade, ordem: parseInt(e.target.value)})}
+                  style={{ 
+                    width: '100%',
+                    padding: '15px 20px', 
+                    border: '2px solid #e5e7eb', 
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    transition: 'all 0.3s ease',
+                    background: 'white',
+                    boxSizing: 'border-box'
+                  }}
+                  min="1"
+                />
                 
                 <button 
                   type="submit" 
@@ -326,14 +657,22 @@ export default function AdminPage() {
                     transform: 'translateY(0)',
                     boxShadow: '0 10px 20px rgba(74, 222, 128, 0.3)'
                   }}
-                  onMouseEnter={(e) => !saving && (e.target.style.transform = 'translateY(-2px)')}
-                  onMouseLeave={(e) => !saving && (e.target.style.transform = 'translateY(0)')}
                 >
                   {saving ? '⏳ Salvando...' : '✨ Criar Atividade'}
                 </button>
               </form>
-              
-              <h3 style={{ fontSize: '20px', fontWeight: '600', margin: '30px 0 20px 0', color: '#1f2937' }}>Atividades Cadastradas</h3>
+            </div>
+
+            {/* Lista de Atividades */}
+            <div style={{ 
+              background: 'rgba(255,255,255,0.95)', 
+              backdropFilter: 'blur(10px)',
+              padding: '30px', 
+              borderRadius: '20px', 
+              boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+              border: '1px solid rgba(255,255,255,0.2)'
+            }}>
+              <h3 style={{ fontSize: '20px', fontWeight: '600', margin: '0 0 20px 0', color: '#1f2937' }}>Atividades Cadastradas</h3>
               <div style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '10px' }}>
                 {atividades.map((atividade, index) => (
                   <div 
@@ -346,16 +685,7 @@ export default function AdminPage() {
                       marginBottom: '15px',
                       transition: 'all 0.3s ease',
                       transform: 'translateX(0)',
-                      boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
-                      animation: `slideIn 0.5s ease ${index * 0.1}s both`
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateX(5px)'
-                      e.currentTarget.style.boxShadow = '0 10px 20px rgba(0,0,0,0.1)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateX(0)'
-                      e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
                     }}
                   >
                     <div style={{ fontWeight: '600', fontSize: '16px', color: '#1f2937', marginBottom: '8px' }}>{atividade.nome}</div>
@@ -367,8 +697,6 @@ export default function AdminPage() {
                 ))}
               </div>
             </div>
-
-            {/* Lista de Atividades */}
           </div>
         </div>
 
@@ -418,8 +746,6 @@ export default function AdminPage() {
                     background: 'white',
                     boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => e.target.style.borderColor = '#667eea'}
-                  onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                   required
                 />
                 
@@ -435,7 +761,7 @@ export default function AdminPage() {
                     padding: '15px',
                     background: 'white'
                   }}>
-                    {atividades.map((atividade, index) => (
+                    {atividades.map((atividade) => (
                       <label 
                         key={atividade.id} 
                         style={{ 
@@ -446,11 +772,8 @@ export default function AdminPage() {
                           cursor: 'pointer',
                           padding: '10px',
                           borderRadius: '8px',
-                          transition: 'all 0.3s ease',
-                          animation: `slideIn 0.3s ease ${index * 0.05}s both`
+                          transition: 'all 0.3s ease'
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = '#f3f4f6'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                       >
                         <input
                           type="checkbox"
@@ -495,8 +818,6 @@ export default function AdminPage() {
                     transform: 'translateY(0)',
                     boxShadow: '0 10px 20px rgba(245, 158, 11, 0.3)'
                   }}
-                  onMouseEnter={(e) => !saving && (e.target.style.transform = 'translateY(-2px)')}
-                  onMouseLeave={(e) => !saving && (e.target.style.transform = 'translateY(0)')}
                 >
                   {saving ? '⏳ Salvando...' : '🚀 Criar Complexidade'}
                 </button>
@@ -514,7 +835,7 @@ export default function AdminPage() {
             }}>
               <h3 style={{ fontSize: '20px', fontWeight: '600', margin: '0 0 20px 0', color: '#1f2937' }}>Complexidades Cadastradas</h3>
               <div style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '10px' }}>
-                {complexidades.map((complexidade, index) => (
+                {complexidades.map((complexidade) => (
                   <div 
                     key={complexidade.id} 
                     style={{ 
@@ -525,16 +846,7 @@ export default function AdminPage() {
                       marginBottom: '20px',
                       transition: 'all 0.3s ease',
                       transform: 'translateX(0)',
-                      boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
-                      animation: `slideIn 0.5s ease ${index * 0.1}s both`
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'translateX(5px)'
-                      e.currentTarget.style.boxShadow = '0 15px 30px rgba(0,0,0,0.1)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateX(0)'
-                      e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)'
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.05)'
                     }}
                   >
                     <div style={{ 
@@ -578,17 +890,36 @@ export default function AdminPage() {
             </div>
           </div>
         </div>
+
+        {/* Diagnóstico Tab */}
+        <div style={{ 
+          display: activeTab === 'diagnostico' ? 'block' : 'none',
+          animation: activeTab === 'diagnostico' ? 'fadeIn 0.5s ease' : 'none'
+        }}>
+          <DiagnosticoTab 
+            diagnostico={diagnostico}
+            setDiagnostico={setDiagnostico}
+            corrigindo={corrigindo}
+            setCorrigindo={setCorrigindo}
+          />
+        </div>
+
+        {/* Exclusão Tab */}
+        <div style={{ 
+          display: activeTab === 'exclusao' ? 'block' : 'none',
+          animation: activeTab === 'exclusao' ? 'fadeIn 0.5s ease' : 'none'
+        }}>
+          <ExclusaoTab 
+            atividades={atividades}
+            carregarDados={carregarDados}
+          />
+        </div>
       </div>
       
       <style jsx>{`
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateX(-20px); }
-          to { opacity: 1; transform: translateX(0); }
         }
         
         @keyframes spin {
