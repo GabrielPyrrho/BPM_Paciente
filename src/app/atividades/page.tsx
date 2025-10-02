@@ -23,9 +23,11 @@ export default function AtividadesPage() {
   const carregarAtividades = async () => {
     try {
       const res = await fetch('/api/atividades')
-      setAtividades(await res.json())
+      const data = await res.json()
+      setAtividades(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Erro ao carregar atividades:', error)
+      setAtividades([])
     } finally {
       setLoading(false)
     }

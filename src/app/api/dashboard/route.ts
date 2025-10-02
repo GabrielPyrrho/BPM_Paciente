@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   try {
     // Estatísticas básicas
-    const totalProcessos = await prisma.processoPaciente.count()
+    const totalProcessos = await prisma.processoWorkflow.count()
     
     const statusCounts = await prisma.movimentacaoWorkflow.groupBy({
       by: ['status'],
@@ -34,24 +34,16 @@ export async function GET() {
       ]
     }
 
-    return NextResponse.json(stats)
+    return NextResponse.json({ stats: {
+      workflowsAtivos: stats.pendentes,
+      taxaConclusao: Math.round((stats.concluidas / (stats.concluidas + stats.pendentes)) * 100) || 0
+    }})
   } catch (error) {
     console.error('Erro dashboard:', error)
     // Retorna dados mockados em caso de erro
-    return NextResponse.json({
-      solicitados: 45,
-      concluidas: 32,
-      pendentes: 12,
-      atrasadas: 3,
-      recentes: 8,
-      complexidades: [
-        { nome: 'HC-24', total: 28 },
-        { nome: 'HC-48', total: 17 }
-      ],
-      ultimosProcessos: [
-        { id: '1', paciente: 'João Silva', complexidade: 'HC-24', proximaAtividade: 'Orçamento' },
-        { id: '2', paciente: 'Maria Santos', complexidade: 'HC-48', proximaAtividade: 'Viabilidade' }
-      ]
-    })
+    return NextResponse.json({ stats: {
+      workflowsAtivos: 12,
+      taxaConclusao: 75
+    }})
   }
 }

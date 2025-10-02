@@ -153,12 +153,19 @@ export default function ProcessosPage() {
         fetch('/api/complexidades'),
         fetch('/api/processos')
       ])
-      setPacientes(await pacientesRes.json())
-      setComplexidades(await complexidadesRes.json())
-      const processos = await processosRes.json()
-      setTotalProcessos(Array.isArray(processos) ? processos.length : 0)
+      
+      const pacientesData = await pacientesRes.json()
+      const complexidadesData = await complexidadesRes.json()
+      const processosData = await processosRes.json()
+      
+      setPacientes(Array.isArray(pacientesData) ? pacientesData : [])
+      setComplexidades(Array.isArray(complexidadesData) ? complexidadesData : [])
+      setTotalProcessos(Array.isArray(processosData) ? processosData.length : 0)
     } catch (error) {
       console.error('Erro ao carregar dados:', error)
+      setPacientes([])
+      setComplexidades([])
+      setTotalProcessos(0)
     }
   }
 
@@ -172,8 +179,8 @@ export default function ProcessosPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          pacienteId: selectedPaciente,
-          complexidadeId: selectedComplexidade
+          entidadeId: selectedPaciente,
+          tipoWorkflowId: selectedComplexidade
         })
       })
       

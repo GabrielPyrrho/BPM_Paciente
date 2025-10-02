@@ -7,55 +7,64 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Paciente {
-  id                   String   @id @default(cuid())
-  nome                 String
-  telefone             String?
-  convenio             String?
-  numeroCartao         String?
-  responsavelNome      String?
-  responsavelTelefone  String?
-  processos            ProcessoPaciente[]
+model Entidade {
+  id        String   @id @default(cuid())
+  nome      String
+  tipo      String   // PESSOA, EMPRESA, DOCUMENTO
+  campos    Json?    // Campos dinâmicos específicos por tipo
+  processos ProcessoWorkflow[]
 }
 
-model Complexidade {
-  id       String   @id @default(cuid())
-  nome     String   // HC24, HC48
-  atividades ComplexidadeAtividade[]
-  processos ProcessoPaciente[]
+model TipoWorkflow {
+  id          String   @id @default(cuid())
+  nome        String   // HC24, HC48, NotaFiscal, Contrato
+  descricao   String?
+  categoria   String?  // HOSPITALAR, FINANCEIRO, JURIDICO
+  atividades  TipoWorkflowAtividade[]
+  processos   ProcessoWorkflow[]
+}
+
+model Etapa {
+  id          String   @id @default(cuid())
+  nome        String   // CAPTACAO, PRE_INTERNAMENTO, INTERNADO
+  descricao   String?
+  ordem       Int
+  cor         String?  // Para visualização
+  atividades  AtividadeTemplate[]
 }
 
 model AtividadeTemplate {
-  id       String   @id @default(cuid())
-  nome     String
-  setor    String?
-  ordem    Int
-  etapa    String?  // CAPTACAO, PRE_INTERNAMENTO, INTERNADO
-  complexidades ComplexidadeAtividade[]
+  id            String   @id @default(cuid())
+  nome          String
+  setor         String?
+  ordem         Int
+  etapaId       String
+  etapa         Etapa    @relation(fields: [etapaId], references: [id])
+  tipos         TipoWorkflowAtividade[]
   movimentacoes MovimentacaoWorkflow[]
 }
 
-model ComplexidadeAtividade {
+model TipoWorkflowAtividade {
   id             String   @id @default(cuid())
-  complexidadeId String
+  tipoWorkflowId String
   atividadeId    String
-  complexidade   Complexidade   @relation(fields: [complexidadeId], references: [id])
+  tipoWorkflow   TipoWorkflow      @relation(fields: [tipoWorkflowId], references: [id])
   atividade      AtividadeTemplate @relation(fields: [atividadeId], references: [id])
 }
 
-model ProcessoPaciente {
-  id            String   @id @default(cuid())
-  pacienteId    String
-  complexidadeId String
-  paciente      Paciente   @relation(fields: [pacienteId], references: [id])
-  complexidade  Complexidade @relation(fields: [complexidadeId], references: [id])
-  atividades    MovimentacaoWorkflow[]
+model ProcessoWorkflow {
+  id             String   @id @default(cuid())
+  entidadeId     String
+  tipoWorkflowId String
+  entidade       Entidade     @relation(fields: [entidadeId], references: [id])
+  tipoWorkflow   TipoWorkflow @relation(fields: [tipoWorkflowId], references: [id])
+  atividades     MovimentacaoWorkflow[]
 }
 
 model MovimentacaoWorkflow {
   id              String   @id @default(cuid())
   processoId      String
-  processo        ProcessoPaciente @relation(fields: [processoId], references: [id])
+  processo        ProcessoWorkflow @relation(fields: [processoId], references: [id])
   atividadeId     String
   atividade       AtividadeTemplate @relation(fields: [atividadeId], references: [id])
   responsavelId   String?

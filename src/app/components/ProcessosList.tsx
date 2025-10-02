@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react'
 
 interface Processo {
   id: string
-  paciente: { id: string; nome: string }
-  complexidade: { id: string; nome: string }
+  entidade?: { id: string; nome: string }
+  paciente?: { id: string; nome: string }
+  tipoWorkflow?: { id: string; nome: string }
+  complexidade?: { id: string; nome: string }
   atividades: Array<{
     status: string
     atividade: { nome: string }
@@ -37,7 +39,7 @@ function ModalEditar({ isOpen, onClose, onConfirm, processo, complexidades }: Mo
 
   useEffect(() => {
     if (isOpen && processo) {
-      setComplexidadeSelecionada(processo.complexidade.id)
+      setComplexidadeSelecionada(processo.tipoWorkflow?.id || processo.complexidade?.id || '')
     }
   }, [isOpen, processo])
 
@@ -123,13 +125,13 @@ function ModalEditar({ isOpen, onClose, onConfirm, processo, complexidades }: Mo
               color: '#1e293b',
               marginBottom: '4px'
             }}>
-              {processo.paciente.nome}
+              {processo.entidade?.nome || processo.paciente?.nome}
             </div>
             <div style={{
               fontSize: '12px',
               color: '#64748b'
             }}>
-              Complexidade atual: {processo.complexidade.nome}
+              Tipo atual: {processo.tipoWorkflow?.nome || processo.complexidade?.nome}
             </div>
           </div>
 
@@ -282,13 +284,13 @@ function ModalExcluir({ isOpen, onClose, onConfirm, processo }: ModalExcluirProp
               color: '#1e293b',
               marginBottom: '4px'
             }}>
-              {processo.paciente.nome}
+              {processo.entidade?.nome || processo.paciente?.nome}
             </div>
             <div style={{
               fontSize: '12px',
               color: '#64748b'
             }}>
-              Complexidade: {processo.complexidade.nome} • {processo.atividades.length} atividades
+              Tipo: {processo.tipoWorkflow?.nome || processo.complexidade?.nome} • {processo.atividades.length} atividades
             </div>
           </div>
 
@@ -367,10 +369,16 @@ export default function ProcessosList({ onProcessoExcluido }: ProcessosListProps
         fetch('/api/processos'),
         fetch('/api/complexidades')
       ])
-      setProcessos(await processosRes.json())
-      setComplexidades(await complexidadesRes.json())
+      const processosData = await processosRes.json()
+      const complexidadesData = await complexidadesRes.json()
+      
+      setProcessos(Array.isArray(processosData) ? processosData : [])
+      setComplexidades(Array.isArray(complexidadesData) ? complexidadesData : [])
       setLoading(false)
     } catch (error) {
+      console.error('Erro ao carregar dados:', error)
+      setProcessos([])
+      setComplexidades([])
       setLoading(false)
     }
   }
@@ -466,10 +474,10 @@ export default function ProcessosList({ onProcessoExcluido }: ProcessosListProps
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                 <div style={{ flex: 1 }}>
                   <h3 style={{ fontWeight: '600', fontSize: '16px', color: '#1a202c', marginBottom: '4px' }}>
-                    {processo.paciente.nome}
+                    {processo.entidade?.nome || processo.paciente?.nome}
                   </h3>
                   <p style={{ fontSize: '14px', color: '#64748b' }}>
-                    {processo.complexidade.nome}
+                    {processo.tipoWorkflow?.nome || processo.complexidade?.nome}
                   </p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

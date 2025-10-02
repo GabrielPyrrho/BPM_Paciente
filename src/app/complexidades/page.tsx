@@ -34,10 +34,15 @@ export default function ComplexidadesPage() {
         fetch('/api/complexidades')
       ])
       
-      setAtividades(await atividadesRes.json())
-      setComplexidades(await complexidadesRes.json())
+      const atividadesData = await atividadesRes.json()
+      const complexidadesData = await complexidadesRes.json()
+      
+      setAtividades(Array.isArray(atividadesData) ? atividadesData : [])
+      setComplexidades(Array.isArray(complexidadesData) ? complexidadesData : [])
     } catch (error) {
       console.error('Erro ao carregar dados:', error)
+      setAtividades([])
+      setComplexidades([])
     } finally {
       setLoading(false)
     }

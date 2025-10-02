@@ -1,75 +1,37 @@
 const { PrismaClient } = require('@prisma/client')
+
 const prisma = new PrismaClient()
 
 async function main() {
-  // Criar complexidades
-  const hc24 = await prisma.complexidade.create({
-    data: { nome: '24HC' }
-  })
-  
-  const avm24 = await prisma.complexidade.create({
-    data: { nome: '24AVM' }
-  })
-  
-  const hc12 = await prisma.complexidade.create({
-    data: { nome: '12HC' }
-  })
-  
-  const hc6 = await prisma.complexidade.create({
-    data: { nome: '6HC' }
-  })
-
-  // Criar atividades template reais
-  const atividades = [
-    // Captação
-    { nome: 'Solicitação Convênio', setor: 'Captação', ordem: 1 },
-    { nome: 'Vista de Enf. Captadora', setor: 'Captação', ordem: 2 },
-    { nome: 'Orçamento', setor: 'Captação', ordem: 3 },
-    { nome: 'Pré - Prescrição', setor: 'Captação', ordem: 4 },
-    { nome: 'Pré Escala', setor: 'Captação', ordem: 5 },
-    { nome: 'Posicionamento', setor: 'Captação', ordem: 6 },
-    { nome: 'Finalização 1 Etapa', setor: 'Captação', ordem: 7 },
-    
-    // Pré-internamento
-    { nome: 'Viabilidade Domicílio', setor: 'Pré-internamento', ordem: 8 },
-    { nome: 'Recepção - Pré - internamento', setor: 'Pré-internamento', ordem: 9 },
-    { nome: 'Escala', setor: 'Pré-internamento', ordem: 10 },
-    { nome: 'Plano Terapêutico', setor: 'Pré-internamento', ordem: 11 },
-    { nome: 'ITA', setor: 'Pré-internamento', ordem: 12 },
-    { nome: 'Supervisor de Enfermagem', setor: 'Pré-internamento', ordem: 13 },
-    { nome: 'Nutricionista', setor: 'Pré-internamento', ordem: 14 },
-    { nome: 'Fisioterapia', setor: 'Pré-internamento', ordem: 15 },
-    { nome: 'Fonoterapia', setor: 'Pré-internamento', ordem: 16 },
-    { nome: 'Logística', setor: 'Pré-internamento', ordem: 17 },
-    
-    // Internamento
-    { nome: 'Prescrição', setor: 'Internamento', ordem: 18 },
-    { nome: 'Farmácia', setor: 'Internamento', ordem: 19 },
-    { nome: 'Translade Paciente', setor: 'Internamento', ordem: 20 },
-    { nome: 'Visita ITA', setor: 'Internamento', ordem: 21 },
-    { nome: 'Visita do Supervisor de Enfermagem', setor: 'Internamento', ordem: 22 },
-    { nome: 'Visita Serviço Social - Relatório', setor: 'Internamento', ordem: 23 },
-    { nome: 'Visita Terapias', setor: 'Internamento', ordem: 24 },
-    { nome: 'Visita Nutrição', setor: 'Internamento', ordem: 25 }
+  // Criar etapas padrão
+  const etapas = [
+    { nome: 'CAPTACAO', descricao: 'Captação inicial', ordem: 1, cor: '#3B82F6' },
+    { nome: 'PRE_INTERNAMENTO', descricao: 'Pré-internamento', ordem: 2, cor: '#F59E0B' },
+    { nome: 'INTERNADO', descricao: 'Internado', ordem: 3, cor: '#10B981' },
+    { nome: 'RECEBIMENTO', descricao: 'Recebimento', ordem: 1, cor: '#8B5CF6' },
+    { nome: 'VALIDACAO', descricao: 'Validação', ordem: 2, cor: '#F59E0B' },
+    { nome: 'APROVACAO', descricao: 'Aprovação', ordem: 3, cor: '#EF4444' },
+    { nome: 'PAGAMENTO', descricao: 'Pagamento', ordem: 4, cor: '#10B981' }
   ]
 
-  for (const ativ of atividades) {
-    const atividade = await prisma.atividadeTemplate.create({
-      data: ativ
-    })
+  await prisma.etapa.createMany({
+    data: etapas,
+    skipDuplicates: true
+  })
 
-    // Associar todas as atividades às quatro complexidades
-    for (const complexidade of [hc24, avm24, hc12, hc6]) {
-      await prisma.complexidadeAtividade.create({
-        data: {
-          complexidadeId: complexidade.id,
-          atividadeId: atividade.id
-        }
-      })
-    }
-  }
+  // Criar tipos de workflow padrão
+  const tiposWorkflow = [
+    { nome: 'HC24', descricao: 'Internamento 24 horas', categoria: 'HOSPITALAR' },
+    { nome: 'HC48', descricao: 'Internamento 48 horas', categoria: 'HOSPITALAR' },
+    { nome: 'NOTA_FISCAL', descricao: 'Processamento de Nota Fiscal', categoria: 'FINANCEIRO' }
+  ]
 
-  console.log('Dados iniciais criados com sucesso!')
+  await prisma.tipoWorkflow.createMany({
+    data: tiposWorkflow,
+    skipDuplicates: true
+  })
+
+  console.log('Seed executado com sucesso!')
 }
 
 main()

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 
 interface DashboardStats {
-  totalPacientes: number
+  totalEntidades: number
   processosAtivos: number
   workflowsAndamento: number
   taxaConclusao: number
@@ -11,7 +11,7 @@ interface DashboardStats {
 
 export default function Home() {
   const [stats, setStats] = useState<DashboardStats>({
-    totalPacientes: 0,
+    totalEntidades: 0,
     processosAtivos: 0,
     workflowsAndamento: 0,
     taxaConclusao: 0
@@ -34,7 +34,7 @@ export default function Home() {
         const dashboard = await dashboardRes.json()
 
         setStats({
-          totalPacientes: Array.isArray(pacientes) ? pacientes.length : 0,
+          totalEntidades: Array.isArray(pacientes) ? pacientes.length : 0,
           processosAtivos: Array.isArray(processos) ? processos.length : 0,
           workflowsAndamento: dashboard.stats?.workflowsAtivos || 0,
           taxaConclusao: dashboard.stats?.taxaConclusao || 0
@@ -42,7 +42,7 @@ export default function Home() {
       } catch (error) {
         console.log('Usando dados padrão - APIs não disponíveis')
         setStats({
-          totalPacientes: 0,
+          totalEntidades: 0,
           processosAtivos: 0,
           workflowsAndamento: 0,
           taxaConclusao: 0
@@ -111,14 +111,14 @@ export default function Home() {
                   color: '#1e293b',
                   margin: '0'
                 }}>
-                  Sistema BPM Hospitalar
+                  Sistema BPM Genérico
                 </h1>
                 <p style={{ 
                   fontSize: '14px', 
                   color: '#64748b', 
                   margin: '0'
                 }}>
-                  Gestão de Processos de Internamento
+                  Gestão de Workflows Genéricos
                 </p>
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function Home() {
             color: '#64748b',
             margin: '0'
           }}>
-            Acesse os módulos do sistema para gerenciar processos de internamento
+            Acesse os módulos do sistema para gerenciar workflows de qualquer natureza
           </p>
         </div>
         {/* Cards de Módulos */}
@@ -272,14 +272,14 @@ export default function Home() {
                   👥
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Pacientes</h3>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Entidades</h3>
                   <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Módulo Ativo</div>
                 </div>
               </div>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Cadastro, edição e gerenciamento completo de pacientes do sistema</p>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Cadastro e gerenciamento de pessoas, empresas e documentos</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
                 <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                  {loading ? 'Carregando...' : `Total: ${stats.totalPacientes} pacientes`}
+                  {loading ? 'Carregando...' : `Total: ${stats.totalEntidades} entidades`}
                 </span>
                 <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
               </div>
@@ -375,10 +375,10 @@ export default function Home() {
                 </div>
                 <div>
                   <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Workflow BPM</h3>
-                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Módulo Principal</div>
+                  <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Sistema Genérico</div>
                 </div>
               </div>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Acompanhamento em tempo real das atividades e controle do fluxo</p>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Sistema genérico para gerenciar workflows de qualquer natureza</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
                 <span style={{ fontSize: '12px', color: '#94a3b8' }}>
                   {loading ? 'Carregando...' : `Em andamento: ${stats.workflowsAndamento} workflows`}
@@ -425,14 +425,14 @@ export default function Home() {
                   📋
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Atividades</h3>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Etapas</h3>
                   <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Configuração</div>
                 </div>
               </div>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Cadastre e gerencie as atividades do workflow hospitalar</p>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Configure etapas personalizadas para seus workflows</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
                 <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                  Gerenciar atividades
+                  Gerenciar etapas
                 </span>
                 <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
               </div>
@@ -476,14 +476,14 @@ export default function Home() {
                   🔧
                 </div>
                 <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Complexidades</h3>
+                  <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0' }}>Tipos de Workflow</h3>
                   <div style={{ fontSize: '12px', color: '#10b981', fontWeight: '500', marginTop: '2px' }}>Configuração</div>
                 </div>
               </div>
-              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Configure complexidades e associe atividades aos workflows</p>
+              <p style={{ fontSize: '14px', color: '#64748b', lineHeight: '1.5', margin: '0', flex: 1 }}>Configure tipos de workflow e associe atividades</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
                 <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                  Gerenciar complexidades
+                  Gerenciar tipos
                 </span>
                 <span style={{ fontSize: '18px', color: '#3b82f6' }}>→</span>
               </div>
@@ -504,9 +504,9 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '24px' }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '24px', fontWeight: '700', color: '#3b82f6', marginBottom: '4px' }}>
-                {loading ? '...' : stats.totalPacientes}
+                {loading ? '...' : stats.totalEntidades}
               </div>
-              <div style={{ fontSize: '14px', color: '#64748b' }}>Pacientes Cadastrados</div>
+              <div style={{ fontSize: '14px', color: '#64748b' }}>Entidades Cadastradas</div>
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '24px', fontWeight: '700', color: '#10b981', marginBottom: '4px' }}>
@@ -541,14 +541,14 @@ export default function Home() {
             fontSize: '14px',
             margin: '0 0 8px 0'
           }}>
-            Sistema BPM Hospitalar - Versão 2.1.0
+            Sistema BPM Genérico - Versão 2.1.0
           </p>
           <p style={{ 
             color: '#94a3b8', 
             fontSize: '12px',
             margin: '0'
           }}>
-            © 2024 - Todos os direitos reservados | Desenvolvido para otimizar processos hospitalares
+            © 2024 - Todos os direitos reservados | Sistema genérico de workflow
           </p>
         </div>
       </div>

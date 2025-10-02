@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    const complexidades = await prisma.complexidade.findMany({
+    const complexidades = await prisma.tipoWorkflow.findMany({
       include: {
         atividades: {
           include: {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
     }
     
-    const complexidade = await prisma.complexidade.create({
+    const complexidade = await prisma.tipoWorkflow.create({
       data: { 
         nome: nome.trim(),
         atividades: {

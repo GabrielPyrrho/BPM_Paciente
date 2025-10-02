@@ -3,10 +3,10 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    const processos = await prisma.processoPaciente.findMany({
+    const processos = await prisma.processoWorkflow.findMany({
       include: {
-        paciente: true,
-        complexidade: true,
+        entidade: true,
+        tipoWorkflow: true,
         atividades: {
           include: { atividade: true },
           orderBy: { atividade: { ordem: 'asc' } }
@@ -21,19 +21,19 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { pacienteId, complexidadeId } = await request.json()
+    const { entidadeId, tipoWorkflowId } = await request.json()
     
-    if (!pacienteId || !complexidadeId) {
-      return NextResponse.json({ error: 'pacienteId e complexidadeId são obrigatórios' }, { status: 400 })
+    if (!entidadeId || !tipoWorkflowId) {
+      return NextResponse.json({ error: 'entidadeId e tipoWorkflowId são obrigatórios' }, { status: 400 })
     }
     
-    const processo = await prisma.processoPaciente.create({
-      data: { pacienteId, complexidadeId }
+    const processo = await prisma.processoWorkflow.create({
+      data: { entidadeId, tipoWorkflowId }
     })
 
     // Buscar atividades da complexidade
-    const atividades = await prisma.complexidadeAtividade.findMany({
-      where: { complexidadeId },
+    const atividades = await prisma.tipoWorkflowAtividade.findMany({
+      where: { tipoWorkflowId },
       include: { atividade: true },
       orderBy: { atividade: { ordem: 'asc' } }
     })

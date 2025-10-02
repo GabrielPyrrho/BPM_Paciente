@@ -1,12 +1,13 @@
-# BPM - Internamento de Paciente
+# BPM - Sistema de Workflow Genérico
 
-Sistema de workflow para gerenciar o processo de internamento de pacientes.
+Sistema de workflow genérico para gerenciar processos de qualquer natureza.
 
 ## Funcionalidades
 
-- Cadastro de pacientes
-- Criação de processos com complexidades (HC24, HC48)
-- Geração automática de workflow baseado na complexidade
+- Cadastro de entidades (pessoas, empresas, documentos)
+- Criação de tipos de workflow personalizados
+- Configuração de etapas customizáveis
+- Geração automática de workflow baseado no tipo
 - Acompanhamento e atualização do status das atividades
 
 ## Como executar
@@ -31,6 +32,8 @@ npm run dev
 
 - `/src/app/api` - APIs REST
 - `/src/app/components` - Componentes React
-- `/src/app/pacientes` - Página de gerenciamento de pacientes
+- `/src/app/entidades` - Página de gerenciamento de entidades
 - `/src/app/processos` - Página de criação de processos
+- `/src/app/etapas` - Configuração de etapas
+- `/src/app/tipos-workflow` - Configuração de tipos de workflow
 - `/prisma` - Schema do banco de dados
