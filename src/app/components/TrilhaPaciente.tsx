@@ -4,7 +4,7 @@ interface TrilhaStep {
   nome: string
   data?: string
   hora?: string
-  status: 'AUTORIZADO' | 'PERDA' | 'CANCELADO' | 'AGUARDANDO' | 'PENDENTE'
+  status: 'OK' | 'NOK' | 'PENDENTE'
 }
 
 interface TrilhaPacienteProps {
@@ -16,10 +16,9 @@ interface TrilhaPacienteProps {
 export default function TrilhaPaciente({ paciente, complexidade, steps }: TrilhaPacienteProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'AUTORIZADO': return 'bg-green-500 text-white'
-      case 'PERDA': return 'bg-red-500 text-white'
-      case 'CANCELADO': return 'bg-orange-500 text-white'
-      case 'AGUARDANDO': return 'bg-amber-600 text-white'
+      case 'OK': return 'bg-green-500 text-white'
+      case 'NOK': return 'bg-red-500 text-white'
+      case 'PENDENTE': return 'bg-yellow-500 text-white'
       default: return 'bg-gray-300 text-gray-700'
     }
   }
@@ -28,11 +27,11 @@ export default function TrilhaPaciente({ paciente, complexidade, steps }: Trilha
     <div className="bg-white rounded-lg shadow p-6">
       <div className="mb-6">
         <h2 className="text-xl font-bold text-gray-800">{paciente}</h2>
-        <p className="text-sm text-gray-600">{complexidade}</p>
+        <p className="text-sm text-gray-600">Processo: {complexidade}</p>
       </div>
 
       <div className="flex justify-between items-center mb-4">
-        {['Solicitado', 'Orçado', 'Autorizado', 'Internado'].map((step, index) => (
+        {['Iniciado', 'Em Andamento', 'Revisão', 'Finalizado'].map((step, index) => (
           <div key={step} className="flex flex-col items-center">
             <div className="text-xs font-medium text-gray-600 mb-2">{step}</div>
             <div className="flex flex-col items-center space-y-1">
@@ -56,7 +55,7 @@ export default function TrilhaPaciente({ paciente, complexidade, steps }: Trilha
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div 
             className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${(steps.filter(s => s.status === 'AUTORIZADO').length / 4) * 100}%` }}
+            style={{ width: `${(steps.filter(s => s.status === 'OK').length / 4) * 100}%` }}
           ></div>
         </div>
       </div>

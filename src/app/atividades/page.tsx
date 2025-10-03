@@ -23,6 +23,8 @@ export default function AtividadesPage() {
   const [saving, setSaving] = useState(false)
   const [editando, setEditando] = useState<string | null>(null)
   const [novaAtividade, setNovaAtividade] = useState({ nome: '', setor: '', ordem: 1, etapaId: '' })
+  const [modalExcluir, setModalExcluir] = useState<{ show: boolean, atividade: Atividade | null }>({ show: false, atividade: null })
+  const [modalErro, setModalErro] = useState<{ show: boolean, atividade: Atividade | null }>({ show: false, atividade: null })
 
   useEffect(() => {
     carregarDados()
@@ -106,20 +108,40 @@ export default function AtividadesPage() {
     setEditando(null)
   }
 
-  const excluirAtividade = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta atividade?')) return
+  const abrirModalExcluir = (atividade: Atividade) => {
+    setModalExcluir({ show: true, atividade })
+  }
+
+  const fecharModalExcluir = () => {
+    setModalExcluir({ show: false, atividade: null })
+  }
+
+  const confirmarExclusao = async () => {
+    if (!modalExcluir.atividade) return
     
     try {
-      const res = await fetch(`/api/atividades/${id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/atividades/${modalExcluir.atividade.id}`, { method: 'DELETE' })
+      const data = await res.json()
+      
       if (res.ok) {
         await carregarDados()
+        fecharModalExcluir()
       } else {
-        alert('Erro ao excluir atividade')
+        fecharModalExcluir()
+        if (data.error?.includes('sendo usada em tipos de processo')) {
+          setModalErro({ show: true, atividade: modalExcluir.atividade })
+        } else {
+          alert(data.error || 'Erro ao excluir atividade')
+        }
       }
     } catch (error) {
       console.error('Erro ao excluir atividade:', error)
       alert('Erro ao excluir atividade')
     }
+  }
+
+  const fecharModalErro = () => {
+    setModalErro({ show: false, atividade: null })
   }
 
   if (loading) {
@@ -445,7 +467,7 @@ export default function AtividadesPage() {
                         ✏️ Editar
                       </button>
                       <button
-                        onClick={() => excluirAtividade(atividade.id)}
+                        onClick={() => abrirModalExcluir(atividade)}
                         style={{
                           background: '#ef4444',
                           color: 'white',
@@ -467,6 +489,194 @@ export default function AtividadesPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Erro - Atividade em Uso */}
+      {modalErro.show && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '20px',
+            padding: '30px',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
+            animation: 'modalSlideIn 0.3s ease'
+          }}>
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '25px'
+            }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                background: '#fef3c7',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px',
+                fontSize: '40px'
+              }}>🚫</div>
+              <h3 style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#1f2937',
+                margin: '0 0 15px 0'
+              }}>Não é possível excluir</h3>
+              <p style={{
+                fontSize: '16px',
+                color: '#6b7280',
+                margin: '0 0 10px 0',
+                lineHeight: '1.5'
+              }}>A atividade <strong>"{modalErro.atividade?.nome}"</strong> está sendo usada em tipos de processo e não pode ser excluída.</p>
+              <p style={{
+                fontSize: '14px',
+                color: '#9ca3af',
+                margin: '0',
+                fontStyle: 'italic'
+              }}>Remova a atividade dos tipos de processo primeiro.</p>
+            </div>
+            
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center'
+            }}>
+              <button
+                onClick={fecharModalErro}
+                style={{
+                  padding: '12px 30px',
+                  background: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.target.style.background = '#2563eb'}
+                onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
+              >
+                Entendi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Exclusão */}
+      {modalExcluir.show && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '20px',
+            padding: '30px',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
+            animation: 'modalSlideIn 0.3s ease'
+          }}>
+            <div style={{
+              textAlign: 'center',
+              marginBottom: '25px'
+            }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                background: '#fee2e2',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px',
+                fontSize: '40px'
+              }}>⚠️</div>
+              <h3 style={{
+                fontSize: '24px',
+                fontWeight: '700',
+                color: '#1f2937',
+                margin: '0 0 10px 0'
+              }}>Confirmar Exclusão</h3>
+              <p style={{
+                fontSize: '16px',
+                color: '#6b7280',
+                margin: '0 0 10px 0'
+              }}>Tem certeza que deseja excluir a atividade:</p>
+              <p style={{
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#ef4444',
+                margin: '0'
+              }}>"{ modalExcluir.atividade?.nome }"?</p>
+            </div>
+            
+            <div style={{
+              display: 'flex',
+              gap: '15px',
+              justifyContent: 'center'
+            }}>
+              <button
+                onClick={fecharModalExcluir}
+                style={{
+                  padding: '12px 24px',
+                  background: '#f3f4f6',
+                  color: '#374151',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.target.style.background = '#e5e7eb'}
+                onMouseLeave={(e) => e.target.style.background = '#f3f4f6'}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarExclusao}
+                style={{
+                  padding: '12px 24px',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.target.style.background = '#dc2626'}
+                onMouseLeave={(e) => e.target.style.background = '#ef4444'}
+              >
+                🗑️ Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <style jsx>{`
         @keyframes slideIn {
@@ -477,6 +687,11 @@ export default function AtividadesPage() {
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes modalSlideIn {
+          from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
         }
       `}</style>
     </div>

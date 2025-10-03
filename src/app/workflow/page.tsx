@@ -37,6 +37,138 @@ interface ModalObservacaoProps {
   status: 'OK' | 'NOK'
 }
 
+interface ModalSucessoProps {
+  isOpen: boolean
+  onClose: () => void
+  atividade: Atividade | null
+  status: 'OK' | 'NOK'
+}
+
+function ModalSucesso({ isOpen, onClose, atividade, status }: ModalSucessoProps) {
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        onClose()
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen, onClose])
+
+  if (!isOpen || !atividade) return null
+
+  const statusColor = status === 'OK' ? '#10b981' : '#ef4444'
+  const statusText = status === 'OK' ? 'Concluída' : 'Marcada como NOK'
+  const statusIcon = status === 'OK' ? '✅' : '❌'
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '20px'
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '16px',
+        padding: '32px',
+        maxWidth: '400px',
+        width: '100%',
+        boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
+        animation: 'successSlideIn 0.4s ease-out',
+        textAlign: 'center'
+      }}>
+        <div style={{
+          width: '80px',
+          height: '80px',
+          borderRadius: '50%',
+          backgroundColor: statusColor,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          margin: '0 auto 24px',
+          fontSize: '40px',
+          animation: 'successPulse 0.6s ease-out'
+        }}>
+          {statusIcon}
+        </div>
+        
+        <h3 style={{
+          fontSize: '24px',
+          fontWeight: '700',
+          color: '#1e293b',
+          margin: '0 0 12px 0'
+        }}>
+          Atividade {statusText}!
+        </h3>
+        
+        <p style={{
+          fontSize: '16px',
+          color: '#64748b',
+          margin: '0 0 8px 0',
+          fontWeight: '500'
+        }}>
+          {atividade.nome}
+        </p>
+        
+        <p style={{
+          fontSize: '14px',
+          color: '#9ca3af',
+          margin: '0 0 24px 0'
+        }}>
+          Status atualizado com sucesso
+        </p>
+        
+        <div style={{
+          width: '100%',
+          height: '4px',
+          backgroundColor: '#f1f5f9',
+          borderRadius: '2px',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            width: '100%',
+            height: '100%',
+            backgroundColor: statusColor,
+            animation: 'progressBar 3s linear'
+          }}></div>
+        </div>
+        
+        <button
+          onClick={onClose}
+          style={{
+            marginTop: '20px',
+            padding: '8px 16px',
+            background: 'transparent',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            color: '#64748b',
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = '#f8fafc'
+            e.target.style.borderColor = '#cbd5e1'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = 'transparent'
+            e.target.style.borderColor = '#e2e8f0'
+          }}
+        >
+          Fechar
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function ModalObservacao({ isOpen, onClose, onConfirm, atividade, status }: ModalObservacaoProps) {
   const [observacao, setObservacao] = useState('')
 
@@ -239,8 +371,9 @@ export default function WorkflowPage() {
   const [atividades, setAtividades] = useState<Atividade[]>([])
   const [etapas, setEtapas] = useState<Etapa[]>([])
   
-  // Estados do modal
+  // Estados dos modais
   const [modalAberto, setModalAberto] = useState(false)
+  const [modalSucessoAberto, setModalSucessoAberto] = useState(false)
   const [atividadeModal, setAtividadeModal] = useState<Atividade | null>(null)
   const [statusModal, setStatusModal] = useState<'OK' | 'NOK'>('OK')
 
@@ -404,7 +537,9 @@ export default function WorkflowPage() {
             }
           })
           setAtividades(atividadesFormatadas)
-          alert('Atividade atualizada com sucesso!')
+          
+          // Mostrar modal de sucesso
+          setModalSucessoAberto(true)
         }
       }
     } catch (error) {
@@ -426,6 +561,14 @@ export default function WorkflowPage() {
         isOpen={modalAberto}
         onClose={() => setModalAberto(false)}
         onConfirm={confirmarAtividade}
+        atividade={atividadeModal}
+        status={statusModal}
+      />
+      
+      {/* Modal de Sucesso */}
+      <ModalSucesso
+        isOpen={modalSucessoAberto}
+        onClose={() => setModalSucessoAberto(false)}
         atividade={atividadeModal}
         status={statusModal}
       />
@@ -804,6 +947,29 @@ export default function WorkflowPage() {
           </div>
         )}
       </div>
+      
+      <style jsx>{`
+        @keyframes successSlideIn {
+          from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        @keyframes successPulse {
+          0% { transform: scale(0.8); }
+          50% { transform: scale(1.1); }
+          100% { transform: scale(1); }
+        }
+        
+        @keyframes progressBar {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+      `}</style>
     </div>
   )
 }

@@ -1,13 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import EstatisticasGerais from './EstatisticasGerais'
 
 interface DashboardStats {
   solicitados: number
   concluidas: number
   pendentes: number
+  rejeitadas: number
   atrasadas: number
-  recentes: number
+  totalEntidades: number
   complexidades: Array<{ nome: string; total: number }>
   ultimosProcessos: Array<{
     id: string
@@ -22,8 +24,9 @@ export default function Dashboard() {
     solicitados: 0,
     concluidas: 0,
     pendentes: 0,
+    rejeitadas: 0,
     atrasadas: 0,
-    recentes: 0,
+    totalEntidades: 0,
     complexidades: [],
     ultimosProcessos: []
   })
@@ -36,22 +39,8 @@ export default function Dashboard() {
         setStats(data)
         setLoading(false)
       })
-      .catch(() => {
-        setStats({
-          solicitados: 45,
-          concluidas: 32,
-          pendentes: 12,
-          atrasadas: 3,
-          recentes: 8,
-          complexidades: [
-            { nome: 'HC-24', total: 28 },
-            { nome: 'HC-48', total: 17 }
-          ],
-          ultimosProcessos: [
-            { id: '1', paciente: 'João Silva', complexidade: 'HC-24', proximaAtividade: 'Orçamento' },
-            { id: '2', paciente: 'Maria Santos', complexidade: 'HC-48', proximaAtividade: 'Viabilidade' }
-          ]
-        })
+      .catch(error => {
+        console.error('Erro ao carregar dashboard:', error)
         setLoading(false)
       })
   }, [])
@@ -63,9 +52,14 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Cards principais */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
         <div className="bg-blue-500 p-4 rounded-lg text-white text-center">
-          <h3 className="text-sm font-medium">Total Processos</h3>
+          <h3 className="text-sm font-medium">Entidades</h3>
+          <p className="text-2xl font-bold mt-1">{stats.totalEntidades}</p>
+        </div>
+        
+        <div className="bg-indigo-500 p-4 rounded-lg text-white text-center">
+          <h3 className="text-sm font-medium">Processos</h3>
           <p className="text-2xl font-bold mt-1">{stats.solicitados}</p>
         </div>
         
@@ -80,21 +74,27 @@ export default function Dashboard() {
         </div>
         
         <div className="bg-red-500 p-4 rounded-lg text-white text-center">
+          <h3 className="text-sm font-medium">Rejeitadas</h3>
+          <p className="text-2xl font-bold mt-1">{stats.rejeitadas}</p>
+        </div>
+        
+        <div className="bg-orange-500 p-4 rounded-lg text-white text-center">
           <h3 className="text-sm font-medium">Em Atraso</h3>
           <p className="text-2xl font-bold mt-1">{stats.atrasadas}</p>
         </div>
-        
-        <div className="bg-purple-500 p-4 rounded-lg text-white text-center">
-          <h3 className="text-sm font-medium">Recentes (7d)</h3>
-          <p className="text-2xl font-bold mt-1">{stats.recentes}</p>
-        </div>
+      </div>
+
+      {/* Estatísticas Gerais */}
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h3 className="text-lg font-semibold mb-4">📊 Estatísticas Gerais</h3>
+        <EstatisticasGerais />
       </div>
 
       {/* Seção inferior com detalhes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Complexidades */}
+        {/* Tipos de Workflow */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Por Complexidade</h3>
+          <h3 className="text-lg font-semibold mb-4">Tipos de Processos</h3>
           <div className="space-y-3">
             {stats.complexidades && stats.complexidades.length > 0 ? (
               stats.complexidades.map((comp, index) => (
@@ -113,7 +113,7 @@ export default function Dashboard() {
 
         {/* Últimos processos */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-4">Últimos Processos</h3>
+          <h3 className="text-lg font-semibold mb-4">Últimos Processos vinculados a uma Entidade</h3>
           <div className="space-y-3">
             {stats.ultimosProcessos && stats.ultimosProcessos.length > 0 ? (
               stats.ultimosProcessos.map((processo) => (

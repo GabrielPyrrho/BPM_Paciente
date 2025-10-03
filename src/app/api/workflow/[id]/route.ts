@@ -8,11 +8,17 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     // Buscar ou criar usuário
     let usuario = null
     if (responsavel) {
-      usuario = await prisma.usuario.upsert({
-        where: { nome: responsavel },
-        update: {},
-        create: { nome: responsavel }
+      // Primeiro tentar encontrar o usuário
+      usuario = await prisma.usuario.findFirst({
+        where: { nome: responsavel }
       })
+      
+      // Se não encontrar, criar novo
+      if (!usuario) {
+        usuario = await prisma.usuario.create({
+          data: { nome: responsavel }
+        })
+      }
     }
 
     // Atualizar movimentação

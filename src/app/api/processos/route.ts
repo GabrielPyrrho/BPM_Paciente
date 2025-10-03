@@ -38,12 +38,29 @@ export async function POST(request: NextRequest) {
       orderBy: { atividade: { ordem: 'asc' } }
     })
 
-    // Criar movimentações do workflow em lote
-    const movimentacoes = atividades.map(item => ({
-      processoId: processo.id,
-      atividadeId: item.atividadeId,
-      status: 'PENDENTE'
-    }))
+    // Criar movimentações do workflow com prazos
+    const movimentacoes = atividades.map(item => {
+      const horaInicio = new Date()
+      const prazo = new Date(horaInicio)
+      
+      // Definir prazos por tipo de atividade
+      const nomeAtividade = item.atividade.nome.toLowerCase()
+      if (nomeAtividade.includes('captação') || nomeAtividade.includes('solicitação')) {
+        prazo.setHours(prazo.getHours() + 48) // 48 horas
+      } else if (nomeAtividade.includes('prescrição') || nomeAtividade.includes('médico')) {
+        prazo.setHours(prazo.getHours() + 24) // 24 horas
+      } else {
+        prazo.setHours(prazo.getHours() + 12) // 12 horas padrão
+      }
+      
+      return {
+        processoId: processo.id,
+        atividadeId: item.atividadeId,
+        status: 'PENDENTE',
+        horaInicio,
+        prazo
+      }
+    })
     
     await prisma.movimentacaoWorkflow.createMany({
       data: movimentacoes

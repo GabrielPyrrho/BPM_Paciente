@@ -30,7 +30,7 @@ export default function DashboardPage() {
           >
             ← Voltar
           </button>
-          <h1 className="text-3xl font-bold text-gray-800">Dashboard BPM - Internamento de Paciente</h1>
+          <h1 className="text-3xl font-bold text-gray-800">Dashboard BPM - Sistema de Workflow</h1>
         </div>
         
         <Dashboard />
@@ -88,7 +88,7 @@ export default function DashboardPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Trilha do Paciente
+                Trilha da Entidade
               </button>
               <button
                 onClick={() => setActiveTab('complexidades')}
@@ -98,7 +98,7 @@ export default function DashboardPage() {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                Complexidades
+                Processos
               </button>
             </nav>
           </div>
@@ -121,14 +121,14 @@ export default function DashboardPage() {
 
         {activeTab === 'trilha' && (
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Acompanhamento do Workflow</h2>
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Trilha da Entidade</h2>
             <WorkflowTrilha data={trilhaData} />
           </div>
         )}
 
         {activeTab === 'complexidades' && (
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Tipos de Complexidade</h2>
+            <h2 className="text-xl font-semibold mb-4 text-gray-800">Tipos de Processo</h2>
             <ComplexidadeCards />
           </div>
         )}

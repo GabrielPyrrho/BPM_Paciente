@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react'
 
 interface ProcessoAtivo {
   id: string
-  paciente: string
-  complexidade: string
+  entidade: string
+  tipoWorkflow: string
   proximaAtividade: string
   setor: string
   responsavel: string
@@ -25,28 +25,7 @@ export default function ProcessosAtivos() {
         setLoading(false)
       })
       .catch(() => {
-        setProcessos([
-          {
-            id: '1',
-            paciente: 'João Silva',
-            complexidade: 'HC-24',
-            proximaAtividade: 'Orçamento',
-            setor: 'Captação',
-            responsavel: 'Maria Santos',
-            prazo: '2024-01-15T10:00:00Z',
-            atrasado: false
-          },
-          {
-            id: '2',
-            paciente: 'Ana Costa',
-            complexidade: 'HC-48',
-            proximaAtividade: 'Viabilidade Domicílio',
-            setor: 'Pré-internamento',
-            responsavel: 'Carlos Lima',
-            prazo: '2024-01-14T14:00:00Z',
-            atrasado: true
-          }
-        ])
+        setProcessos([])
         setLoading(false)
       })
   }, [])
@@ -64,8 +43,8 @@ export default function ProcessosAtivos() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Paciente</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Complexidade</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Entidade</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tipo Workflow</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Próxima Atividade</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Setor</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Responsável</th>
@@ -76,11 +55,11 @@ export default function ProcessosAtivos() {
             {processos.map((processo) => (
               <tr key={processo.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                  {processo.paciente}
+                  {processo.entidade}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                    {processo.complexidade}
+                    {processo.tipoWorkflow}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">

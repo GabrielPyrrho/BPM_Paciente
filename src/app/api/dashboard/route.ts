@@ -3,47 +3,77 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    // Estatísticas básicas
+    console.log('Iniciando consulta dashboard...')
     const totalProcessos = await prisma.processoWorkflow.count()
+    console.log('Total processos:', totalProcessos)
+    const totalEntidades = await prisma.entidade.count()
+    console.log('Total entidades:', totalEntidades)
     
-    const statusCounts = await prisma.movimentacaoWorkflow.groupBy({
-      by: ['status'],
-      _count: { status: true }
+    const concluidas = await prisma.movimentacaoWorkflow.count({
+      where: { status: 'OK' }
     })
-
-    // Atividades em atraso (prazo vencido)
+    
+    const pendentes = await prisma.movimentacaoWorkflow.count({
+      where: { status: 'PENDENTE' }
+    })
+    
+    const rejeitadas = await prisma.movimentacaoWorkflow.count({
+      where: { status: 'NOK' }
+    })
+    
     const atrasadas = await prisma.movimentacaoWorkflow.count({
       where: {
         status: 'PENDENTE',
         prazo: { lt: new Date() }
       }
     })
+    
+    const tiposWorkflow = await prisma.tipoWorkflow.findMany({
+      include: {
+        processos: true
+      }
+    })
+    
+    const ultimosProcessos = await prisma.processoWorkflow.findMany({
+      take: 5,
+      orderBy: { id: 'desc' },
+      include: {
+        entidade: true,
+        tipoWorkflow: true
+      }
+    })
 
-    const stats = {
+    return NextResponse.json({
       solicitados: totalProcessos,
-      concluidas: statusCounts.find(s => s.status === 'OK')?._count.status || 0,
-      pendentes: statusCounts.find(s => s.status === 'PENDENTE')?._count.status || 0,
-      atrasadas: atrasadas || 0,
-      recentes: 0, // Simplificado por enquanto
-      complexidades: [
-        { nome: 'HC-24', total: Math.floor(totalProcessos * 0.6) },
-        { nome: 'HC-48', total: Math.floor(totalProcessos * 0.4) }
-      ],
-      ultimosProcessos: [
-        { id: '1', paciente: 'Paciente Exemplo', complexidade: 'HC-24', proximaAtividade: 'Orçamento' }
-      ]
-    }
-
-    return NextResponse.json({ stats: {
-      workflowsAtivos: stats.pendentes,
-      taxaConclusao: Math.round((stats.concluidas / (stats.concluidas + stats.pendentes)) * 100) || 0
-    }})
+      concluidas: concluidas,
+      pendentes: pendentes,
+      rejeitadas: rejeitadas,
+      atrasadas: atrasadas,
+      totalEntidades: totalEntidades,
+      complexidades: tiposWorkflow.map(tipo => ({
+        nome: tipo.nome,
+        total: tipo.processos.length
+      })),
+      ultimosProcessos: ultimosProcessos.map(processo => ({
+        id: processo.id,
+        paciente: processo.entidade.nome,
+        complexidade: processo.tipoWorkflow.nome,
+        proximaAtividade: 'Aguardando execução'
+      }))
+    })
   } catch (error) {
     console.error('Erro dashboard:', error)
-    // Retorna dados mockados em caso de erro
-    return NextResponse.json({ stats: {
-      workflowsAtivos: 12,
-      taxaConclusao: 75
-    }})
+    return NextResponse.json({
+      error: 'Erro ao conectar com banco de dados',
+      details: error instanceof Error ? error.message : 'Erro desconhecido',
+      solicitados: 0,
+      concluidas: 0,
+      pendentes: 0,
+      rejeitadas: 0,
+      atrasadas: 0,
+      totalEntidades: 0,
+      complexidades: [],
+      ultimosProcessos: []
+    }, { status: 500 })
   }
 }
