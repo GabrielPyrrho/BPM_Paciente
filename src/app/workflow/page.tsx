@@ -548,7 +548,7 @@ export default function WorkflowPage() {
     }
   }
 
-  const grupos = etapas.map(etapa => etapa.nome)
+  const grupos = [...new Set(atividades.map(a => a.grupo))].filter(Boolean)
 
   return (
     <div style={{ 

@@ -9,6 +9,17 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
     }
 
+    // Buscar atividades antigas antes da atualização
+    const tipoWorkflowAntigo = await prisma.tipoWorkflow.findUnique({
+      where: { id: params.id },
+      include: {
+        atividades: true
+      }
+    })
+
+    const atividadesAntigas = tipoWorkflowAntigo?.atividades.map(a => a.atividadeId) || []
+
+    // Atualizar o tipo de workflow
     const complexidade = await prisma.tipoWorkflow.update({
       where: { id: params.id },
       data: {
@@ -29,7 +40,51 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       }
     })
 
-    return NextResponse.json(complexidade)
+    // Sincronizar processos existentes
+    const processosExistentes = await prisma.processoWorkflow.findMany({
+      where: { tipoWorkflowId: params.id },
+      include: {
+        atividades: true
+      }
+    })
+
+    let totalAtividadesAdicionadas = 0
+
+    // Para cada processo, adicionar as novas atividades
+    for (const processo of processosExistentes) {
+      const atividadesExistentes = processo.atividades.map(a => a.atividadeId)
+      const novasAtividades = (atividadeIds || []).filter(
+        (atividadeId: string) => !atividadesExistentes.includes(atividadeId)
+      )
+
+      if (novasAtividades.length > 0) {
+        const novasMovimentacoes = novasAtividades.map((atividadeId: string) => {
+          const horaInicio = new Date()
+          const prazo = new Date(horaInicio)
+          prazo.setHours(prazo.getHours() + 12) // 12 horas padrão
+          
+          return {
+            processoId: processo.id,
+            atividadeId,
+            status: 'PENDENTE',
+            horaInicio,
+            prazo
+          }
+        })
+        
+        await prisma.movimentacaoWorkflow.createMany({
+          data: novasMovimentacoes
+        })
+        
+        totalAtividadesAdicionadas += novasAtividades.length
+      }
+    }
+
+    return NextResponse.json({
+      ...complexidade,
+      processosAtualizados: processosExistentes.length,
+      atividadesAdicionadas: totalAtividadesAdicionadas
+    })
   } catch (error) {
     return NextResponse.json({ error: 'Erro ao atualizar complexidade' }, { status: 500 })
   }
