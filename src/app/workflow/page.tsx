@@ -44,6 +44,107 @@ interface ModalSucessoProps {
   status: 'OK' | 'NOK'
 }
 
+function ModalAviso({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+  if (!isOpen) return null
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '20px'
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        padding: '0',
+        maxWidth: '400px',
+        width: '100%',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        animation: 'fadeIn 0.3s ease-out'
+      }}>
+        <div style={{
+          padding: '24px 24px 0 24px',
+          borderBottom: '1px solid #f1f5f9',
+          marginBottom: '20px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '8px',
+              backgroundColor: '#f59e0b',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '18px'
+            }}>
+              ⚠️
+            </div>
+            <div>
+              <h3 style={{
+                margin: 0,
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#1e293b'
+              }}>
+                Usuário Obrigatório
+              </h3>
+              <p style={{
+                margin: 0,
+                fontSize: '14px',
+                color: '#64748b'
+              }}>
+                Selecione um usuário responsável
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ padding: '0 24px 24px 24px' }}>
+          <p style={{
+            fontSize: '14px',
+            color: '#374151',
+            marginBottom: '24px',
+            lineHeight: '1.5'
+          }}>
+            Para executar uma atividade é necessário selecionar o usuário responsável.
+          </p>
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'flex-end'
+          }}>
+            <button
+              onClick={onClose}
+              style={{
+                padding: '10px 20px',
+                border: 'none',
+                borderRadius: '8px',
+                backgroundColor: '#f59e0b',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+            >
+              Entendi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function ModalSucesso({ isOpen, onClose, atividade, status }: ModalSucessoProps) {
   useEffect(() => {
     if (isOpen) {
@@ -374,6 +475,7 @@ export default function WorkflowPage() {
   // Estados dos modais
   const [modalAberto, setModalAberto] = useState(false)
   const [modalSucessoAberto, setModalSucessoAberto] = useState(false)
+  const [modalAvisoAberto, setModalAvisoAberto] = useState(false)
   const [atividadeModal, setAtividadeModal] = useState<Atividade | null>(null)
   const [statusModal, setStatusModal] = useState<'OK' | 'NOK'>('OK')
 
@@ -453,7 +555,7 @@ export default function WorkflowPage() {
     console.log('Abrindo modal para atividade:', id, 'status:', novoStatus)
     
     if (!usuarioAtual) {
-      alert('Selecione um usuário primeiro!')
+      setModalAvisoAberto(true)
       return
     }
 
@@ -571,6 +673,12 @@ export default function WorkflowPage() {
         onClose={() => setModalSucessoAberto(false)}
         atividade={atividadeModal}
         status={statusModal}
+      />
+      
+      {/* Modal de Aviso */}
+      <ModalAviso
+        isOpen={modalAvisoAberto}
+        onClose={() => setModalAvisoAberto(false)}
       />
       
       {/* Header Corporativo */}
