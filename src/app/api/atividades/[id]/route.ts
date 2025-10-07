@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { nome, setor, ordem, etapaId } = await request.json()
+    const { nome, setor, setorId, ordem, etapaId } = await request.json()
     
     if (!nome) {
       return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
@@ -46,11 +46,13 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       data: { 
         nome: nome.trim(),
         setor: setor?.trim() || null,
+        setorId: setorId || null,
         ordem: ordem || 1,
         etapaId: etapaFinal
       },
       include: {
-        etapa: true
+        etapa: true,
+        setorObj: true
       }
     })
     

@@ -29,6 +29,13 @@ interface EntidadeProcesso {
   tipo: string
 }
 
+interface Usuario {
+  id: string
+  nome: string
+  setor: string
+  ativo: boolean
+}
+
 interface ModalObservacaoProps {
   isOpen: boolean
   onClose: () => void
@@ -471,6 +478,8 @@ export default function WorkflowPage() {
   const [entidades, setEntidades] = useState<EntidadeProcesso[]>([])
   const [atividades, setAtividades] = useState<Atividade[]>([])
   const [etapas, setEtapas] = useState<Etapa[]>([])
+  const [usuarios, setUsuarios] = useState<Usuario[]>([])
+  const [workflowIdFromUrl, setWorkflowIdFromUrl] = useState<string | null>(null)
   
   // Estados dos modais
   const [modalAberto, setModalAberto] = useState(false)
@@ -479,7 +488,29 @@ export default function WorkflowPage() {
   const [atividadeModal, setAtividadeModal] = useState<Atividade | null>(null)
   const [statusModal, setStatusModal] = useState<'OK' | 'NOK'>('OK')
 
-  // Carregar etapas e pacientes
+  // Detectar ID do workflow na URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const workflowId = urlParams.get('id')
+    if (workflowId) {
+      setWorkflowIdFromUrl(workflowId)
+    }
+  }, [])
+
+  // Carregar usuário logado do localStorage
+  useEffect(() => {
+    const usuarioLogado = localStorage.getItem('usuario')
+    if (usuarioLogado) {
+      try {
+        const usuario = JSON.parse(usuarioLogado)
+        setUsuarioAtual(usuario.nome)
+      } catch (error) {
+        console.error('Erro ao carregar usuário logado:', error)
+      }
+    }
+  }, [])
+
+  // Carregar etapas, usuários e pacientes
   useEffect(() => {
     // Carregar etapas
     fetch('/api/etapas')
@@ -490,6 +521,17 @@ export default function WorkflowPage() {
       .catch(error => {
         console.error('Erro ao carregar etapas:', error)
         setEtapas([])
+      })
+
+    // Carregar usuários
+    fetch('/api/usuarios')
+      .then(res => res.json())
+      .then(data => {
+        setUsuarios(data)
+      })
+      .catch(error => {
+        console.error('Erro ao carregar usuários:', error)
+        setUsuarios([])
       })
 
     // Carregar entidades com processos
@@ -504,12 +546,20 @@ export default function WorkflowPage() {
           tipo: processo.entidade.tipo
         }))
         setEntidades(entidadesComProcessos)
+        
+        // Se há um ID de workflow na URL, selecionar automaticamente
+        if (workflowIdFromUrl && entidadesComProcessos.length > 0) {
+          const entidadeDoWorkflow = entidadesComProcessos.find(e => e.processoId === workflowIdFromUrl)
+          if (entidadeDoWorkflow) {
+            setEntidadeSelecionada(entidadeDoWorkflow.id)
+          }
+        }
       })
       .catch(error => {
         console.error('Erro ao carregar entidades:', error)
         setEntidades([])
       })
-  }, [])
+  }, [workflowIdFromUrl])
 
   // Carregar atividades baseadas no tipo de workflow do processo
   useEffect(() => {
@@ -726,11 +776,28 @@ export default function WorkflowPage() {
                 <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>Controle de atividades genéricas</p>
               </div>
             </div>
-            <div style={{
-              color: '#64748b',
-              fontSize: '14px'
-            }}>
-              {new Date().toLocaleDateString('pt-BR')} - {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              {usuarioAtual && (
+                <div style={{
+                  background: '#10b981',
+                  color: 'white',
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  👤 {usuarioAtual}
+                </div>
+              )}
+              <div style={{
+                color: '#64748b',
+                fontSize: '14px'
+              }}>
+                {new Date().toLocaleDateString('pt-BR')} - {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              </div>
             </div>
           </div>
         </div>
@@ -803,27 +870,43 @@ export default function WorkflowPage() {
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
                 Usuário Responsável *
               </label>
-              <select 
-                value={usuarioAtual} 
-                onChange={(e) => setUsuarioAtual(e.target.value)}
-                style={{ 
-                  width: '100%',
-                  padding: '12px 16px', 
-                  borderRadius: '8px', 
-                  border: '1px solid #d1d5db', 
-                  fontSize: '14px',
-                  background: 'white',
-                  boxSizing: 'border-box'
-                }}
-              >
-                <option value="">Selecionar Usuário</option>
-                <option value="Dr. João Silva">Dr. João Silva - Médico</option>
-                <option value="Enf. Maria Santos">Enf. Maria Santos - Enfermagem</option>
-                <option value="Ana Costa">Ana Costa - Farmácia</option>
-                <option value="Carlos Lima">Carlos Lima - Logística</option>
-                <option value="Paula Financeiro">Paula Financeiro - Financeiro</option>
-                <option value="Supervisor">Supervisor Geral</option>
-              </select>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <select 
+                  value={usuarioAtual} 
+                  onChange={(e) => setUsuarioAtual(e.target.value)}
+                  style={{ 
+                    flex: 1,
+                    padding: '12px 16px', 
+                    borderRadius: '8px', 
+                    border: usuarioAtual ? '2px solid #10b981' : '1px solid #d1d5db', 
+                    fontSize: '14px',
+                    background: usuarioAtual ? '#f0fdf4' : 'white',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <option value="">Selecionar Usuário</option>
+                  {usuarios.map(usuario => (
+                    <option key={usuario.id} value={usuario.nome}>
+                      {usuario.nome} - {usuario.setor}
+                    </option>
+                  ))}
+                </select>
+                {usuarioAtual && (
+                  <div style={{
+                    background: '#10b981',
+                    color: 'white',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}>
+                    ✓ Logado
+                  </div>
+                )}
+              </div>
             </div>
             {entidades.find(e => e.id === entidadeSelecionada) && (
               <div style={{ 

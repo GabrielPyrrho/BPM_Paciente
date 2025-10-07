@@ -37,6 +37,8 @@ model AtividadeTemplate {
   id            String   @id @default(cuid())
   nome          String
   setor         String?
+  setorId       String?
+  setorObj      Setor?   @relation(fields: [setorId], references: [id])
   ordem         Int
   etapaId       String
   etapa         Etapa    @relation(fields: [etapaId], references: [id])
@@ -76,9 +78,23 @@ model MovimentacaoWorkflow {
   observacao      String?
 }
 
+model Setor {
+  id          String   @id @default(cuid())
+  nome        String   @unique
+  descricao   String?
+  ativo       Boolean  @default(true)
+  usuarios    Usuario[]
+  atividades  AtividadeTemplate[]
+}
+
 model Usuario {
-  id     String   @id @default(cuid())
-  nome   String
-  funcao String?
+  id            String   @id @default(cuid())
+  nome          String
+  email         String   @unique
+  senha         String
+  funcao        String?
+  setorId       String?
+  setor         Setor?   @relation(fields: [setorId], references: [id])
+  ativo         Boolean  @default(true)
   movimentacoes MovimentacaoWorkflow[]
 }

@@ -8,6 +8,7 @@ interface Atividade {
   ordem: number
   etapa: string | null
   etapaId: string
+  setorId?: string
 }
 
 interface Etapa {
@@ -16,13 +17,19 @@ interface Etapa {
   cor?: string
 }
 
+interface Setor {
+  id: string
+  nome: string
+}
+
 export default function AtividadesPage() {
   const [atividades, setAtividades] = useState<Atividade[]>([])
   const [etapas, setEtapas] = useState<Etapa[]>([])
+  const [setores, setSetores] = useState<Setor[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [editando, setEditando] = useState<string | null>(null)
-  const [novaAtividade, setNovaAtividade] = useState({ nome: '', setor: '', ordem: 1, etapaId: '' })
+  const [novaAtividade, setNovaAtividade] = useState({ nome: '', setor: '', setorId: '', ordem: 1, etapaId: '' })
   const [modalExcluir, setModalExcluir] = useState<{ show: boolean, atividade: Atividade | null }>({ show: false, atividade: null })
   const [modalErro, setModalErro] = useState<{ show: boolean, atividade: Atividade | null }>({ show: false, atividade: null })
 
@@ -32,16 +39,19 @@ export default function AtividadesPage() {
 
   const carregarDados = async () => {
     try {
-      const [atividadesRes, etapasRes] = await Promise.all([
+      const [atividadesRes, etapasRes, setoresRes] = await Promise.all([
         fetch('/api/atividades'),
-        fetch('/api/etapas')
+        fetch('/api/etapas'),
+        fetch('/api/setores')
       ])
       
       const atividadesData = await atividadesRes.json()
       const etapasData = await etapasRes.json()
+      const setoresData = await setoresRes.json()
       
       setAtividades(Array.isArray(atividadesData) ? atividadesData : [])
       setEtapas(Array.isArray(etapasData) ? etapasData : [])
+      setSetores(Array.isArray(setoresData) ? setoresData : [])
       
       // Definir primeira etapa como padrão se não houver seleção
       if (etapasData.length > 0 && !novaAtividade.etapaId) {
@@ -51,6 +61,7 @@ export default function AtividadesPage() {
       console.error('Erro ao carregar dados:', error)
       setAtividades([])
       setEtapas([])
+      setSetores([])
     } finally {
       setLoading(false)
     }
@@ -285,11 +296,16 @@ export default function AtividadesPage() {
                 required
               />
               
-              <input
-                type="text"
-                placeholder="Setor (opcional)"
-                value={novaAtividade.setor}
-                onChange={(e) => setNovaAtividade({...novaAtividade, setor: e.target.value})}
+              <select
+                value={novaAtividade.setorId}
+                onChange={(e) => {
+                  const setorSelecionado = setores.find(s => s.id === e.target.value)
+                  setNovaAtividade({
+                    ...novaAtividade, 
+                    setorId: e.target.value,
+                    setor: setorSelecionado?.nome || ''
+                  })
+                }}
                 style={{ 
                   width: '100%',
                   padding: '15px 20px', 
@@ -302,7 +318,14 @@ export default function AtividadesPage() {
                 }}
                 onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                 onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-              />
+              >
+                <option value="">Selecione um setor (opcional)</option>
+                {setores.map(setor => (
+                  <option key={setor.id} value={setor.id}>
+                    {setor.nome}
+                  </option>
+                ))}
+              </select>
               
               <input
                 type="number"

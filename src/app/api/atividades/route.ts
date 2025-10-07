@@ -21,7 +21,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { nome, setor, ordem, etapa, etapaId } = await request.json()
+    const { nome, setor, setorId, ordem, etapa, etapaId } = await request.json()
     
     if (!nome) {
       return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
@@ -63,10 +63,11 @@ export async function POST(request: NextRequest) {
       data: { 
         nome: nome.trim(),
         setor: setor?.trim() || null,
+        setorId: setorId || null,
         ordem: novaOrdem,
         etapaId: etapaEncontrada.id
       },
-      include: { etapa: true }
+      include: { etapa: true, setorObj: true }
     })
     
     return NextResponse.json({
