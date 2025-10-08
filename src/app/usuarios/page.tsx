@@ -20,6 +20,7 @@ export default function UsuariosPage() {
   const [setores, setSetores] = useState<Setor[]>([])
   const [loading, setLoading] = useState(true)
   const [novoUsuario, setNovoUsuario] = useState({ nome: '', email: '', senha: '', funcao: '', setorId: '' })
+  const [modal, setModal] = useState({ show: false, message: '', type: '' })
 
   useEffect(() => {
     carregarDados()
@@ -55,13 +56,14 @@ export default function UsuariosPage() {
       
       if (res.ok) {
         setNovoUsuario({ nome: '', email: '', senha: '', funcao: '', setorId: '' })
+        setModal({ show: true, message: 'Usuário criado com sucesso!', type: 'success' })
         await carregarDados()
       } else {
         const error = await res.json()
-        alert(error.error)
+        setModal({ show: true, message: error.error, type: 'error' })
       }
     } catch (error) {
-      alert('Erro ao criar usuário')
+      setModal({ show: true, message: 'Erro ao criar usuário', type: 'error' })
     }
   }
 
@@ -69,6 +71,27 @@ export default function UsuariosPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', padding: '20px' }}>
+      {modal.show && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'white', padding: '30px', borderRadius: '12px', maxWidth: '400px', width: '90%', textAlign: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+            <div style={{ fontSize: '48px', marginBottom: '15px' }}>
+              {modal.type === 'success' ? '✓' : '⚠'}
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '15px', color: modal.type === 'success' ? '#059669' : '#dc2626' }}>
+              {modal.type === 'success' ? 'Sucesso!' : 'Erro'}
+            </h3>
+            <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '20px' }}>
+              {modal.message}
+            </p>
+            <button 
+              onClick={() => setModal({ show: false, message: '', type: '' })}
+              style={{ padding: '10px 20px', background: modal.type === 'success' ? '#059669' : '#dc2626', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '30px' }}>
           <a href="/" style={{ textDecoration: 'none' }}>
@@ -162,11 +185,9 @@ export default function UsuariosPage() {
                       💼 {usuario.funcao}
                     </div>
                   )}
-                  {usuario.setor && (
-                    <div style={{ fontSize: '14px', color: '#6b7280' }}>
-                      🏢 {usuario.setor.nome}
-                    </div>
-                  )}
+                  <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                    🏢 {usuario.setor?.nome || 'Sem setor'}
+                  </div>
                 </div>
               ))}
             </div>

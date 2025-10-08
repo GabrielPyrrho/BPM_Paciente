@@ -17,6 +17,7 @@ export default function EtapasPage() {
   const [loading, setLoading] = useState(true)
   const [modalAberto, setModalAberto] = useState(false)
   const [etapaEditando, setEtapaEditando] = useState<Etapa | null>(null)
+  const [modal, setModal] = useState({ show: false, message: '', type: '' })
   const [formData, setFormData] = useState({
     nome: '',
     descricao: '',
@@ -71,7 +72,7 @@ export default function EtapasPage() {
 
   const salvarEtapa = async () => {
     if (!formData.nome.trim()) {
-      alert('Nome da etapa é obrigatório!')
+      setModal({ show: true, message: 'Nome da etapa é obrigatório!', type: 'error' })
       return
     }
 
@@ -91,13 +92,13 @@ export default function EtapasPage() {
       if (response.ok) {
         await carregarEtapas()
         setModalAberto(false)
-        alert(etapaEditando ? 'Etapa atualizada!' : 'Etapa criada!')
+        setModal({ show: true, message: etapaEditando ? 'Etapa atualizada!' : 'Etapa criada!', type: 'success' })
       } else {
         throw new Error('Erro ao salvar etapa')
       }
     } catch (error) {
       console.error('Erro ao salvar etapa:', error)
-      alert('Erro ao salvar etapa!')
+      setModal({ show: true, message: 'Erro ao salvar etapa!', type: 'error' })
     }
   }
 
@@ -108,13 +109,13 @@ export default function EtapasPage() {
       const response = await fetch(`/api/etapas/${id}`, { method: 'DELETE' })
       if (response.ok) {
         await carregarEtapas()
-        alert('Etapa excluída!')
+        setModal({ show: true, message: 'Etapa excluída!', type: 'success' })
       } else {
         throw new Error('Erro ao excluir etapa')
       }
     } catch (error) {
       console.error('Erro ao excluir etapa:', error)
-      alert('Erro ao excluir etapa!')
+      setModal({ show: true, message: 'Erro ao excluir etapa!', type: 'error' })
     }
   }
 
@@ -124,6 +125,27 @@ export default function EtapasPage() {
       background: '#f8fafc',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
+      {modal.show && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: 'white', padding: '30px', borderRadius: '12px', maxWidth: '400px', width: '90%', textAlign: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
+            <div style={{ fontSize: '48px', marginBottom: '15px' }}>
+              {modal.type === 'success' ? '✓' : '⚠'}
+            </div>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '15px', color: modal.type === 'success' ? '#059669' : '#dc2626' }}>
+              {modal.type === 'success' ? 'Sucesso!' : 'Erro'}
+            </h3>
+            <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '20px' }}>
+              {modal.message}
+            </p>
+            <button 
+              onClick={() => setModal({ show: false, message: '', type: '' })}
+              style={{ padding: '10px 20px', background: modal.type === 'success' ? '#059669' : '#dc2626', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
       {/* Modal */}
       {modalAberto && (
         <div style={{

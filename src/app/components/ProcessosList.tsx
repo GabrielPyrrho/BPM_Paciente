@@ -143,7 +143,7 @@ function ModalEditar({ isOpen, onClose, onConfirm, processo, complexidades }: Mo
               color: '#374151',
               marginBottom: '8px'
             }}>
-              Nova Complexidade
+              Alterar Processo:
             </label>
             <select
               value={complexidadeSelecionada}
