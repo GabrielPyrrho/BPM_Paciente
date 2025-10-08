@@ -527,7 +527,7 @@ export default function WorkflowPage() {
     fetch('/api/usuarios')
       .then(res => res.json())
       .then(data => {
-        setUsuarios(data)
+        setUsuarios(Array.isArray(data) ? data : [])
       })
       .catch(error => {
         console.error('Erro ao carregar usuários:', error)
@@ -885,7 +885,7 @@ export default function WorkflowPage() {
                   }}
                 >
                   <option value="">Selecionar Usuário</option>
-                  {usuarios.map(usuario => (
+                  {Array.isArray(usuarios) && usuarios.map(usuario => (
                     <option key={usuario.id} value={usuario.nome}>
                       {usuario.nome} - {usuario.setor}
                     </option>

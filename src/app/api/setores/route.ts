@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export async function GET() {
   try {
@@ -8,8 +10,12 @@ export async function GET() {
       orderBy: { nome: 'asc' }
     })
     return NextResponse.json(setores)
-  } catch (error) {
-    return NextResponse.json({ error: 'Erro ao buscar setores' }, { status: 500 })
+  } catch (error: any) {
+    console.error('Erro ao buscar setores:', error)
+    return NextResponse.json({ 
+      error: 'Erro ao buscar setores',
+      details: error.message 
+    }, { status: 500 })
   }
 }
 
@@ -17,19 +23,29 @@ export async function POST(request: NextRequest) {
   try {
     const { nome, descricao } = await request.json()
     
-    if (!nome) {
+    if (!nome || nome.trim() === '') {
       return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
     }
     
     const setor = await prisma.setor.create({
-      data: { nome: nome.trim(), descricao }
+      data: { 
+        nome: nome.trim(), 
+        descricao: descricao?.trim() || null,
+        ativo: true
+      }
     })
     
     return NextResponse.json(setor)
-  } catch (error) {
+  } catch (error: any) {
+    console.error('Erro ao criar setor:', error)
+    
     if (error.code === 'P2002') {
       return NextResponse.json({ error: 'Setor já existe' }, { status: 400 })
     }
-    return NextResponse.json({ error: 'Erro ao criar setor' }, { status: 500 })
+    
+    return NextResponse.json({ 
+      error: 'Erro ao criar setor', 
+      details: error.message 
+    }, { status: 500 })
   }
 }

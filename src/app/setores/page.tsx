@@ -31,22 +31,35 @@ export default function SetoresPage() {
 
   const criarSetor = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!novoSetor.nome.trim()) {
+      alert('Nome do setor é obrigatório')
+      return
+    }
+    
     try {
+      console.log('Enviando dados:', novoSetor)
+      
       const res = await fetch('/api/setores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(novoSetor)
       })
       
+      console.log('Response status:', res.status)
+      
       if (res.ok) {
         setNovoSetor({ nome: '', descricao: '' })
         await carregarSetores()
+        alert('Setor criado com sucesso!')
       } else {
         const error = await res.json()
-        alert(error.error)
+        console.error('Erro da API:', error)
+        alert(error.error + (error.details ? '\n' + error.details : ''))
       }
     } catch (error) {
-      alert('Erro ao criar setor')
+      console.error('Erro na requisição:', error)
+      alert('Erro ao criar setor: ' + error.message)
     }
   }
 

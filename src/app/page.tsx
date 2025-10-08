@@ -206,6 +206,7 @@ export default function Home() {
               { href: '/pacientes', icon: '👥', label: 'Entidades', color: '#8b5cf6' },
               { href: '/processos', icon: '⚙️', label: 'Vínculos', color: '#ef4444' },
               { href: '/workflow', icon: '📊', label: 'Execução', color: '#06b6d4' },
+              { href: '/workflow-geral', icon: '📋', label: 'Workflow Geral', color: '#8b5cf6' },
               { href: '/setores', icon: '🏢', label: 'Setores', color: '#f97316' },
               { href: '/usuarios', icon: '👤', label: 'Usuários', color: '#6366f1' }
             ].map((item, index) => (
@@ -575,6 +576,7 @@ export default function Home() {
                 { href: '/pacientes', icon: '👥', label: 'Entidades', desc: 'Pessoas/Empresas', bg: '#f3e8ff', border: '#8b5cf6' },
                 { href: '/processos', icon: '⚙️', label: 'Vínculos', desc: 'Ligar entidade/processo', bg: '#fee2e2', border: '#ef4444' },
                 { href: '/workflow', icon: '📊', label: 'Execução', desc: 'Controlar workflows', bg: '#cffafe', border: '#06b6d4' },
+                { href: '/workflow-geral', icon: '📋', label: 'Workflow Geral', desc: 'Visão geral tabular', bg: '#f3e8ff', border: '#8b5cf6' },
                 { href: '/setores', icon: '🏢', label: 'Setores', desc: 'Organizar áreas', bg: '#fff7ed', border: '#f97316' },
                 { href: '/usuarios', icon: '👤', label: 'Usuários', desc: 'Gerenciar acessos', bg: '#eef2ff', border: '#6366f1' }
               ].map((item, index) => (
