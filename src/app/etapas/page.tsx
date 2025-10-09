@@ -310,10 +310,10 @@ export default function EtapasPage() {
               </div>
               <div>
                 <h1 style={{ color: '#1e293b', fontSize: '20px', margin: 0, fontWeight: '600' }}>
-                  Gerenciar Etapas
+                  Gerenciar Cards
                 </h1>
                 <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>
-                  Configure as etapas do workflow
+                  Configure os cards do workflow
                 </p>
               </div>
             </div>
@@ -325,10 +325,10 @@ export default function EtapasPage() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <div>
             <h2 style={{ fontSize: '24px', fontWeight: '700', color: '#1e293b', margin: 0 }}>
-              Etapas do Workflow
+              Cards do Workflow
             </h2>
             <p style={{ color: '#64748b', fontSize: '16px', margin: '4px 0 0 0' }}>
-              Gerencie as etapas que compõem seus workflows
+              Gerencie os cards que compõem seus workflows
             </p>
           </div>
           <button
@@ -354,7 +354,7 @@ export default function EtapasPage() {
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
-            <p style={{ color: '#64748b' }}>Carregando etapas...</p>
+            <p style={{ color: '#64748b' }}>Carregando Cards...</p>
           </div>
         ) : etapas.length === 0 ? (
           <div style={{
@@ -367,10 +367,10 @@ export default function EtapasPage() {
           }}>
             <div style={{ fontSize: '64px', marginBottom: '20px' }}>🏷️</div>
             <h3 style={{ color: '#1e293b', marginBottom: '12px', fontSize: '20px' }}>
-              Nenhuma etapa cadastrada
+              Nenhum card cadastrada
             </h3>
             <p style={{ color: '#64748b', marginBottom: '24px' }}>
-              Crie sua primeira etapa para organizar o workflow
+              Crie seu primeiro card para organizar o workflow
             </p>
             <button
               onClick={() => abrirModal()}
@@ -385,7 +385,7 @@ export default function EtapasPage() {
                 cursor: 'pointer'
               }}
             >
-              + Criar Primeira Etapa
+              + Criar Primeiro Card
             </button>
           </div>
         ) : (

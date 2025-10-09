@@ -820,7 +820,7 @@ export default function WorkflowPage() {
             margin: '0',
             marginBottom: '8px'
           }}>
-            Controle de Workflow
+            Controle de Workflow Individual
           </h2>
           <p style={{
             fontSize: '16px',

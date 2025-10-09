@@ -1,8 +1,8 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'BPM - Internamento de Paciente',
-  description: 'Sistema de workflow para gerenciar o processo de internamento de pacientes',
+  title: 'BPM - Processos InternosControle de Workflow',
+  description: 'Sistema de workflow para gerenciar o processo',
 }
 
 export default function RootLayout({
@@ -15,6 +15,7 @@ export default function RootLayout({
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/images/LOGO-INSTA.png" type="image/png" />
       </head>
       <body>
         {children}

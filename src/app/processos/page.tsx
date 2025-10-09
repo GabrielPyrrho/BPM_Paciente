@@ -312,7 +312,7 @@ export default function ProcessosPage() {
                   onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                   required
                 >
-                  <option value="">Selecione um paciente</option>
+                  <option value="">Selecione uma entidade</option>
                   {pacientes.map((p) => (
                     <option key={p.id} value={p.id}>{p.nome}</option>
                   ))}
@@ -340,7 +340,7 @@ export default function ProcessosPage() {
                   onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                   required
                 >
-                  <option value="">Selecione a complexidade</option>
+                  <option value="">Selecione o processo</option>
                   {complexidades.map((c) => (
                     <option key={c.id} value={c.id}>{c.nome}</option>
                   ))}

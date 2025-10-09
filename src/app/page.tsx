@@ -42,11 +42,39 @@ export default function Home() {
         const processos = await processosRes.json()
         const dashboard = await dashboardRes.json()
 
+        // Calcular workflows ativos e taxa de conclusão baseado nos processos
+        let workflowsAtivos = 0
+        let totalWorkflows = 0
+        let workflowsConcluidos = 0
+        
+        if (Array.isArray(processos) && processos.length > 0) {
+          processos.forEach(processo => {
+            if (processo.atividades && processo.atividades.length > 0) {
+              totalWorkflows++
+              
+              const todasOK = processo.atividades.every(a => a.status === 'OK')
+              const algumaNOK = processo.atividades.some(a => a.status === 'NOK')
+              
+              if (todasOK) {
+                workflowsConcluidos++
+              } else if (!algumaNOK) {
+                // Em andamento (nem todas OK, nem alguma NOK)
+                workflowsAtivos++
+              } else {
+                // Tem NOK, mas ainda é um workflow ativo
+                workflowsAtivos++
+              }
+            }
+          })
+        }
+        
+        const taxaConclusao = totalWorkflows > 0 ? Math.round((workflowsConcluidos / totalWorkflows) * 100) : 0
+
         setStats({
           totalEntidades: Array.isArray(pacientes) ? pacientes.length : 0,
           processosAtivos: Array.isArray(processos) ? processos.length : 0,
-          workflowsAndamento: dashboard.stats?.workflowsAtivos || 0,
-          taxaConclusao: dashboard.stats?.taxaConclusao || 0
+          workflowsAndamento: workflowsAtivos,
+          taxaConclusao: taxaConclusao
         })
 
         // Buscar workflows recentes dos processos
@@ -180,10 +208,10 @@ export default function Home() {
             <h4 style={{ fontSize: '12px', fontWeight: '600', color: '#64748b', margin: '0 0 12px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Ações Rápidas</h4>
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <a href="/workflow" style={{
+            <a href="/workflow-geral" style={{
               display: 'flex', alignItems: 'center', gap: '10px', padding: sidebarExpanded ? '10px 12px' : '10px 8px', background: '#3b82f6', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: '500', justifyContent: sidebarExpanded ? 'flex-start' : 'center'
             }}>
-              <span>⚡</span> {sidebarExpanded && 'Novo Workflow'}
+              <span>📊</span> {sidebarExpanded && 'Visualizar Workflow'}
             </a>
             <a href="/pacientes" style={{
               display: 'flex', alignItems: 'center', gap: '10px', padding: sidebarExpanded ? '10px 12px' : '10px 8px', background: '#10b981', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: '500', justifyContent: sidebarExpanded ? 'flex-start' : 'center'
@@ -200,12 +228,12 @@ export default function Home() {
           )}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             {[
-              { href: '/etapas', icon: '🏷️', label: 'Etapas', color: '#f59e0b' },
+              { href: '/etapas', icon: '🏷️', label: 'Cards', color: '#f59e0b' },
               { href: '/atividades', icon: '📋', label: 'Atividades', color: '#10b981' },
               { href: '/complexidades', icon: '🔧', label: 'Processos', color: '#f59e0b' },
-              { href: '/pacientes', icon: '👥', label: 'Entidades', color: '#8b5cf6' },
+              // { href: '/pacientes', icon: '👥', label: 'Entidades', color: '#8b5cf6' },
               { href: '/processos', icon: '⚙️', label: 'Vínculos', color: '#ef4444' },
-              { href: '/workflow', icon: '📊', label: 'Execução', color: '#06b6d4' },
+              // { href: '/workflow', icon: '📊', label: 'Execução', color: '#06b6d4' },
               { href: '/workflow-geral', icon: '📋', label: 'Workflow Geral', color: '#8b5cf6' },
               { href: '/setores', icon: '🏢', label: 'Setores', color: '#f97316' },
               { href: '/usuarios', icon: '👤', label: 'Usuários', color: '#6366f1' }
@@ -534,13 +562,13 @@ export default function Home() {
             <div style={{ background: 'white', padding: '24px', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)', border: '1px solid #e2e8f0' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0 0 20px 0' }}>Ações Rápidas</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <a href="/workflow" style={{
+                <a href="/workflow-geral" style={{
                   display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', borderRadius: '8px', textDecoration: 'none', fontSize: '14px', fontWeight: '500'
                 }}>
-                  <span>⚡</span>
+                  <span>📊</span>
                   <div>
-                    <div>Novo Workflow</div>
-                    <div style={{ fontSize: '12px', opacity: 0.8 }}>Iniciar processo</div>
+                    <div>Visualizar Workflow</div>
+                    <div style={{ fontSize: '12px', opacity: 0.8 }}>Menu workflow geral</div>
                   </div>
                 </a>
                 <a href="/pacientes" style={{
@@ -573,12 +601,13 @@ export default function Home() {
                 { href: '/etapas', icon: '🏷️', label: 'Etapas', desc: 'Organizar atividades', bg: '#fef3c7', border: '#f59e0b' },
                 { href: '/atividades', icon: '📋', label: 'Atividades', desc: 'Cadastrar tarefas', bg: '#dcfce7', border: '#10b981' },
                 { href: '/complexidades', icon: '🔧', label: 'Processos', desc: 'Criar workflows', bg: '#fef3c7', border: '#f59e0b' },
-                { href: '/pacientes', icon: '👥', label: 'Entidades', desc: 'Pessoas/Empresas', bg: '#f3e8ff', border: '#8b5cf6' },
                 { href: '/processos', icon: '⚙️', label: 'Vínculos', desc: 'Ligar entidade/processo', bg: '#fee2e2', border: '#ef4444' },
-                { href: '/workflow', icon: '📊', label: 'Execução', desc: 'Controlar workflows', bg: '#cffafe', border: '#06b6d4' },
-                { href: '/workflow-geral', icon: '📋', label: 'Workflow Geral', desc: 'Visão geral tabular', bg: '#f3e8ff', border: '#8b5cf6' },
+                { href: '/pacientes', icon: '👥', label: 'Entidades', desc: 'Pessoas/Empresas', bg: '#f3e8ff', border: '#8b5cf6' },
+                // { href: '/workflow', icon: '📊', label: 'Execução', desc: 'Controlar workflows', bg: '#cffafe', border: '#06b6d4' },
                 { href: '/setores', icon: '🏢', label: 'Setores', desc: 'Organizar áreas', bg: '#fff7ed', border: '#f97316' },
-                { href: '/usuarios', icon: '👤', label: 'Usuários', desc: 'Gerenciar acessos', bg: '#eef2ff', border: '#6366f1' }
+                { href: '/usuarios', icon: '👤', label: 'Usuários', desc: 'Gerenciar acessos', bg: '#eef2ff', border: '#6366f1' },
+                { href: '/workflow-geral', icon: '📋', label: 'Workflow Geral', desc: 'Visão geral tabular', bg: '#f3e8ff', border: '#8b5cf6' }
+
               ].map((item, index) => (
                 <a key={index} href={item.href} style={{ textDecoration: 'none' }}>
                   <div style={{ padding: '16px', background: item.bg, borderRadius: '8px', border: `1px solid ${item.border}`, transition: 'all 0.2s' }}

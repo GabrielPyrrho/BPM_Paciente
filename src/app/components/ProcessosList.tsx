@@ -105,7 +105,7 @@ function ModalEditar({ isOpen, onClose, onConfirm, processo, complexidades }: Mo
                 fontSize: '14px',
                 color: '#64748b'
               }}>
-                Alterar complexidade do processo
+                Alterar processo da entidade
               </p>
             </div>
           </div>

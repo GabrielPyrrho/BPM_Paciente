@@ -177,6 +177,9 @@ export default function PacientesPage() {
   const [modalAberto, setModalAberto] = useState(false)
   const [pacienteParaExcluir, setPacienteParaExcluir] = useState<Paciente | null>(null)
   
+  // Estado para alertas
+  const [alerta, setAlerta] = useState<{ show: boolean, message: string, type: 'success' | 'error' }>({ show: false, message: '', type: 'success' })
+  
   // Estados do formulário
   const [nome, setNome] = useState('')
   const [convenio, setConvenio] = useState('')
@@ -245,9 +248,21 @@ export default function PacientesPage() {
       setResponsavelTelefone('')
       setEditingId(null)
       
+      // Mostrar alerta de sucesso
+      setAlerta({ 
+        show: true, 
+        message: editingId ? 'Entidade atualizada com sucesso!' : 'Entidade cadastrada com sucesso!', 
+        type: 'success' 
+      })
+      
       fetchPacientes()
     } catch (error) {
       console.log('Erro ao salvar paciente')
+      setAlerta({ 
+        show: true, 
+        message: 'Erro ao salvar entidade. Tente novamente.', 
+        type: 'error' 
+      })
     }
     setLoading(false)
   }
@@ -275,8 +290,20 @@ export default function PacientesPage() {
       fetchPacientes()
       setModalAberto(false)
       setPacienteParaExcluir(null)
+      
+      // Mostrar alerta de sucesso
+      setAlerta({ 
+        show: true, 
+        message: 'Entidade excluída com sucesso!', 
+        type: 'success' 
+      })
     } catch (error) {
       console.log('Erro ao excluir paciente')
+      setAlerta({ 
+        show: true, 
+        message: 'Erro ao excluir entidade. Tente novamente.', 
+        type: 'error' 
+      })
     }
   }
 
@@ -303,6 +330,79 @@ export default function PacientesPage() {
         onConfirm={confirmarExclusao}
         paciente={pacienteParaExcluir}
       />
+      
+      {/* Modal de Alerta */}
+      {alerta.show && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1001
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '20px',
+            padding: '30px',
+            maxWidth: '450px',
+            width: '90%',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
+            animation: 'modalSlideIn 0.3s ease',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              background: alerta.type === 'success' ? '#dcfce7' : '#fee2e2',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px',
+              fontSize: '40px'
+            }}>
+              {alerta.type === 'success' ? '✅' : '❌'}
+            </div>
+            <h3 style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              color: '#1f2937',
+              margin: '0 0 15px 0'
+            }}>
+              {alerta.type === 'success' ? 'Sucesso!' : 'Erro'}
+            </h3>
+            <p style={{
+              fontSize: '16px',
+              color: '#6b7280',
+              margin: '0 0 25px 0',
+              lineHeight: '1.5'
+            }}>
+              {alerta.message}
+            </p>
+            <button
+              onClick={() => setAlerta({ show: false, message: '', type: 'success' })}
+              style={{
+                padding: '12px 30px',
+                background: alerta.type === 'success' ? '#10b981' : '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
       
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Header */}
@@ -593,42 +693,39 @@ export default function PacientesPage() {
                   <p style={{ fontSize: '16px', margin: '0' }}>Nenhum paciente cadastrado</p>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {pacientes.map((paciente, index) => (
                     <div key={paciente.id} style={{
-                      padding: '20px',
-                      background: '#f8fafc',
+                      background: 'white',
                       borderRadius: '12px',
-                      border: '1px solid #e2e8f0'
+                      padding: '20px',
+                      border: '1px solid #e5e7eb',
+                      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                      transition: 'all 0.2s ease',
+                      position: 'relative'
                     }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                      {/* Header com Avatar e Nome */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                        <div style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          background: '#6366f1',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: 'white',
+                          fontSize: '16px',
+                          fontWeight: 'bold'
+                        }}>
+                          👤
+                        </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: '600', fontSize: '18px', color: '#1e293b', marginBottom: '8px' }}>
+                          <div style={{ fontWeight: '600', fontSize: '16px', color: '#1f2937', marginBottom: '2px' }}>
                             {paciente.nome}
                           </div>
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '14px' }}>
-                            <div>
-                              <span style={{ color: '#64748b', fontWeight: '500' }}>Convênio:</span>
-                              <div style={{ color: '#1e293b', fontWeight: '600' }}>{paciente.convenio || 'Não informado'}</div>
-                            </div>
-                            <div>
-                              <span style={{ color: '#64748b', fontWeight: '500' }}>Carteirinha:</span>
-                              <div style={{ color: '#1e293b', fontWeight: '600' }}>{paciente.numeroCartao || 'Não informado'}</div>
-                            </div>
-                            <div>
-                              <span style={{ color: '#64748b', fontWeight: '500' }}>Telefone:</span>
-                              <div style={{ color: '#1e293b', fontWeight: '600' }}>{paciente.telefone || 'Não informado'}</div>
-                            </div>
-                            <div>
-                              <span style={{ color: '#64748b', fontWeight: '500' }}>Responsável:</span>
-                              <div style={{ color: '#1e293b', fontWeight: '600' }}>{paciente.responsavelNome || 'Não informado'}</div>
-                            </div>
-                          </div>
-                          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '8px' }}>
-                            ID: {paciente.id?.slice(0, 8)}... • Cadastrado em {new Date().toLocaleDateString('pt-BR')}
-                          </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div style={{ display: 'flex', gap: '4px' }}>
                           <button
                             onClick={() => handleEdit(paciente)}
                             style={{
@@ -636,13 +733,16 @@ export default function PacientesPage() {
                               color: 'white',
                               border: 'none',
                               borderRadius: '6px',
-                              padding: '8px 12px',
+                              padding: '6px 12px',
                               fontSize: '12px',
-                              fontWeight: '600',
-                              cursor: 'pointer'
+                              fontWeight: '500',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
                             }}
                           >
-                            Editar
+                            ✏️ Editar
                           </button>
                           <button
                             onClick={() => abrirModalExclusao(paciente)}
@@ -651,14 +751,77 @@ export default function PacientesPage() {
                               color: 'white',
                               border: 'none',
                               borderRadius: '6px',
-                              padding: '8px 12px',
+                              padding: '6px 12px',
                               fontSize: '12px',
-                              fontWeight: '600',
-                              cursor: 'pointer'
+                              fontWeight: '500',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
                             }}
                           >
-                            Excluir
+                            🗑️ Excluir
                           </button>
+                        </div>
+                      </div>
+
+                      {/* Informações */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '14px' }}>📋</span>
+                          <div>
+                            <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: '500' }}>Convênio</div>
+                            <div style={{ fontSize: '14px', color: '#1f2937', fontWeight: '600' }}>
+                              {paciente.convenio || 'Não informado'}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '14px' }}>🆔</span>
+                          <div>
+                            <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: '500' }}>Carteirinha</div>
+                            <div style={{ fontSize: '14px', color: '#1f2937', fontWeight: '600' }}>
+                              {paciente.numeroCartao || 'Não informado'}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '14px' }}>📞</span>
+                          <div>
+                            <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: '500' }}>Telefone</div>
+                            <div style={{ fontSize: '14px', color: '#1f2937', fontWeight: '600' }}>
+                              {paciente.telefone || 'Não informado'}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ fontSize: '14px' }}>👨‍👩‍👧‍👦</span>
+                          <div>
+                            <div style={{ fontSize: '12px', color: '#6b7280', fontWeight: '500' }}>Responsável</div>
+                            <div style={{ fontSize: '14px', color: '#1f2937', fontWeight: '600' }}>
+                              {paciente.responsavelNome || 'Não informado'}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Footer com ID */}
+                      <div style={{
+                        marginTop: '16px',
+                        paddingTop: '12px',
+                        borderTop: '1px solid #f3f4f6',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>
+                          ID: {paciente.id?.slice(0, 8)}...
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#9ca3af' }}>
+                          Cadastrado em {new Date().toLocaleDateString('pt-BR')}
                         </div>
                       </div>
                     </div>

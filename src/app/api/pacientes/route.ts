@@ -3,8 +3,24 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET() {
   try {
-    const pacientes = await prisma.entidade.findMany()
-    return NextResponse.json(pacientes)
+    const entidades = await prisma.entidade.findMany()
+    
+    // Transformar os dados para incluir os campos do JSON
+    const entidadesFormatadas = entidades.map(entidade => {
+      const campos = entidade.campos as any || {}
+      return {
+        id: entidade.id,
+        nome: entidade.nome,
+        tipo: entidade.tipo,
+        telefone: campos.telefone || null,
+        convenio: campos.convenio || null,
+        numeroCartao: campos.numeroCartao || null,
+        responsavelNome: campos.responsavelNome || null,
+        responsavelTelefone: campos.responsavelTelefone || null
+      }
+    })
+    
+    return NextResponse.json(entidadesFormatadas)
   } catch (error) {
     return NextResponse.json({ error: 'Erro ao buscar pacientes' }, { status: 500 })
   }
@@ -18,7 +34,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
     }
     
-    const paciente = await prisma.entidade.create({
+    const entidade = await prisma.entidade.create({
       data: { 
         nome: nome.trim(),
         tipo: 'PESSOA',
@@ -31,7 +47,21 @@ export async function POST(request: NextRequest) {
         }
       }
     })
-    return NextResponse.json(paciente)
+    
+    // Retornar dados formatados
+    const campos = entidade.campos as any || {}
+    const entidadeFormatada = {
+      id: entidade.id,
+      nome: entidade.nome,
+      tipo: entidade.tipo,
+      telefone: campos.telefone || null,
+      convenio: campos.convenio || null,
+      numeroCartao: campos.numeroCartao || null,
+      responsavelNome: campos.responsavelNome || null,
+      responsavelTelefone: campos.responsavelTelefone || null
+    }
+    
+    return NextResponse.json(entidadeFormatada)
   } catch (error) {
     return NextResponse.json({ error: 'Erro ao criar paciente' }, { status: 500 })
   }

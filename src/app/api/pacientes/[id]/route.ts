@@ -9,7 +9,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
     }
     
-    const paciente = await prisma.entidade.update({
+    const entidade = await prisma.entidade.update({
       where: { id: params.id },
       data: { 
         nome: nome.trim(),
@@ -22,7 +22,21 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         }
       }
     })
-    return NextResponse.json(paciente)
+    
+    // Retornar dados formatados
+    const campos = entidade.campos as any || {}
+    const entidadeFormatada = {
+      id: entidade.id,
+      nome: entidade.nome,
+      tipo: entidade.tipo,
+      telefone: campos.telefone || null,
+      convenio: campos.convenio || null,
+      numeroCartao: campos.numeroCartao || null,
+      responsavelNome: campos.responsavelNome || null,
+      responsavelTelefone: campos.responsavelTelefone || null
+    }
+    
+    return NextResponse.json(entidadeFormatada)
   } catch (error) {
     return NextResponse.json({ error: 'Erro ao atualizar paciente' }, { status: 500 })
   }
