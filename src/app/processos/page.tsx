@@ -141,6 +141,7 @@ export default function ProcessosPage() {
   const [processoInfo, setProcessoInfo] = useState({ pacienteNome: '', complexidadeNome: '' })
   const [refreshProcessos, setRefreshProcessos] = useState(0)
   const [totalProcessos, setTotalProcessos] = useState(0)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchData()
@@ -166,6 +167,8 @@ export default function ProcessosPage() {
       setPacientes([])
       setComplexidades([])
       setTotalProcessos(0)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -193,6 +196,40 @@ export default function ProcessosPage() {
     } catch (error) {
       console.error('Erro ao criar processo:', error)
     }
+  }
+
+  if (loading) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#f8fafc',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{
+          background: 'white',
+          padding: '40px',
+          borderRadius: '20px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            fontSize: '50px',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 20px',
+            display: 'inline-block'
+          }}>⏳</div>
+          <p style={{ color: '#666', fontSize: '16px', margin: 0 }}>Carregando vínculos...</p>
+          <style jsx>{`
+            @keyframes spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    )
   }
 
   return (

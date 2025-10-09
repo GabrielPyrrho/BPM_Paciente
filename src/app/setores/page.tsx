@@ -14,6 +14,7 @@ export default function SetoresPage() {
   const [novoSetor, setNovoSetor] = useState({ nome: '', descricao: '' })
   const [editando, setEditando] = useState<string | null>(null)
   const [modalExcluir, setModalExcluir] = useState<{ show: boolean, setor: Setor | null }>({ show: false, setor: null })
+  const [modal, setModal] = useState({ show: false, message: '', type: '' })
 
   useEffect(() => {
     carregarSetores()
@@ -53,13 +54,13 @@ export default function SetoresPage() {
         setNovoSetor({ nome: '', descricao: '' })
         setEditando(null)
         await carregarSetores()
-        alert(editando ? 'Setor atualizado com sucesso!' : 'Setor criado com sucesso!')
+        setModal({ show: true, message: editando ? 'Setor atualizado com sucesso!' : 'Setor criado com sucesso!', type: 'success' })
       } else {
         const error = await res.json()
-        alert(error.error + (error.details ? '\n' + error.details : ''))
+        setModal({ show: true, message: error.error, type: 'error' })
       }
     } catch (error) {
-      alert('Erro ao salvar setor: ' + error.message)
+      setModal({ show: true, message: 'Erro ao salvar setor: ' + error.message, type: 'error' })
     }
   }
 
@@ -90,13 +91,15 @@ export default function SetoresPage() {
       if (res.ok) {
         await carregarSetores()
         fecharModalExcluir()
-        alert('Setor excluído com sucesso!')
+        setModal({ show: true, message: 'Setor excluído com sucesso!', type: 'success' })
       } else {
         const error = await res.json()
-        alert(error.error || 'Erro ao excluir setor')
+        fecharModalExcluir()
+        setModal({ show: true, message: error.error || 'Erro ao excluir setor', type: 'error' })
       }
     } catch (error) {
-      alert('Erro ao excluir setor')
+      fecharModalExcluir()
+      setModal({ show: true, message: 'Erro ao excluir setor', type: 'error' })
     }
   }
 
@@ -117,14 +120,11 @@ export default function SetoresPage() {
           textAlign: 'center'
         }}>
           <div style={{
-            width: '50px',
-            height: '50px',
-            border: '4px solid #f3f3f3',
-            borderTop: '4px solid #f97316',
-            borderRadius: '50%',
+            fontSize: '50px',
             animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }}></div>
+            margin: '0 auto 20px',
+            display: 'inline-block'
+          }}>⏳</div>
           <p style={{ color: '#666', fontSize: '16px', margin: 0 }}>Carregando setores...</p>
         </div>
       </div>
@@ -137,6 +137,78 @@ export default function SetoresPage() {
       background: '#f8fafc',
       padding: '20px'
     }}>
+      {/* Modal */}
+      {modal.show && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '20px',
+            padding: '30px',
+            maxWidth: '450px',
+            width: '90%',
+            boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
+            animation: 'modalSlideIn 0.3s ease',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              background: modal.type === 'success' ? '#dcfce7' : '#fee2e2',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px',
+              fontSize: '40px'
+            }}>
+              {modal.type === 'success' ? '✅' : '⚠️'}
+            </div>
+            <h3 style={{
+              fontSize: '24px',
+              fontWeight: '700',
+              color: '#1f2937',
+              margin: '0 0 15px 0'
+            }}>
+              {modal.type === 'success' ? 'Sucesso!' : 'Erro'}
+            </h3>
+            <p style={{
+              fontSize: '16px',
+              color: '#6b7280',
+              margin: '0 0 25px 0',
+              lineHeight: '1.5'
+            }}>
+              {modal.message}
+            </p>
+            <button
+              onClick={() => setModal({ show: false, message: '', type: '' })}
+              style={{
+                padding: '12px 30px',
+                background: modal.type === 'success' ? '#10b981' : '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '12px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{

@@ -353,8 +353,19 @@ export default function EtapasPage() {
 
         {loading ? (
           <div style={{ textAlign: 'center', padding: '60px' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>⏳</div>
+            <div style={{ 
+              fontSize: '48px', 
+              marginBottom: '16px',
+              display: 'inline-block',
+              animation: 'spin 1s linear infinite'
+            }}>⏳</div>
             <p style={{ color: '#64748b' }}>Carregando Cards...</p>
+            <style jsx>{`
+              @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+              }
+            `}</style>
           </div>
         ) : etapas.length === 0 ? (
           <div style={{

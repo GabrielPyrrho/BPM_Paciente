@@ -4,15 +4,8 @@ import { prisma } from '@/lib/prisma'
 export async function GET() {
   try {
     const usuarios = await prisma.usuario.findMany({
-      select: {
-        id: true,
-        nome: true,
-        setor: {
-          select: {
-            nome: true
-          }
-        },
-        ativo: true
+      include: {
+        setor: true
       },
       where: {
         ativo: true
@@ -22,14 +15,7 @@ export async function GET() {
       }
     })
 
-    const usuariosFormatados = usuarios.map(usuario => ({
-      id: usuario.id,
-      nome: usuario.nome,
-      setor: usuario.setor?.nome || 'Sem Setor',
-      ativo: usuario.ativo
-    }))
-
-    return NextResponse.json(usuariosFormatados)
+    return NextResponse.json(usuarios)
   } catch (error) {
     console.error('Erro ao buscar usuários:', error)
     return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
@@ -38,13 +24,19 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { nome, setor } = await request.json()
+    const { nome, email, senha, funcao, setorId } = await request.json()
 
     const usuario = await prisma.usuario.create({
       data: {
         nome,
-        setor,
+        email,
+        senha,
+        funcao,
+        setorId: setorId || null,
         ativo: true
+      },
+      include: {
+        setor: true
       }
     })
 

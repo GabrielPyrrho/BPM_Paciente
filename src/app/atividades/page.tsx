@@ -172,14 +172,12 @@ export default function AtividadesPage() {
           textAlign: 'center'
         }}>
           <div style={{
-            width: '50px',
-            height: '50px',
-            border: '4px solid #f3f3f3',
-            borderTop: '4px solid #3b82f6',
-            borderRadius: '50%',
+            fontSize: '50px',
+            margin: '0 auto 20px',
+            display: 'inline-block',
             animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }}></div>
+            transformOrigin: 'center'
+          }}>⏳</div>
           <p style={{ color: '#666', fontSize: '16px', margin: 0 }}>Carregando atividades...</p>
         </div>
       </div>
@@ -393,7 +391,20 @@ export default function AtividadesPage() {
                   onMouseEnter={(e) => !saving && (e.target.style.transform = 'translateY(-2px)')}
                   onMouseLeave={(e) => !saving && (e.target.style.transform = 'translateY(0)')}
                 >
-                  {saving ? '⏳ Salvando...' : editando ? '✏️ Atualizar' : '✨ Criar Atividade'}
+                  {saving ? (
+                    <span style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span style={{
+                        display: 'inline-block',
+                        animation: 'spin 1s linear infinite',
+                        transformOrigin: 'center'
+                      }}>⏳</span>
+                      Salvando...
+                    </span>
+                  ) : editando ? '✏️ Atualizar' : '✨ Criar Atividade'}
                 </button>
                 {editando && (
                   <button 

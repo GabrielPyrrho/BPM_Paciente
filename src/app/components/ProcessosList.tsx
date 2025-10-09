@@ -435,8 +435,19 @@ export default function ProcessosList({ onProcessoExcluido }: ProcessosListProps
 
   if (loading) return (
     <div style={{ textAlign: 'center', padding: '40px', color: '#9ca3af' }}>
-      <div style={{ fontSize: '24px', marginBottom: '10px' }}>⏳</div>
+      <div style={{ 
+        fontSize: '24px', 
+        marginBottom: '10px',
+        display: 'inline-block',
+        animation: 'spin 1s linear infinite'
+      }}>⏳</div>
       <p>Carregando processos...</p>
+      <style jsx>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   )
 

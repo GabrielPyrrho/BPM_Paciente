@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const { nome, descricao } = await request.json()
     
     if (!nome || nome.trim() === '') {
-      return NextResponse.json({ error: 'Nome é obrigatório' }, { status: 400 })
+      return NextResponse.json({ error: 'O nome do setor é obrigatório. Por favor, preencha este campo.' }, { status: 400 })
     }
     
     const setor = await prisma.setor.create({
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     console.error('Erro ao criar setor:', error)
     
     if (error.code === 'P2002') {
-      return NextResponse.json({ error: 'Setor já existe' }, { status: 400 })
+      return NextResponse.json({ error: 'Já existe um setor com este nome. Por favor, escolha um nome diferente.' }, { status: 400 })
     }
     
     return NextResponse.json({ 

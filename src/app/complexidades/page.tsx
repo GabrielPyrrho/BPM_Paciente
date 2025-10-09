@@ -146,14 +146,11 @@ export default function ComplexidadesPage() {
           textAlign: 'center'
         }}>
           <div style={{
-            width: '50px',
-            height: '50px',
-            border: '4px solid #f3f3f3',
-            borderTop: '4px solid #3b82f6',
-            borderRadius: '50%',
+            fontSize: '50px',
             animation: 'spin 1s linear infinite',
-            margin: '0 auto 20px'
-          }}></div>
+            margin: '0 auto 20px',
+            display: 'inline-block'
+          }}>⏳</div>
           <p style={{ color: '#666', fontSize: '16px', margin: 0 }}>Carregando complexidades...</p>
         </div>
       </div>

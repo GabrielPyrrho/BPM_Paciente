@@ -170,7 +170,8 @@ function ModalConfirmacao({ isOpen, onClose, onConfirm, paciente }: ModalConfirm
 export default function PacientesPage() {
   const router = useRouter()
   const [pacientes, setPacientes] = useState<Paciente[]>([])
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   
   // Estados do modal de confirmação
@@ -203,6 +204,7 @@ export default function PacientesPage() {
   }, [])
 
   const fetchPacientes = async () => {
+    setLoading(true)
     try {
       const res = await fetch('/api/pacientes')
       if (res.ok) {
@@ -214,6 +216,8 @@ export default function PacientesPage() {
     } catch (error) {
       console.log('Erro ao carregar pacientes')
       setPacientes([])
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -221,7 +225,7 @@ export default function PacientesPage() {
     e.preventDefault()
     if (!nome.trim()) return
     
-    setLoading(true)
+    setSaving(true)
     try {
       const url = editingId ? `/api/pacientes/${editingId}` : '/api/pacientes'
       const method = editingId ? 'PUT' : 'POST'
@@ -264,7 +268,7 @@ export default function PacientesPage() {
         type: 'error' 
       })
     }
-    setLoading(false)
+    setSaving(false)
   }
 
   const handleEdit = (paciente: Paciente) => {
@@ -317,12 +321,52 @@ export default function PacientesPage() {
     setEditingId(null)
   }
 
+  if (loading) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#f8fafc',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{
+          background: 'white',
+          padding: '40px',
+          borderRadius: '20px',
+          boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+          textAlign: 'center'
+        }}>
+          <div style={{
+            fontSize: '50px',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 20px',
+            display: 'inline-block'
+          }}>⏳</div>
+          <p style={{ color: '#666', fontSize: '16px', margin: 0 }}>Carregando entidades...</p>
+          <style jsx>{`
+            @keyframes spin {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div style={{ 
       minHeight: '100vh',
       background: '#f8fafc',
       padding: '20px'
     }}>
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
       {/* Modal de Confirmação */}
       <ModalConfirmacao
         isOpen={modalAberto}
@@ -632,25 +676,38 @@ export default function PacientesPage() {
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button 
                   type="submit" 
-                  disabled={loading}
+                  disabled={saving}
                   style={{
                     flex: 1,
-                    background: loading ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                    background: saving ? '#9ca3af' : 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                     color: 'white',
                     padding: '15px 30px',
                     borderRadius: '12px',
                     border: 'none',
                     fontSize: '16px',
                     fontWeight: '600',
-                    cursor: loading ? 'not-allowed' : 'pointer',
+                    cursor: saving ? 'not-allowed' : 'pointer',
                     transition: 'all 0.3s ease',
                     transform: 'translateY(0)',
                     boxShadow: '0 10px 20px rgba(59, 130, 246, 0.3)'
                   }}
-                  onMouseEnter={(e) => !loading && (e.currentTarget.style.transform = 'translateY(-2px)')}
-                  onMouseLeave={(e) => !loading && (e.currentTarget.style.transform = 'translateY(0)')}
+                  onMouseEnter={(e) => !saving && (e.currentTarget.style.transform = 'translateY(-2px)')}
+                  onMouseLeave={(e) => !saving && (e.currentTarget.style.transform = 'translateY(0)')}
                 >
-                  {loading ? '⏳ Salvando...' : (editingId ? '✏️ Atualizar' : '✨ Cadastrar')}
+                  {saving ? (
+                    <span style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span style={{
+                        display: 'inline-block',
+                        animation: 'spin 1s linear infinite',
+                        transformOrigin: 'center'
+                      }}>⏳</span>
+                      Salvando...
+                    </span>
+                  ) : (editingId ? '✏️ Atualizar' : '✨ Cadastrar')}
                 </button>
                 {editingId && (
                   <button 
