@@ -30,6 +30,7 @@ export default function AtividadesPage() {
   const [saving, setSaving] = useState(false)
   const [editando, setEditando] = useState<string | null>(null)
   const [novaAtividade, setNovaAtividade] = useState({ nome: '', setor: '', setorId: '', ordem: 1, etapaId: '' })
+  const [filtroAtividades, setFiltroAtividades] = useState('')
   const [modalExcluir, setModalExcluir] = useState<{ show: boolean, atividade: Atividade | null }>({ show: false, atividade: null })
   const [modalErro, setModalErro] = useState<{ show: boolean, atividade: Atividade | null }>({ show: false, atividade: null })
 
@@ -274,101 +275,117 @@ export default function AtividadesPage() {
             </h2>
             
             <form onSubmit={criarAtividade} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <input
-                type="text"
-                placeholder="Nome da atividade"
-                value={novaAtividade.nome}
-                onChange={(e) => setNovaAtividade({...novaAtividade, nome: e.target.value})}
-                style={{ 
-                  width: '100%',
-                  padding: '15px 20px', 
-                  border: '2px solid #e5e7eb', 
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  transition: 'all 0.3s ease',
-                  background: 'white',
-                  boxSizing: 'border-box'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                required
-              />
+              {/* Nome */}
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>Nome da Atividade</label>
+                <input
+                  type="text"
+                  placeholder="Digite o nome da atividade"
+                  value={novaAtividade.nome}
+                  onChange={(e) => setNovaAtividade({...novaAtividade, nome: e.target.value})}
+                  style={{ 
+                    width: '100%',
+                    padding: '15px 20px', 
+                    border: '2px solid #e5e7eb', 
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    transition: 'all 0.3s ease',
+                    background: 'white',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                  required
+                />
+              </div>
               
-              <select
-                value={novaAtividade.setorId}
-                onChange={(e) => {
-                  const setorSelecionado = setores.find(s => s.id === e.target.value)
-                  setNovaAtividade({
-                    ...novaAtividade, 
-                    setorId: e.target.value,
-                    setor: setorSelecionado?.nome || ''
-                  })
-                }}
-                style={{ 
-                  width: '100%',
-                  padding: '15px 20px', 
-                  border: '2px solid #e5e7eb', 
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  transition: 'all 0.3s ease',
-                  background: 'white',
-                  boxSizing: 'border-box'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-              >
-                <option value="">Selecione um setor (opcional)</option>
-                {setores.map(setor => (
-                  <option key={setor.id} value={setor.id}>
-                    {setor.nome}
-                  </option>
-                ))}
-              </select>
+              {/* Sequência */}
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>Sequência</label>
+                <input
+                  type="number"
+                  placeholder="Ordem de execução (ex: 1, 2, 3...)"
+                  value={novaAtividade.ordem}
+                  onChange={(e) => setNovaAtividade({...novaAtividade, ordem: parseInt(e.target.value)})}
+                  style={{ 
+                    width: '100%',
+                    padding: '15px 20px', 
+                    border: '2px solid #e5e7eb', 
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    transition: 'all 0.3s ease',
+                    background: 'white',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                  min="1"
+                />
+              </div>
               
-              <input
-                type="number"
-                placeholder="Ordem"
-                value={novaAtividade.ordem}
-                onChange={(e) => setNovaAtividade({...novaAtividade, ordem: parseInt(e.target.value)})}
-                style={{ 
-                  width: '100%',
-                  padding: '15px 20px', 
-                  border: '2px solid #e5e7eb', 
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  transition: 'all 0.3s ease',
-                  background: 'white',
-                  boxSizing: 'border-box'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                min="1"
-              />
+              {/* Card */}
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>Card (Etapa)</label>
+                <select
+                  value={novaAtividade.etapaId}
+                  onChange={(e) => setNovaAtividade({...novaAtividade, etapaId: e.target.value})}
+                  style={{ 
+                    width: '100%',
+                    padding: '15px 20px', 
+                    border: '2px solid #e5e7eb', 
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    transition: 'all 0.3s ease',
+                    background: 'white',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                  required
+                >
+                  <option value="">Selecione o card/etapa</option>
+                  {etapas.map(etapa => (
+                    <option key={etapa.id} value={etapa.id}>
+                      {etapa.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
               
-              <select
-                value={novaAtividade.etapaId}
-                onChange={(e) => setNovaAtividade({...novaAtividade, etapaId: e.target.value})}
-                style={{ 
-                  width: '100%',
-                  padding: '15px 20px', 
-                  border: '2px solid #e5e7eb', 
-                  borderRadius: '12px',
-                  fontSize: '16px',
-                  transition: 'all 0.3s ease',
-                  background: 'white',
-                  boxSizing: 'border-box'
-                }}
-                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
-                required
-              >
-                <option value="">Selecione uma etapa</option>
-                {etapas.map(etapa => (
-                  <option key={etapa.id} value={etapa.id}>
-                    {etapa.nome}
-                  </option>
-                ))}
-              </select>
+              {/* Setor */}
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>Setor</label>
+                <select
+                  value={novaAtividade.setorId}
+                  onChange={(e) => {
+                    const setorSelecionado = setores.find(s => s.id === e.target.value)
+                    setNovaAtividade({
+                      ...novaAtividade, 
+                      setorId: e.target.value,
+                      setor: setorSelecionado?.nome || ''
+                    })
+                  }}
+                  style={{ 
+                    width: '100%',
+                    padding: '15px 20px', 
+                    border: '2px solid #e5e7eb', 
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    transition: 'all 0.3s ease',
+                    background: 'white',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                  onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                >
+                  <option value="">Selecione o setor (opcional)</option>
+                  {setores.map(setor => (
+                    <option key={setor.id} value={setor.id}>
+                      {setor.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
               
               <div style={{ display: 'flex', gap: '12px' }}>
                 <button 
@@ -438,10 +455,35 @@ export default function AtividadesPage() {
             border: '1px solid rgba(255,255,255,0.2)'
           }}>
             <h3 style={{ fontSize: '20px', fontWeight: '600', margin: '0 0 20px 0', color: '#1f2937' }}>
-              Atividades Cadastradas ({atividades.length})
+              Atividades Cadastradas ({atividades.filter(a => a.nome.toLowerCase().includes(filtroAtividades.toLowerCase())).length})
             </h3>
+            
+            {/* Campo de Filtro */}
+            <div style={{ marginBottom: '20px' }}>
+              <input
+                type="text"
+                placeholder="🔍 Filtrar atividades por nome..."
+                value={filtroAtividades}
+                onChange={(e) => setFiltroAtividades(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '10px',
+                  fontSize: '14px',
+                  transition: 'all 0.3s ease',
+                  background: 'white',
+                  boxSizing: 'border-box'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+              />
+            </div>
+            
             <div style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '10px' }}>
-              {atividades.map((atividade, index) => (
+              {atividades.filter(atividade => 
+                atividade.nome.toLowerCase().includes(filtroAtividades.toLowerCase())
+              ).map((atividade, index) => (
                 <div 
                   key={atividade.id} 
                   style={{ 

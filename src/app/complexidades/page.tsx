@@ -22,10 +22,13 @@ export default function ComplexidadesPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [novaComplexidade, setNovaComplexidade] = useState({ nome: '', atividadeIds: [] as string[] })
+  const [filtro, setFiltro] = useState('')
+  const [filtroAtividades, setFiltroAtividades] = useState('')
   
   // Estados dos modais
   const [modalEditarAberto, setModalEditarAberto] = useState(false)
   const [modalExcluirAberto, setModalExcluirAberto] = useState(false)
+  const [modalSucessoAberto, setModalSucessoAberto] = useState(false)
   const [complexidadeSelecionada, setComplexidadeSelecionada] = useState<Complexidade | null>(null)
   const [editandoComplexidade, setEditandoComplexidade] = useState({ nome: '', atividadeIds: [] as string[] })
 
@@ -96,6 +99,7 @@ export default function ComplexidadesPage() {
       
       if (res.ok) {
         setModalEditarAberto(false)
+        setModalSucessoAberto(true)
         await carregarDados()
       }
     } catch (error) {
@@ -151,7 +155,7 @@ export default function ComplexidadesPage() {
             margin: '0 auto 20px',
             display: 'inline-block'
           }}>⏳</div>
-          <p style={{ color: '#666', fontSize: '16px', margin: 0 }}>Carregando complexidades...</p>
+          <p style={{ color: '#666', fontSize: '16px', margin: 0 }}>Carregando Processos...</p>
         </div>
       </div>
     )
@@ -266,9 +270,27 @@ export default function ComplexidadesPage() {
               />
               
               <div>
-                <label style={{ fontSize: '16px', fontWeight: '600', marginBottom: '15px', display: 'block', color: '#1f2937' }}>
-                  🎯 Selecionar Atividades:
-                </label>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '15px' }}>
+                  <label style={{ fontSize: '16px', fontWeight: '600', color: '#1f2937' }}>
+                    🎯 Selecionar Atividades:
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="🔍 Filtrar atividades..."
+                    value={filtroAtividades}
+                    onChange={(e) => setFiltroAtividades(e.target.value)}
+                    style={{
+                      padding: '8px 12px',
+                      border: '1px solid #e5e7eb',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      width: '200px',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                    onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                  />
+                </div>
                 <div style={{ 
                   maxHeight: '300px', 
                   overflowY: 'auto', 
@@ -277,7 +299,9 @@ export default function ComplexidadesPage() {
                   padding: '15px',
                   background: 'white'
                 }}>
-                  {atividades.map((atividade, index) => (
+                  {atividades.filter(atividade => 
+                    atividade.nome.toLowerCase().includes(filtroAtividades.toLowerCase())
+                  ).map((atividade, index) => (
                     <label 
                       key={atividade.id} 
                       style={{ 
@@ -355,10 +379,35 @@ export default function ComplexidadesPage() {
             border: '1px solid rgba(255,255,255,0.2)'
           }}>
             <h3 style={{ fontSize: '20px', fontWeight: '600', margin: '0 0 20px 0', color: '#1f2937' }}>
-              Processos Cadastrados ({complexidades.length})
+              Processos Cadastrados ({complexidades.filter(c => c.nome.toLowerCase().includes(filtro.toLowerCase())).length})
             </h3>
+            
+            {/* Campo de Filtro */}
+            <div style={{ marginBottom: '20px' }}>
+              <input
+                type="text"
+                placeholder="🔍 Filtrar processos por nome..."
+                value={filtro}
+                onChange={(e) => setFiltro(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '10px',
+                  fontSize: '14px',
+                  transition: 'all 0.3s ease',
+                  background: 'white',
+                  boxSizing: 'border-box'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+              />
+            </div>
+            
             <div style={{ maxHeight: '500px', overflowY: 'auto', paddingRight: '10px' }}>
-              {complexidades.map((complexidade, index) => (
+              {complexidades.filter(complexidade => 
+                complexidade.nome.toLowerCase().includes(filtro.toLowerCase())
+              ).map((complexidade, index) => (
                 <div 
                   key={complexidade.id} 
                   style={{ 
@@ -502,9 +551,26 @@ export default function ComplexidadesPage() {
               />
               
               <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '10px', fontWeight: '500' }}>Atividades:</label>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                  <label style={{ fontWeight: '500' }}>Atividades:</label>
+                  <input
+                    type="text"
+                    placeholder="🔍 Filtrar..."
+                    value={filtroAtividades}
+                    onChange={(e) => setFiltroAtividades(e.target.value)}
+                    style={{
+                      padding: '6px 10px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      width: '150px'
+                    }}
+                  />
+                </div>
                 <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #d1d5db', borderRadius: '8px', padding: '10px' }}>
-                  {atividades.map(atividade => (
+                  {atividades.filter(atividade => 
+                    atividade.nome.toLowerCase().includes(filtroAtividades.toLowerCase())
+                  ).map(atividade => (
                     <label key={atividade.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', cursor: 'pointer' }}>
                       <input
                         type="checkbox"
@@ -618,6 +684,69 @@ export default function ComplexidadesPage() {
             </div>
           </div>
         )}
+
+        {/* Modal de Sucesso */}
+        {modalSucessoAberto && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '20px',
+              padding: '30px',
+              maxWidth: '400px',
+              width: '90%',
+              textAlign: 'center',
+              boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)'
+            }}>
+              <div style={{
+                width: '80px',
+                height: '80px',
+                background: '#dcfce7',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px',
+                fontSize: '40px'
+              }}>✅</div>
+              
+              <h3 style={{ margin: '0 0 15px 0', fontSize: '20px', fontWeight: '600', color: '#16a34a' }}>Processo Atualizado!</h3>
+              
+              <p style={{ margin: '0 0 25px 0', color: '#6b7280', fontSize: '16px' }}>
+                O processo foi editado com sucesso.
+              </p>
+              
+              <button
+                onClick={() => setModalSucessoAberto(false)}
+                style={{
+                  padding: '12px 30px',
+                  border: 'none',
+                  borderRadius: '12px',
+                  background: '#16a34a',
+                  color: 'white',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => e.target.style.background = '#15803d'}
+                onMouseLeave={(e) => e.target.style.background = '#16a34a'}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       
       <style jsx>{`
@@ -629,6 +758,11 @@ export default function ComplexidadesPage() {
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes modalSlideIn {
+          from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
         }
       `}</style>
     </div>

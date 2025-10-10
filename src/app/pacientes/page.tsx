@@ -173,6 +173,7 @@ export default function PacientesPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [filtro, setFiltro] = useState('')
   
   // Estados do modal de confirmação
   const [modalAberto, setModalAberto] = useState(false)
@@ -739,19 +740,47 @@ export default function PacientesPage() {
             boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
             border: '1px solid #e2e8f0'
           }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0 0 24px 0' }}>
-              Entidades Cadastradas ({pacientes.length})
+            <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1e293b', margin: '0 0 20px 0' }}>
+              Entidades Cadastradas ({pacientes.filter(p => p.nome.toLowerCase().includes(filtro.toLowerCase())).length})
             </h3>
+            
+            {/* Campo de Filtro */}
+            <div style={{ marginBottom: '20px' }}>
+              <input
+                type="text"
+                placeholder="🔍 Filtrar entidades por nome..."
+                value={filtro}
+                onChange={(e) => setFiltro(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '10px',
+                  fontSize: '14px',
+                  transition: 'all 0.3s ease',
+                  background: 'white',
+                  boxSizing: 'border-box'
+                }}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+              />
+            </div>
 
             <div style={{ maxHeight: '600px', overflowY: 'auto' }}>
-              {pacientes.length === 0 ? (
+              {pacientes.filter(paciente => 
+                paciente.nome.toLowerCase().includes(filtro.toLowerCase())
+              ).length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '60px 20px', color: '#9ca3af' }}>
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>👥</div>
-                  <p style={{ fontSize: '16px', margin: '0' }}>Nenhum paciente cadastrado</p>
+                  <p style={{ fontSize: '16px', margin: '0' }}>
+                    {filtro ? 'Nenhuma entidade encontrada com esse filtro' : 'Nenhum paciente cadastrado'}
+                  </p>
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {pacientes.map((paciente, index) => (
+                  {pacientes.filter(paciente => 
+                    paciente.nome.toLowerCase().includes(filtro.toLowerCase())
+                  ).map((paciente, index) => (
                     <div key={paciente.id} style={{
                       background: 'white',
                       borderRadius: '12px',
