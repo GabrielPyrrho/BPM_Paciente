@@ -64,18 +64,19 @@ model ProcessoWorkflow {
 }
 
 model MovimentacaoWorkflow {
-  id              String   @id @default(cuid())
-  processoId      String
-  processo        ProcessoWorkflow @relation(fields: [processoId], references: [id])
-  atividadeId     String
-  atividade       AtividadeTemplate @relation(fields: [atividadeId], references: [id])
-  responsavelId   String?
-  responsavel     Usuario?  @relation(fields: [responsavelId], references: [id])
-  status          String   // OK | NOK | PENDENTE
-  prazo           DateTime?
-  horaInicio      DateTime?
-  horaFim         DateTime?
-  observacao      String?
+  id                  String   @id @default(cuid())
+  processoId          String
+  processo            ProcessoWorkflow @relation(fields: [processoId], references: [id])
+  atividadeId         String
+  atividade           AtividadeTemplate @relation(fields: [atividadeId], references: [id])
+  responsavelId       String?
+  responsavel         Usuario?  @relation(fields: [responsavelId], references: [id])
+  responsavelCompleto String?  // Nome + Setor do responsável
+  status              String   // OK | NOK | PENDENTE
+  prazo               DateTime?
+  horaInicio          DateTime?
+  horaFim             DateTime?
+  observacao          String?
 }
 
 model Setor {

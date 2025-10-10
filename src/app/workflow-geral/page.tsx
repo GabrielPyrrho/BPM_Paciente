@@ -23,6 +23,471 @@ interface Etapa {
   ordem: number
 }
 
+interface Atividade {
+  id: string
+  nome: string
+  setor: string
+  grupo: string
+  status: 'PENDENTE' | 'OK' | 'NOK' | 'PAUSADO' | 'CANCELADO'
+  dataHora?: string
+  responsavel?: string
+  observacao?: string
+}
+
+interface ModalObservacaoProps {
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: (observacao: string) => void
+  atividade: Atividade | null
+  status: 'OK' | 'NOK' | 'PAUSADO' | 'CANCELADO' | 'PENDENTE'
+}
+
+interface ModalSucessoProps {
+  isOpen: boolean
+  onClose: () => void
+  atividade: Atividade | null
+  status: 'OK' | 'NOK' | 'PAUSADO' | 'CANCELADO' | 'PENDENTE'
+}
+
+function ModalAviso({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
+  if (!isOpen) return null
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '20px'
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        padding: '0',
+        maxWidth: '400px',
+        width: '100%',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        animation: 'fadeIn 0.3s ease-out'
+      }}>
+        <div style={{
+          padding: '24px 24px 0 24px',
+          borderBottom: '1px solid #f1f5f9',
+          marginBottom: '20px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '8px',
+              backgroundColor: '#f59e0b',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '18px'
+            }}>
+              ⚠️
+            </div>
+            <div>
+              <h3 style={{
+                margin: 0,
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#1e293b'
+              }}>
+                Usuário Obrigatório
+              </h3>
+              <p style={{
+                margin: 0,
+                fontSize: '14px',
+                color: '#64748b'
+              }}>
+                Selecione um usuário responsável
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ padding: '0 24px 24px 24px' }}>
+          <p style={{
+            fontSize: '14px',
+            color: '#374151',
+            marginBottom: '24px',
+            lineHeight: '1.5'
+          }}>
+            Para executar uma atividade é necessário selecionar o usuário responsável.
+          </p>
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'flex-end'
+          }}>
+            <button
+              onClick={onClose}
+              style={{
+                padding: '10px 20px',
+                border: 'none',
+                borderRadius: '8px',
+                backgroundColor: '#f59e0b',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+            >
+              Entendi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ModalSucesso({ isOpen, onClose, atividade, status }: ModalSucessoProps) {
+  useEffect(() => {
+    if (isOpen) {
+      const timer = setTimeout(() => {
+        onClose()
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [isOpen, onClose])
+
+  if (!isOpen || !atividade) return null
+
+  const statusColor = status === 'OK' ? '#10b981' : 
+                     status === 'NOK' ? '#dc2626' : 
+                     status === 'PAUSADO' ? '#f59e0b' : 
+                     status === 'PENDENTE' ? '#3b82f6' : '#6b7280'
+  const statusText = status === 'OK' ? 'Concluída' : 
+                    status === 'NOK' ? 'Marcada como NOK' : 
+                    status === 'PAUSADO' ? 'Pausada' : 
+                    status === 'PENDENTE' ? 'Reaberta' : 'Cancelada'
+  const statusIcon = status === 'OK' ? '✅' : 
+                    status === 'NOK' ? '❌' : 
+                    status === 'PAUSADO' ? '⏸️' : 
+                    status === 'PENDENTE' ? '🔄' : '🚫'
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '20px'
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '16px',
+        padding: '32px',
+        maxWidth: '400px',
+        width: '100%',
+        boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
+        animation: 'successSlideIn 0.4s ease-out',
+        textAlign: 'center'
+      }}>
+        <div style={{
+          width: '80px',
+          height: '80px',
+          borderRadius: '50%',
+          backgroundColor: statusColor,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          margin: '0 auto 24px',
+          fontSize: '40px',
+          animation: 'successPulse 0.6s ease-out'
+        }}>
+          {statusIcon}
+        </div>
+        
+        <h3 style={{
+          fontSize: '24px',
+          fontWeight: '700',
+          color: '#1e293b',
+          margin: '0 0 12px 0'
+        }}>
+          Atividade {statusText}!
+        </h3>
+        
+        <p style={{
+          fontSize: '16px',
+          color: '#64748b',
+          margin: '0 0 8px 0',
+          fontWeight: '500'
+        }}>
+          {atividade.nome}
+        </p>
+        
+        <p style={{
+          fontSize: '14px',
+          color: '#9ca3af',
+          margin: '0 0 24px 0'
+        }}>
+          Status atualizado com sucesso
+        </p>
+        
+        <div style={{
+          width: '100%',
+          height: '4px',
+          backgroundColor: '#f1f5f9',
+          borderRadius: '2px',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            width: '100%',
+            height: '100%',
+            backgroundColor: statusColor,
+            animation: 'progressBar 3s linear'
+          }}></div>
+        </div>
+        
+        <button
+          onClick={onClose}
+          style={{
+            marginTop: '20px',
+            padding: '8px 16px',
+            background: 'transparent',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px',
+            color: '#64748b',
+            fontSize: '14px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.backgroundColor = '#f8fafc'
+            e.target.style.borderColor = '#cbd5e1'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.backgroundColor = 'transparent'
+            e.target.style.borderColor = '#e2e8f0'
+          }}
+        >
+          Fechar
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function ModalObservacao({ isOpen, onClose, onConfirm, atividade, status }: ModalObservacaoProps) {
+  const [observacao, setObservacao] = useState('')
+
+  useEffect(() => {
+    if (isOpen) {
+      setObservacao('')
+    }
+  }, [isOpen])
+
+  if (!isOpen || !atividade) return null
+
+  const handleConfirm = () => {
+    onConfirm(observacao)
+    onClose()
+  }
+
+  const statusColor = status === 'OK' ? '#10b981' : 
+                     status === 'NOK' ? '#dc2626' : 
+                     status === 'PAUSADO' ? '#f59e0b' : 
+                     status === 'PENDENTE' ? '#3b82f6' : '#6b7280'
+  const statusText = status === 'OK' ? 'Concluir' : 
+                    status === 'NOK' ? 'Marcar como NOK' : 
+                    status === 'PAUSADO' ? 'Pausar' : 
+                    status === 'PENDENTE' ? 'Reabrir' : 
+                    status === 'CANCELADO' ? 'Cancelar' : 'Executar'
+  const statusIcon = status === 'OK' ? '✓' : 
+                    status === 'NOK' ? '✗' : 
+                    status === 'PAUSADO' ? '⏸' : 
+                    status === 'PENDENTE' ? '🔄' : '🚫'
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1000,
+      padding: '20px'
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '12px',
+        padding: '0',
+        maxWidth: '500px',
+        width: '100%',
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+        animation: 'fadeIn 0.3s ease-out'
+      }}>
+        <div style={{
+          padding: '24px 24px 0 24px',
+          borderBottom: '1px solid #f1f5f9',
+          marginBottom: '20px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '8px',
+              backgroundColor: statusColor,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '18px',
+              fontWeight: 'bold'
+            }}>
+              {statusIcon}
+            </div>
+            <div>
+              <h3 style={{
+                margin: 0,
+                fontSize: '18px',
+                fontWeight: '600',
+                color: '#1e293b'
+              }}>
+                {statusText} Atividade
+              </h3>
+              <p style={{
+                margin: 0,
+                fontSize: '14px',
+                color: '#64748b'
+              }}>
+                Adicione uma observação (opcional)
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ padding: '0 24px 24px 24px' }}>
+          <div style={{
+            backgroundColor: '#f8fafc',
+            padding: '16px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            border: '1px solid #e2e8f0'
+          }}>
+            <div style={{
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#1e293b',
+              marginBottom: '4px'
+            }}>
+              {atividade.nome}
+            </div>
+            <div style={{
+              fontSize: '12px',
+              color: '#64748b'
+            }}>
+              Setor: {atividade.setor} • Grupo: {atividade.grupo}
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '24px' }}>
+            <label style={{
+              display: 'block',
+              fontSize: '14px',
+              fontWeight: '500',
+              color: '#374151',
+              marginBottom: '8px'
+            }}>
+              Observação
+            </label>
+            <textarea
+              value={observacao}
+              onChange={(e) => setObservacao(e.target.value)}
+              placeholder="Digite uma observação sobre esta atividade..."
+              maxLength={500}
+              style={{
+                width: '100%',
+                minHeight: '100px',
+                padding: '12px',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+                resize: 'vertical',
+                outline: 'none',
+                transition: 'border-color 0.2s ease',
+                boxSizing: 'border-box'
+              }}
+              onFocus={(e) => e.target.style.borderColor = statusColor}
+              onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+            />
+            <div style={{
+              fontSize: '12px',
+              color: '#9ca3af',
+              marginTop: '6px'
+            }}>
+              {observacao.length}/500 caracteres
+            </div>
+          </div>
+
+          <div style={{
+            display: 'flex',
+            gap: '12px',
+            justifyContent: 'flex-end'
+          }}>
+            <button
+              onClick={onClose}
+              style={{
+                padding: '10px 20px',
+                border: '1px solid #d1d5db',
+                borderRadius: '8px',
+                backgroundColor: 'white',
+                color: '#374151',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleConfirm}
+              style={{
+                padding: '10px 20px',
+                border: 'none',
+                borderRadius: '8px',
+                backgroundColor: statusColor,
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              {statusIcon} {statusText}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function WorkflowGeralPage() {
   const router = useRouter()
   const [processos, setProcessos] = useState<ProcessoWorkflow[]>([])
@@ -37,9 +502,28 @@ export default function WorkflowGeralPage() {
   const [autoRefresh, setAutoRefresh] = useState(false)
   const [modalDetalhes, setModalDetalhes] = useState<{processo: ProcessoWorkflow, etapa: Etapa} | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [usuarioAtual, setUsuarioAtual] = useState('')
+  
+  // Estados dos modais
+  const [modalAberto, setModalAberto] = useState(false)
+  const [modalSucessoAberto, setModalSucessoAberto] = useState(false)
+  const [modalAvisoAberto, setModalAvisoAberto] = useState(false)
+  const [atividadeModal, setAtividadeModal] = useState<Atividade | null>(null)
+  const [statusModal, setStatusModal] = useState<'OK' | 'NOK' | 'PAUSADO' | 'CANCELADO' | 'PENDENTE'>('OK')
 
   useEffect(() => {
     carregarDados()
+    
+    // Carregar usuário logado do localStorage
+    const usuarioLogado = localStorage.getItem('usuario')
+    if (usuarioLogado) {
+      try {
+        const usuario = JSON.parse(usuarioLogado)
+        setUsuarioAtual(usuario.nome)
+      } catch (error) {
+        console.error('Erro ao carregar usuário logado:', error)
+      }
+    }
   }, [])
 
   const carregarDados = async () => {
@@ -82,7 +566,7 @@ export default function WorkflowGeralPage() {
     const emAndamento = atividadesEtapa.some((mov: any) => mov.status === 'PENDENTE')
 
     if (todasOK) return { cor: '#10b981', status: 'concluido', atividades: atividadesEtapa }
-    if (algumaNOK) return { cor: '#8b5cf6', status: 'cancelado', atividades: atividadesEtapa }
+    if (algumaNOK) return { cor: '#dc2626', status: 'cancelado', atividades: atividadesEtapa }
     if (emAndamento) return { cor: '#f59e0b', status: 'andamento', atividades: atividadesEtapa }
     
     return { cor: '#e5e7eb', status: 'vazio', atividades: atividadesEtapa }
@@ -91,6 +575,87 @@ export default function WorkflowGeralPage() {
   const toggleExpandCell = (processoId: string, etapaId: string) => {
     const cellId = `${processoId}-${etapaId}`
     setExpandedCell(expandedCell === cellId ? null : cellId)
+  }
+
+  const abrirModal = (atividadeId: string, novoStatus: 'OK' | 'NOK' | 'PAUSADO' | 'CANCELADO' | 'PENDENTE') => {
+    if (!usuarioAtual) {
+      setModalAvisoAberto(true)
+      return
+    }
+
+    const atividade = processos
+      .flatMap(p => p.atividades)
+      .find(a => a.id === atividadeId)
+    
+    if (!atividade) {
+      alert('Atividade não encontrada!')
+      return
+    }
+
+    // Bloquear marcação manual de finalização
+    if (atividade.atividade.nome.includes('Finalização Etapa')) {
+      alert('A finalização da etapa é automática quando todas as atividades são concluídas!')
+      return
+    }
+
+    // Converter para formato esperado pelo modal
+    const atividadeFormatada: Atividade = {
+      id: atividade.id,
+      nome: atividade.atividade.nome,
+      setor: atividade.atividade.setor || 'N/A',
+      grupo: 'Etapa',
+      status: atividade.status,
+      dataHora: atividade.horaFim ? new Date(atividade.horaFim).toLocaleString('pt-BR') : undefined,
+      responsavel: atividade.responsavel?.nome,
+      observacao: atividade.observacao
+    }
+
+    setAtividadeModal(atividadeFormatada)
+    setStatusModal(novoStatus)
+    setModalAberto(true)
+  }
+
+  const confirmarAtividade = async (observacao: string) => {
+    if (!atividadeModal) {
+      return
+    }
+
+    const usuarioLogado = localStorage.getItem('usuario')
+    let setorUsuario = 'Sem setor'
+    if (usuarioLogado) {
+      try {
+        const usuario = JSON.parse(usuarioLogado)
+        setorUsuario = usuario.setor?.nome || 'Sem setor'
+      } catch (error) {
+        console.error('Erro ao carregar setor do usuário:', error)
+      }
+    }
+
+    try {
+      const response = await fetch(`/api/workflow/${atividadeModal.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: statusModal,
+          responsavel: `${usuarioAtual} (${setorUsuario})`,
+          observacao: observacao || null
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Erro na resposta do servidor')
+      }
+
+      // Recarregar dados
+      carregarDados()
+      
+      // Mostrar modal de sucesso
+      setModalSucessoAberto(true)
+    } catch (error) {
+      console.error('Erro ao atualizar atividade:', error)
+      alert(`Erro ao atualizar atividade: ${error.message}`)
+    }
   }
 
   // Filtros e busca
@@ -168,6 +733,28 @@ export default function WorkflowGeralPage() {
       background: '#f8fafc', 
       fontFamily: 'system-ui, -apple-system, sans-serif' 
     }}>
+      {/* Modal de Observação */}
+      <ModalObservacao
+        isOpen={modalAberto}
+        onClose={() => setModalAberto(false)}
+        onConfirm={confirmarAtividade}
+        atividade={atividadeModal}
+        status={statusModal}
+      />
+      
+      {/* Modal de Sucesso */}
+      <ModalSucesso
+        isOpen={modalSucessoAberto}
+        onClose={() => setModalSucessoAberto(false)}
+        atividade={atividadeModal}
+        status={statusModal}
+      />
+      
+      {/* Modal de Aviso */}
+      <ModalAviso
+        isOpen={modalAvisoAberto}
+        onClose={() => setModalAvisoAberto(false)}
+      />
       {/* Header */}
       <div style={{ 
         background: 'white', 
@@ -293,84 +880,6 @@ export default function WorkflowGeralPage() {
               
               <div>
                 <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#64748b' }}>
-                  PROCESSO COMPLETO
-                </h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
-                  <button
-                    onClick={() => router.push('/etapas')}
-                    style={{
-                      padding: '6px 10px',
-                      background: '#f59e0b',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    <span>🏷️</span> 1. Etapas
-                  </button>
-                  <button
-                    onClick={() => router.push('/atividades')}
-                    style={{
-                      padding: '6px 10px',
-                      background: '#10b981',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    <span>📋</span> 2. Atividades
-                  </button>
-                  <button
-                    onClick={() => router.push('/complexidades')}
-                    style={{
-                      padding: '6px 10px',
-                      background: '#8b5cf6',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    <span>🔧</span> 3. Processos
-                  </button>
-                  <button
-                    onClick={() => router.push('/processos')}
-                    style={{
-                      padding: '6px 10px',
-                      background: '#ef4444',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}
-                  >
-                    <span>⚙️</span> 4. Vínculos
-                  </button>
-                </div>
-                
-                <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', fontWeight: '600', color: '#64748b' }}>
                   AÇÕES RÁPIDAS
                 </h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -412,15 +921,6 @@ export default function WorkflowGeralPage() {
         
         {/* Conteúdo Principal */}
         <div style={{ flex: 1 }}>
-          {/* Breadcrumb */}
-          <div style={{
-            fontSize: '14px',
-            color: '#64748b',
-            marginBottom: '24px'
-          }}>
-            Início › Workflow › Controle de Atividades
-          </div>
-
           {/* Barra de Filtros */}
           <div style={{
             background: 'white',
@@ -711,21 +1211,17 @@ export default function WorkflowGeralPage() {
                                 {etapa.nome}
                               </div>
                               
-                              {/* Status da Etapa */}
+                              {/* Status da Etapa - CLICÁVEL PARA EXPANDIR */}
                               <div
                                 onClick={() => {
                                   if (statusEtapa.atividades.length > 0) {
-                                    if (expandedCell === cellId) {
-                                      setExpandedCell(null)
-                                    } else {
-                                      toggleExpandCell(processo.id, etapa.id)
-                                    }
+                                    toggleExpandCell(processo.id, etapa.id)
                                   }
                                 }}
                                 onDoubleClick={() => statusEtapa.atividades.length > 0 && abrirDetalhes(processo, etapa)}
                                 onMouseEnter={() => setHoveredCell(cellId)}
                                 onMouseLeave={() => setHoveredCell(null)}
-                                title={`${processo.entidade.nome} - ${etapa.nome}\n${statusEtapa.atividades.length} atividades\nStatus: ${statusEtapa.status}`}
+                                title={`${processo.entidade.nome} - ${etapa.nome}\n${statusEtapa.atividades.length} atividades\nStatus: ${statusEtapa.status}\nClique para expandir atividades\nDuplo clique para detalhes`}
                                 style={{
                                   background: statusEtapa.cor,
                                   minHeight: '50px',
@@ -796,7 +1292,7 @@ export default function WorkflowGeralPage() {
                     </div>
                   )}
 
-                  {/* Linha Expandida */}
+                  {/* Linha Expandida com Botões OK/NOK */}
                   {expandedCell && expandedCell.startsWith(processo.id) && (
                     <div style={{ 
                       background: '#f8fafc',
@@ -814,8 +1310,8 @@ export default function WorkflowGeralPage() {
                       
                       <div style={{ 
                         display: 'grid', 
-                        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-                        gap: '12px' 
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
+                        gap: '16px' 
                       }}>
                         {processo.atividades
                           .filter((mov: any) => mov.atividade.etapaId === expandedCell.split('-')[1])
@@ -834,7 +1330,7 @@ export default function WorkflowGeralPage() {
                                 display: 'flex', 
                                 justifyContent: 'space-between', 
                                 alignItems: 'flex-start',
-                                marginBottom: '8px'
+                                marginBottom: '12px'
                               }}>
                                 <div style={{ fontWeight: '600', fontSize: '14px', color: '#1e293b' }}>
                                   {mov.atividade.nome}
@@ -853,15 +1349,162 @@ export default function WorkflowGeralPage() {
                                 </div>
                               </div>
                               
-                              <div style={{ fontSize: '12px', color: '#64748b' }}>
+                              <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>
                                 🏢 Setor: {mov.atividade.setor || 'N/A'}
                               </div>
                               
-                              {mov.responsavel && (
-                                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
-                                  👤 Responsável: {mov.responsavel.nome}
+                              {mov.status !== 'PENDENTE' && (mov.responsavel || mov.responsavelCompleto) && (
+                                <div style={{ 
+                                  fontSize: '11px', 
+                                  color: mov.status === 'OK' ? '#10b981' : 
+                                         mov.status === 'NOK' ? '#dc2626' : 
+                                         mov.status === 'PAUSADO' ? '#f59e0b' : '#6b7280',
+                                  marginBottom: '8px',
+                                  fontWeight: '500'
+                                }}>
+                                  {mov.status === 'OK' ? '✓ Concluída por' : 
+                                   mov.status === 'NOK' ? '✗ Marcada NOK por' : 
+                                   mov.status === 'PAUSADO' ? '⏸ Pausada por' : 
+                                   mov.status === 'CANCELADO' ? '🚫 Cancelada por' : 'Executada por'}: {mov.responsavelCompleto || mov.responsavel || (typeof mov.responsavel === 'object' ? mov.responsavel?.nome : mov.responsavel)}
                                 </div>
                               )}
+                              
+                              {mov.status !== 'PENDENTE' && mov.horaFim && (
+                                <div style={{ fontSize: '12px', color: '#2563eb', marginBottom: '8px' }}>
+                                  📅 {new Date(mov.horaFim).toLocaleString('pt-BR')}
+                                </div>
+                              )}
+                              
+                              {mov.observacao && (
+                                <div style={{ 
+                                  fontSize: '12px', 
+                                  color: '#64748b', 
+                                  marginBottom: '12px',
+                                  background: '#f8fafc',
+                                  padding: '8px',
+                                  borderRadius: '4px',
+                                  border: '1px solid #e2e8f0'
+                                }}>
+                                  💬 Observação: {mov.observacao}
+                                </div>
+                              )}
+
+                              {/* Botões OK/NOK para cada atividade */}
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                {mov.atividade.nome.includes('Finalização Etapa') ? (
+                                  // Indicador de finalização automática
+                                  <div
+                                    style={{
+                                      background: mov.status === 'OK' ? '#10b981' : '#f3f4f6',
+                                      color: mov.status === 'OK' ? 'white' : '#9ca3af',
+                                      border: 'none',
+                                      borderRadius: '4px',
+                                      padding: '6px 12px',
+                                      fontSize: '12px',
+                                      fontWeight: '600',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
+                                    }}
+                                  >
+                                    {mov.status === 'OK' ? (
+                                      <>
+                                        ✓ Finalizada
+                                        <span style={{ fontSize: '10px', opacity: 0.8 }}>(Auto)</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        ⏳ Aguardando
+                                        <span style={{ fontSize: '10px' }}>(Auto)</span>
+                                      </>
+                                    )}
+                                  </div>
+                                ) : (
+                                  // Botões normais
+                                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                    {(mov.status === 'PAUSADO' || mov.status === 'CANCELADO') ? (
+                                      <button
+                                        onClick={() => abrirModal(mov.id, 'PENDENTE')}
+                                        style={{
+                                          background: '#3b82f6',
+                                          color: 'white',
+                                          border: 'none',
+                                          borderRadius: '4px',
+                                          padding: '6px 12px',
+                                          fontSize: '12px',
+                                          cursor: 'pointer',
+                                          fontWeight: '600'
+                                        }}
+                                      >
+                                        🔄 Reabrir
+                                      </button>
+                                    ) : (
+                                      <>
+                                        <button
+                                          onClick={() => abrirModal(mov.id, 'OK')}
+                                          style={{
+                                            background: mov.status === 'OK' ? '#10b981' : '#e5e7eb',
+                                            color: mov.status === 'OK' ? 'white' : '#666',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            padding: '6px 12px',
+                                            fontSize: '12px',
+                                            cursor: 'pointer',
+                                            fontWeight: '600'
+                                          }}
+                                        >
+                                          ✓ OK
+                                        </button>
+                                        <button
+                                          onClick={() => abrirModal(mov.id, 'NOK')}
+                                          style={{
+                                            background: mov.status === 'NOK' ? '#dc2626' : '#e5e7eb',
+                                            color: mov.status === 'NOK' ? 'white' : '#666',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            padding: '6px 12px',
+                                            fontSize: '12px',
+                                            cursor: 'pointer',
+                                            fontWeight: '600'
+                                          }}
+                                        >
+                                          ✗ NOK
+                                        </button>
+                                        <button
+                                          onClick={() => abrirModal(mov.id, 'PAUSADO')}
+                                          style={{
+                                            background: mov.status === 'PAUSADO' ? '#f59e0b' : '#e5e7eb',
+                                            color: mov.status === 'PAUSADO' ? 'white' : '#666',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            padding: '6px 12px',
+                                            fontSize: '12px',
+                                            cursor: 'pointer',
+                                            fontWeight: '600'
+                                          }}
+                                        >
+                                          ⏸ Pausar
+                                        </button>
+                                        <button
+                                          onClick={() => abrirModal(mov.id, 'CANCELADO')}
+                                          style={{
+                                            background: mov.status === 'CANCELADO' ? '#6b7280' : '#e5e7eb',
+                                            color: mov.status === 'CANCELADO' ? 'white' : '#666',
+                                            border: 'none',
+                                            borderRadius: '4px',
+                                            padding: '6px 12px',
+                                            fontSize: '12px',
+                                            cursor: 'pointer',
+                                            fontWeight: '600'
+                                          }}
+                                        >
+                                          🚫 Cancelar
+                                        </button>
+                                      </>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           ))}
                       </div>
@@ -939,7 +1582,7 @@ export default function WorkflowGeralPage() {
                 return (
                   <div>
                     <h4 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: '600' }}>Atividades:</h4>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       {statusEtapa.atividades.map((atividade) => (
                         <div key={atividade.id} style={{
                           padding: '12px',
@@ -965,8 +1608,176 @@ export default function WorkflowGeralPage() {
                               {atividade.status}
                             </span>
                           </div>
-                          <div style={{ fontSize: '12px', color: '#64748b' }}>
-                            🏢 {atividade.atividade.setor || 'N/A'}
+                          <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>
+                            🏢 Setor: {atividade.atividade.setor || 'N/A'}
+                          </div>
+                          
+                          {atividade.status !== 'PENDENTE' && (atividade.responsavel || atividade.responsavelCompleto) && (
+                            <div style={{ 
+                              fontSize: '11px', 
+                              color: atividade.status === 'OK' ? '#10b981' : 
+                                     atividade.status === 'NOK' ? '#dc2626' : 
+                                     atividade.status === 'PAUSADO' ? '#f59e0b' : '#6b7280',
+                              marginBottom: '8px',
+                              fontWeight: '500'
+                            }}>
+                              {atividade.status === 'OK' ? '✓ Concluída por' : 
+                               atividade.status === 'NOK' ? '✗ Marcada NOK por' : 
+                               atividade.status === 'PAUSADO' ? '⏸ Pausada por' : 
+                               atividade.status === 'CANCELADO' ? '🚫 Cancelada por' : 'Executada por'}: {atividade.responsavelCompleto || atividade.responsavel || (typeof atividade.responsavel === 'object' ? atividade.responsavel?.nome : atividade.responsavel)}
+                            </div>
+                          )}
+                          
+                          {atividade.status !== 'PENDENTE' && atividade.horaFim && (
+                            <div style={{ fontSize: '12px', color: '#2563eb', marginBottom: '8px' }}>
+                              📅 {new Date(atividade.horaFim).toLocaleString('pt-BR')}
+                            </div>
+                          )}
+                          
+                          {atividade.observacao && (
+                            <div style={{ 
+                              fontSize: '12px', 
+                              color: '#64748b', 
+                              marginBottom: '12px',
+                              background: '#f8fafc',
+                              padding: '8px',
+                              borderRadius: '4px',
+                              border: '1px solid #e2e8f0'
+                            }}>
+                              💬 Observação: {atividade.observacao}
+                            </div>
+                          )}
+                          
+                          {/* Botões OK/NOK no modal também */}
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            {atividade.atividade.nome.includes('Finalização Etapa') ? (
+                              // Indicador de finalização automática
+                              <div
+                                style={{
+                                  background: atividade.status === 'OK' ? '#10b981' : '#f3f4f6',
+                                  color: atividade.status === 'OK' ? 'white' : '#9ca3af',
+                                  border: 'none',
+                                  borderRadius: '4px',
+                                  padding: '6px 12px',
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                              >
+                                {atividade.status === 'OK' ? (
+                                  <>
+                                    ✓ Finalizada
+                                    <span style={{ fontSize: '10px', opacity: 0.8 }}>(Auto)</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    ⏳ Aguardando
+                                    <span style={{ fontSize: '10px' }}>(Auto)</span>
+                                  </>
+                                )}
+                              </div>
+                            ) : (
+                              // Botões normais
+                              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                {(atividade.status === 'PAUSADO' || atividade.status === 'CANCELADO') ? (
+                                  <button
+                                    onClick={() => {
+                                      abrirModal(atividade.id, 'PENDENTE')
+                                      setModalDetalhes(null)
+                                    }}
+                                    style={{
+                                      padding: '6px 12px',
+                                      background: '#3b82f6',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: '4px',
+                                      fontSize: '12px',
+                                      fontWeight: '600',
+                                      cursor: 'pointer'
+                                    }}
+                                  >
+                                    🔄 Reabrir
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={() => {
+                                        abrirModal(atividade.id, 'OK')
+                                        setModalDetalhes(null)
+                                      }}
+                                      style={{
+                                        padding: '6px 12px',
+                                        background: atividade.status === 'OK' ? '#10b981' : '#e5e7eb',
+                                        color: atividade.status === 'OK' ? 'white' : '#666',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      ✓ OK
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        abrirModal(atividade.id, 'NOK')
+                                        setModalDetalhes(null)
+                                      }}
+                                      style={{
+                                        padding: '6px 12px',
+                                        background: atividade.status === 'NOK' ? '#dc2626' : '#e5e7eb',
+                                        color: atividade.status === 'NOK' ? 'white' : '#666',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      ✗ NOK
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        abrirModal(atividade.id, 'PAUSADO')
+                                        setModalDetalhes(null)
+                                      }}
+                                      style={{
+                                        padding: '6px 12px',
+                                        background: atividade.status === 'PAUSADO' ? '#f59e0b' : '#e5e7eb',
+                                        color: atividade.status === 'PAUSADO' ? 'white' : '#666',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      ⏸ Pausar
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        abrirModal(atividade.id, 'CANCELADO')
+                                        setModalDetalhes(null)
+                                      }}
+                                      style={{
+                                        padding: '6px 12px',
+                                        background: atividade.status === 'CANCELADO' ? '#6b7280' : '#e5e7eb',
+                                        color: atividade.status === 'CANCELADO' ? 'white' : '#666',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      🚫 Cancelar
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -1017,6 +1828,29 @@ export default function WorkflowGeralPage() {
           </div>
         </div>
       )}
+      
+      <style jsx>{`
+        @keyframes successSlideIn {
+          from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        
+        @keyframes successPulse {
+          0% { transform: scale(0.8); }
+          50% { transform: scale(1.1); }
+          100% { transform: scale(1); }
+        }
+        
+        @keyframes progressBar {
+          from { width: 100%; }
+          to { width: 0%; }
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.9) translateY(-20px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+      `}</style>
     </div>
   )
 }

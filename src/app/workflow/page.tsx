@@ -8,7 +8,7 @@ interface Atividade {
   nome: string
   setor: string
   grupo: string
-  status: 'PENDENTE' | 'OK' | 'NOK'
+  status: 'PENDENTE' | 'OK' | 'NOK' | 'PAUSADO' | 'CANCELADO'
   dataHora?: string
   responsavel?: string
   observacao?: string
@@ -32,7 +32,9 @@ interface EntidadeProcesso {
 interface Usuario {
   id: string
   nome: string
-  setor: string
+  setor?: {
+    nome: string
+  }
   ativo: boolean
 }
 
@@ -41,14 +43,14 @@ interface ModalObservacaoProps {
   onClose: () => void
   onConfirm: (observacao: string) => void
   atividade: Atividade | null
-  status: 'OK' | 'NOK'
+  status: 'OK' | 'NOK' | 'PAUSADO' | 'CANCELADO' | 'PENDENTE'
 }
 
 interface ModalSucessoProps {
   isOpen: boolean
   onClose: () => void
   atividade: Atividade | null
-  status: 'OK' | 'NOK'
+  status: 'OK' | 'NOK' | 'PAUSADO' | 'CANCELADO' | 'PENDENTE'
 }
 
 function ModalAviso({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
@@ -71,82 +73,32 @@ function ModalAviso({ isOpen, onClose }: { isOpen: boolean, onClose: () => void 
       <div style={{
         backgroundColor: 'white',
         borderRadius: '12px',
-        padding: '0',
+        padding: '24px',
         maxWidth: '400px',
         width: '100%',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        animation: 'fadeIn 0.3s ease-out'
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
       }}>
-        <div style={{
-          padding: '24px 24px 0 24px',
-          borderBottom: '1px solid #f1f5f9',
-          marginBottom: '20px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '8px',
-              backgroundColor: '#f59e0b',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '18px'
-            }}>
-              ⚠️
-            </div>
-            <div>
-              <h3 style={{
-                margin: 0,
-                fontSize: '18px',
-                fontWeight: '600',
-                color: '#1e293b'
-              }}>
-                Usuário Obrigatório
-              </h3>
-              <p style={{
-                margin: 0,
-                fontSize: '14px',
-                color: '#64748b'
-              }}>
-                Selecione um usuário responsável
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div style={{ padding: '0 24px 24px 24px' }}>
-          <p style={{
+        <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600', color: '#1e293b' }}>
+          Usuário Obrigatório
+        </h3>
+        <p style={{ margin: '0 0 24px 0', fontSize: '14px', color: '#64748b' }}>
+          Para executar uma atividade é necessário selecionar o usuário responsável.
+        </p>
+        <button
+          onClick={onClose}
+          style={{
+            padding: '10px 20px',
+            border: 'none',
+            borderRadius: '8px',
+            backgroundColor: '#f59e0b',
+            color: 'white',
             fontSize: '14px',
-            color: '#374151',
-            marginBottom: '24px',
-            lineHeight: '1.5'
-          }}>
-            Para executar uma atividade é necessário selecionar o usuário responsável.
-          </p>
-
-          <div style={{
-            display: 'flex',
-            justifyContent: 'flex-end'
-          }}>
-            <button
-              onClick={onClose}
-              style={{
-                padding: '10px 20px',
-                border: 'none',
-                borderRadius: '8px',
-                backgroundColor: '#f59e0b',
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
-            >
-              Entendi
-            </button>
-          </div>
-        </div>
+            fontWeight: '500',
+            cursor: 'pointer'
+          }}
+        >
+          Entendi
+        </button>
       </div>
     </div>
   )
@@ -164,9 +116,14 @@ function ModalSucesso({ isOpen, onClose, atividade, status }: ModalSucessoProps)
 
   if (!isOpen || !atividade) return null
 
-  const statusColor = status === 'OK' ? '#10b981' : '#ef4444'
-  const statusText = status === 'OK' ? 'Concluída' : 'Marcada como NOK'
-  const statusIcon = status === 'OK' ? '✅' : '❌'
+  const statusColor = status === 'OK' ? '#10b981' : 
+                     status === 'NOK' ? '#dc2626' : 
+                     status === 'PAUSADO' ? '#f59e0b' : 
+                     status === 'PENDENTE' ? '#3b82f6' : '#6b7280'
+  const statusText = status === 'OK' ? 'Concluída' : 
+                    status === 'NOK' ? 'Marcada como NOK' : 
+                    status === 'PAUSADO' ? 'Pausada' : 
+                    status === 'PENDENTE' ? 'Reaberta' : 'Cancelada'
 
   return (
     <div style={{
@@ -189,7 +146,6 @@ function ModalSucesso({ isOpen, onClose, atividade, status }: ModalSucessoProps)
         maxWidth: '400px',
         width: '100%',
         boxShadow: '0 25px 50px rgba(0, 0, 0, 0.25)',
-        animation: 'successSlideIn 0.4s ease-out',
         textAlign: 'center'
       }}>
         <div style={{
@@ -201,10 +157,9 @@ function ModalSucesso({ isOpen, onClose, atividade, status }: ModalSucessoProps)
           alignItems: 'center',
           justifyContent: 'center',
           margin: '0 auto 24px',
-          fontSize: '40px',
-          animation: 'successPulse 0.6s ease-out'
+          fontSize: '40px'
         }}>
-          {statusIcon}
+          {status === 'OK' ? '✅' : status === 'NOK' ? '❌' : status === 'PAUSADO' ? '⏸️' : status === 'PENDENTE' ? '🔄' : '🚫'}
         </div>
         
         <h3 style={{
@@ -219,55 +174,22 @@ function ModalSucesso({ isOpen, onClose, atividade, status }: ModalSucessoProps)
         <p style={{
           fontSize: '16px',
           color: '#64748b',
-          margin: '0 0 8px 0',
+          margin: '0 0 24px 0',
           fontWeight: '500'
         }}>
           {atividade.nome}
         </p>
         
-        <p style={{
-          fontSize: '14px',
-          color: '#9ca3af',
-          margin: '0 0 24px 0'
-        }}>
-          Status atualizado com sucesso
-        </p>
-        
-        <div style={{
-          width: '100%',
-          height: '4px',
-          backgroundColor: '#f1f5f9',
-          borderRadius: '2px',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            width: '100%',
-            height: '100%',
-            backgroundColor: statusColor,
-            animation: 'progressBar 3s linear'
-          }}></div>
-        </div>
-        
         <button
           onClick={onClose}
           style={{
-            marginTop: '20px',
             padding: '8px 16px',
             background: 'transparent',
             border: '1px solid #e2e8f0',
             borderRadius: '8px',
             color: '#64748b',
             fontSize: '14px',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseEnter={(e) => {
-            e.target.style.backgroundColor = '#f8fafc'
-            e.target.style.borderColor = '#cbd5e1'
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.backgroundColor = 'transparent'
-            e.target.style.borderColor = '#e2e8f0'
+            cursor: 'pointer'
           }}
         >
           Fechar
@@ -293,9 +215,15 @@ function ModalObservacao({ isOpen, onClose, onConfirm, atividade, status }: Moda
     onClose()
   }
 
-  const statusColor = status === 'OK' ? '#10b981' : '#ef4444'
-  const statusText = status === 'OK' ? 'Concluir' : 'Marcar como NOK'
-  const statusIcon = status === 'OK' ? '✓' : '✗'
+  const statusColor = status === 'OK' ? '#10b981' : 
+                     status === 'NOK' ? '#dc2626' : 
+                     status === 'PAUSADO' ? '#f59e0b' : 
+                     status === 'PENDENTE' ? '#3b82f6' : '#6b7280'
+  const statusText = status === 'OK' ? 'Concluir' : 
+                    status === 'NOK' ? 'Marcar como NOK' : 
+                    status === 'PAUSADO' ? 'Pausar' : 
+                    status === 'PENDENTE' ? 'Reabrir' : 
+                    status === 'CANCELADO' ? 'Cancelar' : 'Executar'
 
   return (
     <div style={{
@@ -314,157 +242,94 @@ function ModalObservacao({ isOpen, onClose, onConfirm, atividade, status }: Moda
       <div style={{
         backgroundColor: 'white',
         borderRadius: '12px',
-        padding: '0',
+        padding: '24px',
         maxWidth: '500px',
         width: '100%',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        animation: 'fadeIn 0.3s ease-out'
+        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
       }}>
+        <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', fontWeight: '600', color: '#1e293b' }}>
+          {statusText} Atividade
+        </h3>
+        
         <div style={{
-          padding: '24px 24px 0 24px',
-          borderBottom: '1px solid #f1f5f9',
-          marginBottom: '20px'
+          backgroundColor: '#f8fafc',
+          padding: '16px',
+          borderRadius: '8px',
+          marginBottom: '20px',
+          border: '1px solid #e2e8f0'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '8px',
-              backgroundColor: statusColor,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontSize: '18px',
-              fontWeight: 'bold'
-            }}>
-              {statusIcon}
-            </div>
-            <div>
-              <h3 style={{
-                margin: 0,
-                fontSize: '18px',
-                fontWeight: '600',
-                color: '#1e293b'
-              }}>
-                {statusText} Atividade
-              </h3>
-              <p style={{
-                margin: 0,
-                fontSize: '14px',
-                color: '#64748b'
-              }}>
-                Adicione uma observação (opcional)
-              </p>
-            </div>
+          <div style={{ fontSize: '14px', fontWeight: '600', color: '#1e293b', marginBottom: '4px' }}>
+            {atividade.nome}
+          </div>
+          <div style={{ fontSize: '12px', color: '#64748b' }}>
+            Setor: {atividade.setor} • Grupo: {atividade.grupo}
           </div>
         </div>
 
-        <div style={{ padding: '0 24px 24px 24px' }}>
-          <div style={{
-            backgroundColor: '#f8fafc',
-            padding: '16px',
-            borderRadius: '8px',
-            marginBottom: '20px',
-            border: '1px solid #e2e8f0'
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            display: 'block',
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#374151',
+            marginBottom: '8px'
           }}>
-            <div style={{
+            Observação
+          </label>
+          <textarea
+            value={observacao}
+            onChange={(e) => setObservacao(e.target.value)}
+            placeholder="Digite uma observação sobre esta atividade..."
+            maxLength={500}
+            style={{
+              width: '100%',
+              minHeight: '100px',
+              padding: '12px',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
               fontSize: '14px',
-              fontWeight: '600',
-              color: '#1e293b',
-              marginBottom: '4px'
-            }}>
-              {atividade.nome}
-            </div>
-            <div style={{
-              fontSize: '12px',
-              color: '#64748b'
-            }}>
-              Setor: {atividade.setor} • Grupo: {atividade.grupo}
-            </div>
+              fontFamily: 'inherit',
+              resize: 'vertical',
+              outline: 'none',
+              boxSizing: 'border-box'
+            }}
+          />
+          <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '6px' }}>
+            {observacao.length}/500 caracteres
           </div>
+        </div>
 
-          <div style={{ marginBottom: '24px' }}>
-            <label style={{
-              display: 'block',
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '10px 20px',
+              border: '1px solid #d1d5db',
+              borderRadius: '8px',
+              backgroundColor: 'white',
+              color: '#374151',
               fontSize: '14px',
               fontWeight: '500',
-              color: '#374151',
-              marginBottom: '8px'
-            }}>
-              Observação
-            </label>
-            <textarea
-              value={observacao}
-              onChange={(e) => setObservacao(e.target.value)}
-              placeholder="Digite uma observação sobre esta atividade..."
-              maxLength={500}
-              style={{
-                width: '100%',
-                minHeight: '100px',
-                padding: '12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                fontSize: '14px',
-                fontFamily: 'inherit',
-                resize: 'vertical',
-                outline: 'none',
-                transition: 'border-color 0.2s ease',
-                boxSizing: 'border-box'
-              }}
-              onFocus={(e) => e.target.style.borderColor = statusColor}
-              onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-            />
-            <div style={{
-              fontSize: '12px',
-              color: '#9ca3af',
-              marginTop: '6px'
-            }}>
-              {observacao.length}/500 caracteres
-            </div>
-          </div>
-
-          <div style={{
-            display: 'flex',
-            gap: '12px',
-            justifyContent: 'flex-end'
-          }}>
-            <button
-              onClick={onClose}
-              style={{
-                padding: '10px 20px',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                backgroundColor: 'white',
-                color: '#374151',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease'
-              }}
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleConfirm}
-              style={{
-                padding: '10px 20px',
-                border: 'none',
-                borderRadius: '8px',
-                backgroundColor: statusColor,
-                color: 'white',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              {statusIcon} {statusText}
-            </button>
-          </div>
+              cursor: 'pointer'
+            }}
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleConfirm}
+            style={{
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '8px',
+              backgroundColor: statusColor,
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer'
+            }}
+          >
+            {statusText}
+          </button>
         </div>
       </div>
     </div>
@@ -486,7 +351,7 @@ export default function WorkflowPage() {
   const [modalSucessoAberto, setModalSucessoAberto] = useState(false)
   const [modalAvisoAberto, setModalAvisoAberto] = useState(false)
   const [atividadeModal, setAtividadeModal] = useState<Atividade | null>(null)
-  const [statusModal, setStatusModal] = useState<'OK' | 'NOK'>('OK')
+  const [statusModal, setStatusModal] = useState<'OK' | 'NOK' | 'PAUSADO' | 'CANCELADO' | 'PENDENTE'>('OK')
 
   // Detectar ID do workflow na URL
   useEffect(() => {
@@ -567,15 +432,12 @@ export default function WorkflowPage() {
       const entidade = entidades.find(e => e.id === entidadeSelecionada)
       if (!entidade) return
 
-      console.log('Carregando atividades para processo:', entidade.processoId)
-      
       fetch(`/api/processos/${entidade.processoId}`)
         .then(res => {
           if (!res.ok) throw new Error(`HTTP ${res.status}`)
           return res.json()
         })
         .then(processo => {
-          console.log('Processo carregado:', processo)
           if (processo.atividades) {
             const atividadesFormatadas = processo.atividades.map((mov: any) => {
               const etapa = etapas.find(e => e.id === mov.atividade.etapaId)
@@ -586,11 +448,10 @@ export default function WorkflowPage() {
                 grupo: etapa ? etapa.nome : 'Sem Etapa',
                 status: mov.status,
                 dataHora: mov.horaFim ? new Date(mov.horaFim).toLocaleString('pt-BR') : undefined,
-                responsavel: mov.responsavel?.nome,
+                responsavel: mov.responsavelCompleto || mov.responsavel?.nome,
                 observacao: mov.observacao
               }
             })
-            console.log('Atividades formatadas:', atividadesFormatadas)
             setAtividades(atividadesFormatadas)
           }
         })
@@ -601,9 +462,7 @@ export default function WorkflowPage() {
     }
   }, [entidadeSelecionada, entidades, etapas])
 
-  const abrirModal = (id: string, novoStatus: 'OK' | 'NOK') => {
-    console.log('Abrindo modal para atividade:', id, 'status:', novoStatus)
-    
+  const abrirModal = (id: string, novoStatus: 'OK' | 'NOK' | 'PAUSADO' | 'CANCELADO' | 'PENDENTE') => {
     if (!usuarioAtual) {
       setModalAvisoAberto(true)
       return
@@ -616,12 +475,9 @@ export default function WorkflowPage() {
 
     const atividade = atividades.find(a => a.id === id)
     if (!atividade) {
-      console.error('Atividade não encontrada:', id)
       alert('Atividade não encontrada!')
       return
     }
-
-    console.log('Atividade encontrada:', atividade)
 
     // Bloquear marcação manual de finalização
     if (atividade.nome.includes('Finalização Etapa')) {
@@ -636,11 +492,11 @@ export default function WorkflowPage() {
 
   const confirmarAtividade = async (observacao: string) => {
     if (!atividadeModal) {
-      console.error('Nenhuma atividade selecionada')
       return
     }
 
-    console.log('Confirmando atividade:', atividadeModal.id, 'status:', statusModal)
+    const usuarioSelecionado = usuarios.find(u => u.nome === usuarioAtual)
+    const setorUsuario = usuarioSelecionado?.setor?.nome || 'Sem setor'
 
     try {
       const response = await fetch(`/api/workflow/${atividadeModal.id}`, {
@@ -648,21 +504,15 @@ export default function WorkflowPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           status: statusModal,
-          responsavel: usuarioAtual,
+          responsavel: `${usuarioAtual} (${setorUsuario})`,
           observacao: observacao || null
         })
       })
 
-      console.log('Response status:', response.status)
-
       if (!response.ok) {
         const errorData = await response.json()
-        console.error('Erro na resposta:', errorData)
         throw new Error(errorData.error || 'Erro na resposta do servidor')
       }
-
-      const result = await response.json()
-      console.log('Atividade atualizada:', result)
 
       // Recarregar atividades
       const entidade = entidades.find(e => e.id === entidadeSelecionada)
@@ -684,7 +534,7 @@ export default function WorkflowPage() {
               grupo: etapa ? etapa.nome : 'Sem Etapa',
               status: mov.status,
               dataHora: mov.horaFim ? new Date(mov.horaFim).toLocaleString('pt-BR') : undefined,
-              responsavel: mov.responsavel?.nome,
+              responsavel: mov.responsavelCompleto || mov.responsavel?.nome,
               observacao: mov.observacao
             }
           })
@@ -708,7 +558,7 @@ export default function WorkflowPage() {
       background: '#f8fafc',
       fontFamily: 'system-ui, -apple-system, sans-serif'
     }}>
-      {/* Modal de Observação */}
+      {/* Modais */}
       <ModalObservacao
         isOpen={modalAberto}
         onClose={() => setModalAberto(false)}
@@ -717,7 +567,6 @@ export default function WorkflowPage() {
         status={statusModal}
       />
       
-      {/* Modal de Sucesso */}
       <ModalSucesso
         isOpen={modalSucessoAberto}
         onClose={() => setModalSucessoAberto(false)}
@@ -725,13 +574,12 @@ export default function WorkflowPage() {
         status={statusModal}
       />
       
-      {/* Modal de Aviso */}
       <ModalAviso
         isOpen={modalAvisoAberto}
         onClose={() => setModalAvisoAberto(false)}
       />
       
-      {/* Header Corporativo */}
+      {/* Header */}
       <div style={{ 
         background: 'white',
         borderBottom: '1px solid #e2e8f0',
@@ -751,10 +599,7 @@ export default function WorkflowPage() {
                   padding: '8px 16px',
                   fontSize: '14px',
                   cursor: 'pointer',
-                  fontWeight: '500',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
+                  fontWeight: '500'
                 }}
               >
                 ← Voltar
@@ -784,18 +629,12 @@ export default function WorkflowPage() {
                   padding: '6px 12px',
                   borderRadius: '6px',
                   fontSize: '12px',
-                  fontWeight: '500',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
+                  fontWeight: '500'
                 }}>
                   👤 {usuarioAtual}
                 </div>
               )}
-              <div style={{
-                color: '#64748b',
-                fontSize: '14px'
-              }}>
+              <div style={{ color: '#64748b', fontSize: '14px' }}>
                 {new Date().toLocaleDateString('pt-BR')} - {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
               </div>
             </div>
@@ -804,34 +643,7 @@ export default function WorkflowPage() {
       </div>
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 24px' }}>
-        {/* Breadcrumb e Controles */}
-        <div style={{ marginBottom: '32px' }}>
-          <div style={{
-            fontSize: '14px',
-            color: '#64748b',
-            marginBottom: '8px'
-          }}>
-            Início › Workflow › Controle de Atividades
-          </div>
-          <h2 style={{ 
-            fontSize: '28px', 
-            fontWeight: '700', 
-            color: '#1e293b',
-            margin: '0',
-            marginBottom: '8px'
-          }}>
-            Controle de Workflow Individual
-          </h2>
-          <p style={{
-            fontSize: '16px',
-            color: '#64748b',
-            margin: '0'
-          }}>
-            Gerencie as atividades dos processos de workflow
-          </p>
-        </div>
-        
-        {/* Painel de Controles */}
+        {/* Controles */}
         <div style={{
           background: 'white',
           borderRadius: '12px',
@@ -840,7 +652,7 @@ export default function WorkflowPage() {
           border: '1px solid #e2e8f0',
           marginBottom: '24px'
         }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 200px', gap: '16px', alignItems: 'end' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
                 Entidade *
@@ -870,90 +682,28 @@ export default function WorkflowPage() {
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>
                 Usuário Responsável *
               </label>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <select 
-                  value={usuarioAtual} 
-                  onChange={(e) => setUsuarioAtual(e.target.value)}
-                  style={{ 
-                    flex: 1,
-                    padding: '12px 16px', 
-                    borderRadius: '8px', 
-                    border: usuarioAtual ? '2px solid #10b981' : '1px solid #d1d5db', 
-                    fontSize: '14px',
-                    background: usuarioAtual ? '#f0fdf4' : 'white',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <option value="">Selecionar Usuário</option>
-                  {Array.isArray(usuarios) && usuarios.map(usuario => (
-                    <option key={usuario.id} value={usuario.nome}>
-                      {usuario.nome} - {usuario.setor}
-                    </option>
-                  ))}
-                </select>
-                {usuarioAtual && (
-                  <div style={{
-                    background: '#10b981',
-                    color: 'white',
-                    padding: '8px 12px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
-                  }}>
-                    ✓ Logado
-                  </div>
-                )}
-              </div>
+              <select 
+                value={usuarioAtual} 
+                onChange={(e) => setUsuarioAtual(e.target.value)}
+                style={{ 
+                  width: '100%',
+                  padding: '12px 16px', 
+                  borderRadius: '8px', 
+                  border: usuarioAtual ? '2px solid #10b981' : '1px solid #d1d5db', 
+                  fontSize: '14px',
+                  background: usuarioAtual ? '#f0fdf4' : 'white',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <option value="">Selecionar Usuário</option>
+                {Array.isArray(usuarios) && usuarios.map(usuario => (
+                  <option key={usuario.id} value={usuario.nome}>
+                    {usuario.nome} - {usuario.setor?.nome || 'Sem setor'}
+                  </option>
+                ))}
+              </select>
             </div>
-            {entidades.find(e => e.id === entidadeSelecionada) && (
-              <div style={{ 
-                background: '#8b5cf6', 
-                color: 'white', 
-                padding: '12px 16px', 
-                borderRadius: '8px', 
-                fontSize: '14px',
-                fontWeight: '600',
-                textAlign: 'center'
-              }}>
-                {entidades.find(e => e.id === entidadeSelecionada)?.tipoWorkflow}
-              </div>
-            )}
           </div>
-          
-          {entidadeSelecionada && (
-            <div style={{ 
-              marginTop: '20px',
-              padding: '16px',
-              background: '#f8fafc',
-              borderRadius: '8px',
-              border: '1px solid #e2e8f0',
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '16px'
-            }}>
-              <div>
-                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>ENTIDADE</span>
-                <div style={{ fontSize: '14px', color: '#1e293b', fontWeight: '600' }}>
-                  {entidades.find(e => e.id === entidadeSelecionada)?.nome || 'Não selecionado'}
-                </div>
-              </div>
-              <div>
-                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>DATA</span>
-                <div style={{ fontSize: '14px', color: '#1e293b', fontWeight: '600' }}>
-                  {new Date().toLocaleDateString('pt-BR')}
-                </div>
-              </div>
-              <div>
-                <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '500' }}>USUÁRIO</span>
-                <div style={{ fontSize: '14px', color: '#1e293b', fontWeight: '600' }}>
-                  {usuarioAtual || 'Não selecionado'}
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {!entidadeSelecionada ? (
@@ -975,8 +725,8 @@ export default function WorkflowPage() {
             </p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '24px' }}>
-            {grupos.map((grupo, index) => {
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '20px' }}>
+            {grupos.map((grupo) => {
               const atividadesGrupo = atividades.filter(a => a.grupo === grupo)
               const concluidas = atividadesGrupo.filter(a => a.status === 'OK').length
               const total = atividadesGrupo.length
@@ -1007,124 +757,174 @@ export default function WorkflowPage() {
                     </div>
                     
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      {/* Status da Etapa */}
                       <div style={{ 
                         padding: '6px 12px', 
                         background: 'rgba(255,255,255,0.2)', 
                         borderRadius: '6px',
                         fontSize: '12px',
-                        fontWeight: '600',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
+                        fontWeight: '600'
                       }}>
-                        <span>📊</span>
-                        <span style={{ color: 'white' }}>
-                          {grupo === 'Captação' ? '24h' : '48h'}
-                        </span>
+                        📊 {grupo === 'Captação' ? '24h' : '48h'}
                       </div>
-                      
-                      <div style={{ fontSize: '20px' }}>
-                        🏷️
-                      </div>
+                      <div style={{ fontSize: '20px' }}>🏷️</div>
                     </div>
                   </div>
 
                   {/* Lista de Atividades */}
-                  <div style={{ padding: '20px' }}>
+                  <div style={{ padding: '16px' }}>
                     {atividadesGrupo.map(atividade => (
                       <div key={atividade.id} style={{ 
-                        marginBottom: '12px', 
-                        padding: '16px', 
-                        border: `1px solid ${atividade.status === 'OK' ? '#10b981' : atividade.status === 'NOK' ? '#ef4444' : '#e2e8f0'}`,
+                        marginBottom: '16px', 
+                        border: `2px solid ${atividade.status === 'OK' ? '#10b981' : 
+                                                atividade.status === 'NOK' ? '#dc2626' : 
+                                                atividade.status === 'PAUSADO' ? '#f59e0b' : 
+                                                atividade.status === 'CANCELADO' ? '#6b7280' : '#e2e8f0'}`,
                         borderRadius: '8px',
-                        background: atividade.status === 'OK' ? '#f0fdf4' : 
-                                   atividade.status === 'NOK' ? '#fef2f2' : 
-                                   '#ffffff',
-                        transition: 'all 0.2s ease'
+                        background: 'white',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        overflow: 'hidden'
                       }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '4px' }}>
-                              {atividade.nome}
-                            </div>
-                            <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>
-                              Setor: {atividade.setor}
-                            </div>
-                            {atividade.dataHora && (
-                              <div style={{ fontSize: '12px', color: '#2563eb' }}>
-                                📅 {atividade.dataHora} {atividade.responsavel && `- ${atividade.responsavel}`}
-                              </div>
-                            )}
-                            {atividade.observacao && (
-                              <div style={{ fontSize: '11px', color: '#f59e0b', marginTop: '4px', fontStyle: 'italic' }}>
-                                💬 {atividade.observacao}
-                              </div>
-                            )}
+                        <div style={{ padding: '16px' }}>
+                          <div style={{ fontWeight: '600', fontSize: '14px', marginBottom: '8px', color: '#1e293b' }}>
+                            {atividade.nome}
                           </div>
                           
-                          <div style={{ display: 'flex', gap: '4px' }}>
+                          <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px' }}>
+                            Setor: {atividade.setor}
+                          </div>
+                          
+                          {atividade.status !== 'PENDENTE' && atividade.dataHora && (
+                            <div style={{ fontSize: '12px', color: '#2563eb', marginBottom: '8px' }}>
+                              📅 {atividade.dataHora}
+                            </div>
+                          )}
+                          
+                          {atividade.status !== 'PENDENTE' && atividade.responsavel && (
+                            <div style={{ 
+                              fontSize: '11px', 
+                              color: atividade.status === 'OK' ? '#10b981' : 
+                                     atividade.status === 'NOK' ? '#dc2626' : 
+                                     atividade.status === 'PAUSADO' ? '#f59e0b' : '#6b7280',
+                              marginBottom: '8px',
+                              fontWeight: '500'
+                            }}>
+                              {atividade.status === 'OK' ? '✓ Concluída por' : 
+                               atividade.status === 'NOK' ? '✗ Marcada NOK por' : 
+                               atividade.status === 'PAUSADO' ? '⏸ Pausada por' : 
+                               atividade.status === 'CANCELADO' ? '🚫 Cancelada por' : 'Executada por'}: {atividade.responsavel}
+                            </div>
+                          )}
+                          
+                          {atividade.observacao && (
+                            <div style={{ 
+                              fontSize: '11px', 
+                              color: '#f59e0b', 
+                              marginBottom: '12px', 
+                              fontStyle: 'italic',
+                              background: '#fffbeb',
+                              padding: '6px 8px',
+                              borderRadius: '4px',
+                              border: '1px solid #fef3c7'
+                            }}>
+                              💬 {atividade.observacao}
+                            </div>
+                          )}
+                          
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                             {atividade.nome.includes('Finalização Etapa') ? (
-                              // Indicador de finalização automática
-                              <div
-                                style={{
-                                  background: atividade.status === 'OK' ? '#10b981' : '#f3f4f6',
-                                  color: atividade.status === 'OK' ? 'white' : '#9ca3af',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  padding: '6px 12px',
-                                  fontSize: '12px',
-                                  fontWeight: '600',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '4px'
-                                }}
-                              >
-                                {atividade.status === 'OK' ? (
-                                  <>
-                                    ✓ Finalizada
-                                    <span style={{ fontSize: '10px', opacity: 0.8 }}>(Auto)</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    ⏳ Aguardando
-                                    <span style={{ fontSize: '10px' }}>(Auto)</span>
-                                  </>
-                                )}
+                              <div style={{
+                                background: atividade.status === 'OK' ? '#10b981' : '#f3f4f6',
+                                color: atividade.status === 'OK' ? 'white' : '#9ca3af',
+                                border: 'none',
+                                borderRadius: '4px',
+                                padding: '6px 12px',
+                                fontSize: '12px',
+                                fontWeight: '600'
+                              }}>
+                                {atividade.status === 'OK' ? '✓ Finalizada (Auto)' : '⏳ Aguardando (Auto)'}
                               </div>
                             ) : (
-                              // Botões normais
                               <>
-                                <button
-                                  onClick={() => abrirModal(atividade.id, 'OK')}
-                                  style={{
-                                    background: atividade.status === 'OK' ? '#10b981' : '#e5e7eb',
-                                    color: atividade.status === 'OK' ? 'white' : '#666',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    padding: '6px 12px',
-                                    fontSize: '12px',
-                                    cursor: 'pointer',
-                                    fontWeight: '600'
-                                  }}
-                                >
-                                  ✓ OK
-                                </button>
-                                <button
-                                  onClick={() => abrirModal(atividade.id, 'NOK')}
-                                  style={{
-                                    background: atividade.status === 'NOK' ? '#ef4444' : '#e5e7eb',
-                                    color: atividade.status === 'NOK' ? 'white' : '#666',
-                                    border: 'none',
-                                    borderRadius: '4px',
-                                    padding: '6px 12px',
-                                    fontSize: '12px',
-                                    cursor: 'pointer',
-                                    fontWeight: '600'
-                                  }}
-                                >
-                                  ✗ NOK
-                                </button>
+                                {(atividade.status === 'PAUSADO' || atividade.status === 'CANCELADO') ? (
+                                  <button
+                                    onClick={() => abrirModal(atividade.id, 'PENDENTE')}
+                                    style={{
+                                      background: '#3b82f6',
+                                      color: 'white',
+                                      border: 'none',
+                                      borderRadius: '4px',
+                                      padding: '6px 12px',
+                                      fontSize: '12px',
+                                      cursor: 'pointer',
+                                      fontWeight: '600'
+                                    }}
+                                  >
+                                    🔄 Reabrir
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={() => abrirModal(atividade.id, 'OK')}
+                                      style={{
+                                        background: atividade.status === 'OK' ? '#10b981' : '#e5e7eb',
+                                        color: atividade.status === 'OK' ? 'white' : '#666',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        padding: '6px 12px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer',
+                                        fontWeight: '600'
+                                      }}
+                                    >
+                                      ✓ OK
+                                    </button>
+                                    <button
+                                      onClick={() => abrirModal(atividade.id, 'NOK')}
+                                      style={{
+                                        background: atividade.status === 'NOK' ? '#dc2626' : '#e5e7eb',
+                                        color: atividade.status === 'NOK' ? 'white' : '#666',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        padding: '6px 12px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer',
+                                        fontWeight: '600'
+                                      }}
+                                    >
+                                      ✗ NOK
+                                    </button>
+                                    <button
+                                      onClick={() => abrirModal(atividade.id, 'PAUSADO')}
+                                      style={{
+                                        background: atividade.status === 'PAUSADO' ? '#f59e0b' : '#e5e7eb',
+                                        color: atividade.status === 'PAUSADO' ? 'white' : '#666',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        padding: '6px 12px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer',
+                                        fontWeight: '600'
+                                      }}
+                                    >
+                                      ⏸ Pausar
+                                    </button>
+                                    <button
+                                      onClick={() => abrirModal(atividade.id, 'CANCELADO')}
+                                      style={{
+                                        background: atividade.status === 'CANCELADO' ? '#6b7280' : '#e5e7eb',
+                                        color: atividade.status === 'CANCELADO' ? 'white' : '#666',
+                                        border: 'none',
+                                        borderRadius: '4px',
+                                        padding: '6px 12px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer',
+                                        fontWeight: '600'
+                                      }}
+                                    >
+                                      🚫 Cancelar
+                                    </button>
+                                  </>
+                                )}
                               </>
                             )}
                           </div>
@@ -1138,29 +938,6 @@ export default function WorkflowPage() {
           </div>
         )}
       </div>
-      
-      <style jsx>{`
-        @keyframes successSlideIn {
-          from { opacity: 0; transform: scale(0.9) translateY(-20px); }
-          to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        
-        @keyframes successPulse {
-          0% { transform: scale(0.8); }
-          50% { transform: scale(1.1); }
-          100% { transform: scale(1); }
-        }
-        
-        @keyframes progressBar {
-          from { width: 100%; }
-          to { width: 0%; }
-        }
-        
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.9) translateY(-20px); }
-          to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-      `}</style>
     </div>
   )
 }
